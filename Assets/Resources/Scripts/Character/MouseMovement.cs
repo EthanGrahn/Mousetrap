@@ -7,15 +7,15 @@ public class MouseMovement : MonoBehaviour {
     // Variables for movement
     [SerializeField]
     [Tooltip("Multiplier for how fast character may travel.")]
-    private int speedUp = 5;
+    private float speedUp = 5;
     [SerializeField]
     [Tooltip("Multiplier for how fast character may slow to a stop.")]
-    private int slowDown = 5;
+    private float slowDown = 5;
     [SerializeField]
-    [Tooltip("The curve of character speed from start to top speed.")]
+    [Tooltip("The curve of character speed from start to top speed. (End at 1,1)")]
     private AnimationCurve speedUpFactor;
     [SerializeField]
-    [Tooltip("The curve of character speed from top speed to stopped.")]
+    [Tooltip("The curve of character speed from top speed to stopped. (End at 1,0)")]
     private AnimationCurve slowDownFactor;
     [SerializeField]
     [Tooltip("How many seconds it takes to reach top speed.")]
@@ -38,6 +38,9 @@ public class MouseMovement : MonoBehaviour {
     [Tooltip("How fast the character jumps in the air.")]
     private float jumpSpeed = 50.0f;
     private float distToGround;
+    [SerializeField]
+    [Tooltip("Multiplier for how fast object will fall")]
+    private float fallSpeed = 1;
 
     // Current rotation
     enum Rotation {unturned = 0, turned = 90};
@@ -99,6 +102,13 @@ public class MouseMovement : MonoBehaviour {
         // Jumping
         if ( Input.GetAxisRaw("Vertical") > 0 && IsGrounded() ) {
             GetComponent<Rigidbody>().velocity = new Vector3(GetComponent<Rigidbody>().velocity.x, jumpSpeed, GetComponent<Rigidbody>().velocity.z);
+        }
+
+        // Falling
+        if ( !IsGrounded() ) {
+            Vector3 vel = GetComponent<Rigidbody>().velocity;
+            vel.y -= fallSpeed * Time.deltaTime;
+            GetComponent<Rigidbody>().velocity = vel;
         }
 
         // Lock the x-rotation of the character
