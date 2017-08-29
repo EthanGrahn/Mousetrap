@@ -98,7 +98,7 @@ public class MouseMovement : MonoBehaviour {
 
         // Jumping
         if ( Input.GetAxisRaw("Vertical") > 0 && IsGrounded() ) {
-            GetComponent<Rigidbody>().AddForce(new Vector3(0, jumpSpeed, 0), ForceMode.Impulse);
+            GetComponent<Rigidbody>().velocity = new Vector3(GetComponent<Rigidbody>().velocity.x, jumpSpeed, GetComponent<Rigidbody>().velocity.z);
         }
 
         // Lock the x-rotation of the character
