@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Gravity))]
 public class MouseMovement : MonoBehaviour {
 
     // Variables for movement
@@ -37,22 +38,19 @@ public class MouseMovement : MonoBehaviour {
     [SerializeField]
     [Tooltip("How fast the character jumps in the air.")]
     private float jumpSpeed = 50.0f;
-    private float distToGround;
-    [SerializeField]
-    [Tooltip("Multiplier for how fast object will fall")]
-    private float fallSpeed = 1;
 
     // Current rotation
     enum Rotation {unturned = 0, turned = 90};
     Rotation currentRotation;
 
+    private Gravity grav;
+
 	// Use this for initialization
 	void Start () {
-        // Distance from object to ground
-        distToGround = GetComponent<Collider>().bounds.extents.y;
-
         // Set initial rotation of character
         currentRotation = Rotation.unturned;
+
+        grav = GetComponent<Gravity>();
     }
 	
 	// Update is called once per frame
@@ -100,28 +98,16 @@ public class MouseMovement : MonoBehaviour {
         transform.position += new Vector3(xSpeed, 0, 0);
 
         // Jumping
-        if ( Input.GetAxisRaw("Vertical") > 0 && IsGrounded() ) {
+        if ( Input.GetAxisRaw("Vertical") > 0 && grav.IsGrounded() ) {
             GetComponent<Rigidbody>().velocity = new Vector3(GetComponent<Rigidbody>().velocity.x, jumpSpeed, GetComponent<Rigidbody>().velocity.z);
         }
 
         // Falling
-        if ( !IsGrounded() ) {
-            Vector3 vel = GetComponent<Rigidbody>().velocity;
-            vel.y -= fallSpeed * Time.deltaTime;
-            GetComponent<Rigidbody>().velocity = vel;
+        if ( !grav.IsGrounded() ) {
+            grav.StartGravity();
         }
 
         // Lock the x-rotation of the character
         transform.eulerAngles = new Vector3(0, (float)currentRotation, 0);
-    }
-
-    /// <summary>
-    /// Check if the player is on the ground
-    /// </summary>
-    /// <returns>
-    /// Boolean representing grounded status
-    /// </returns>
-    bool IsGrounded() {
-        return Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f);
     }
 }
