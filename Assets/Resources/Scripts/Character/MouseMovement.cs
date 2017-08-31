@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Current rotation
+[HideInInspector]
+public enum Rotation {unturned = 0, turned = 90};
+
 [RequireComponent(typeof(Gravity))]
 public class MouseMovement : MonoBehaviour {
 
@@ -39,9 +43,8 @@ public class MouseMovement : MonoBehaviour {
     [Tooltip("How fast the character jumps in the air.")]
     private float jumpSpeed = 50.0f;
 
-    // Current rotation
-    enum Rotation {unturned = 0, turned = 90};
-    Rotation currentRotation;
+    [HideInInspector]
+    public Rotation currentRotation;
 
     private Gravity grav;
 

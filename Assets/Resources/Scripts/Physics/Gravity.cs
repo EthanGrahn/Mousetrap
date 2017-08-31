@@ -15,9 +15,6 @@ public class Gravity : MonoBehaviour {
     private float volume;
 
     // Falling object variables
-    [SerializeField]
-    [Tooltip("Multiplier for how fast object will fall")]
-    private float fallSpeed = 1;
     private float distToGround;
 
     float termVel;
