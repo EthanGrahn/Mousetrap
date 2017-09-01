@@ -8,9 +8,7 @@ public class CamFollowObject : MonoBehaviour {
     [SerializeField]
     [Tooltip( "Object that the camera will follow." )]
     private GameObject objToFollow;
-    private Vector3 targetPos;
     private Vector3 oldObjPos;
-    private Vector3 currObjPos;
 
     // Movement speed of camera
     [SerializeField]
@@ -111,33 +109,26 @@ public class CamFollowObject : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         // Get most recent position of followed object
-        currObjPos = objToFollow.GetComponent<Transform>().localPosition;
-
-        // Get which direction object is moving
-        currDirection = GetDirection();
+        Vector3 currObjPos = objToFollow.GetComponent<Transform>().position;
 
         // Get target position for camera
-        targetPos = objToFollow.GetComponent<Transform>().localPosition;
+        Vector3 targetPos = currObjPos;
+        targetPos = GetTargetPosition( targetPos );
+
+        // Get which direction object is moving
+        currDirection = GetDirection(currObjPos);
 
         // Current position of camera
-        Vector3 origin = GetComponent<Transform>().localPosition;
-        
-        // Check if object is player,
-        // Check current rotation,
-        // Set disance from player
-        if ( (script != null && script.currentRotation == Rotation.unturned) ||
-                currentRotation == Rotation.unturned ) {
-            // Camera position away from player
-            targetPos.z -= distFromObj;
-        } else {    // Not player character
-            targetPos.x -= distFromObj;
-        }
+        Vector3 origin = GetComponent<Transform>().position;
 
         // Move the camera
-        GetComponent<Transform>().position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
+        if ( origin.x <= targetPos.x - minMoveDistHor || origin.x >= targetPos.x + minMoveDistHor ||
+                origin.y <= targetPos.y - minMoveDistVer || origin.y >= targetPos.y + minMoveDistVer ) {
+            GetComponent<Transform>().position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
+        }
 
         // Set final camera position
-        GetComponent<Transform>().position = ClampCameraPosition();
+        GetComponent<Transform>().position = ClampCameraPosition( targetPos );
     }
 
     /// <summary>
@@ -146,18 +137,18 @@ public class CamFollowObject : MonoBehaviour {
     /// <returns>
     /// Vector 3 position for camera
     /// </returns>
-    Vector3 ClampCameraPosition() {
+    Vector3 ClampCameraPosition( Vector3 target ) {
         Vector3 cameraPos = GetComponent<Transform>().position;
 
         // Check rotation of object
         // Clamp to character
         if ( (script != null && script.currentRotation == Rotation.unturned) ||
                 currentRotation == Rotation.unturned ) {
-            cameraPos.x = Mathf.Clamp( cameraPos.x, targetPos.x - maxObjDistHor, targetPos.x + maxObjDistHor );
+            cameraPos.x = Mathf.Clamp( cameraPos.x, target.x - maxObjDistHor, target.x + maxObjDistHor );
         } else {
-            cameraPos.z = Mathf.Clamp( cameraPos.z, targetPos.z - maxObjDistHor, targetPos.z + maxObjDistHor );
+            cameraPos.z = Mathf.Clamp( cameraPos.z, target.z - maxObjDistHor, target.z + maxObjDistHor );
         }
-        cameraPos.y = Mathf.Clamp( cameraPos.y, targetPos.y - maxObjDistVer, targetPos.y + maxObjDistVer );
+        cameraPos.y = Mathf.Clamp( cameraPos.y, target.y - maxObjDistVer, target.y + maxObjDistVer );
 
         // Clamp to world
         cameraPos.x = Mathf.Clamp( cameraPos.x, minWorldDistX, maxWorldDistX );
@@ -173,7 +164,7 @@ public class CamFollowObject : MonoBehaviour {
     /// <returns>
     /// Enum containing direction
     /// </returns>
-    Direction GetDirection() {
+    Direction GetDirection( Vector3 objPos ) {
         // Don't change directions unless moving
         Direction newDir = currDirection;
 
@@ -181,23 +172,52 @@ public class CamFollowObject : MonoBehaviour {
         if ( (script != null && script.currentRotation == Rotation.unturned) ||
                 currentRotation == Rotation.unturned ) {
             // Check where object is moving
-            if ( currObjPos.x < oldObjPos.x ) {
+            if ( objPos.x < oldObjPos.x && newDir == Direction.right ) {
                 newDir = Direction.left;
-            } else if ( currObjPos.x > oldObjPos.x ) {
+            } else if ( objPos.x > oldObjPos.x && newDir == Direction.left ) {
                 newDir = Direction.right;
             }
         } else {
             // Check where object is moving
-            if ( currObjPos.z < oldObjPos.z ) {
+            if ( objPos.z < oldObjPos.z && newDir == Direction.left ) {
                 newDir = Direction.right;
-            } else if ( currObjPos.z > oldObjPos.z ) {
+            } else if ( objPos.z > oldObjPos.z && newDir == Direction.right ) {
                 newDir = Direction.left;
             }
         }
 
         // Update old position
-        oldObjPos = currObjPos;
+        oldObjPos = objPos;
 
         return newDir;
+    }
+
+    Vector3 GetTargetPosition( Vector3 target ) {
+        // Check current rotation,
+        // Set disance from player
+        if ( (script != null && script.currentRotation == Rotation.unturned) ||
+                currentRotation == Rotation.unturned ) {
+            // Camera position away from player
+            target.z -= distFromObj;
+
+            // Camera position in from of character
+            if ( currDirection == Direction.right ) {
+                target.x += camViewInFront;
+            } else {
+                target.x -= camViewInFront;
+            }
+        } else {    // Turned
+            target.x -= distFromObj;
+
+            // Camera position in from of character
+            if ( currDirection == Direction.right ) {
+                target.z -= camViewInFront;
+            } else {
+                target.z += camViewInFront;
+            }
+        }
+        target.y += camViewAbove;
+
+        return target;
     }
 }
