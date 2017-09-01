@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// ---------------SHOULD PROBABLY MOVE THIS TO SEPARATE SCRIPT----------------//
 // Current rotation
 [HideInInspector]
 public enum Rotation {unturned = 0, turned = 90};

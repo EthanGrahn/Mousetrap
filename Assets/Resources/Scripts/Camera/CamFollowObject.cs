@@ -52,51 +52,71 @@ public class CamFollowObject : MonoBehaviour {
     [Tooltip("Used to follow object in x or z position. Not used when object is player.")]
     private Rotation currentRotation;
 
-    // Use this for initialization
+    // Set starting position of camera
     void Start () {
-        GetComponent<Transform>().position = objToFollow.GetComponent<Transform>().position;
-
+        // Used to check if object is player character
         script = objToFollow.GetComponent<MouseMovement>();
+        
+        Vector3 startPos = objToFollow.GetComponent<Transform>().position;
+
+        // Check if player character
+        if ( script != null ) {
+            if ( script.currentRotation == Rotation.unturned ) {
+                startPos.z -= 10;
+            } else {
+                startPos.x -= 10;
+            }
+        } else {    // Not player character
+            if ( currentRotation == Rotation.unturned ) {
+                startPos.z -= 10;
+            } else {
+                startPos.x -= 10;
+            }
+        }
+
+        GetComponent<Transform>().position = startPos;
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
         // Get most recent position of object
-		objPos = objToFollow.GetComponent<Transform>().position;
+		objPos = objToFollow.GetComponent<Transform>().localPosition;
 
-        // Move towards object
+        // Current position of camera
+        Vector3 origin = GetComponent<Transform>().localPosition;
+        
         // Check if object is player
         if (script != null) {
-            currentRotation = script.currentRotation;
-            // Check for current rotation of player
-            if (script.currentRotation == Rotation.unturned) {
-                GetComponent<Transform>().position = Vector3.MoveTowards(GetComponent<Transform>().position,
-                    new Vector3(objToFollow.GetComponent<Transform>().position.x,
-                        objToFollow.GetComponent<Transform>().position.y,
-                        distFromObj),
-                    speed * Time.deltaTime);
+            // Check for current rotation of player and keep distance from player
+            if ( script.currentRotation == Rotation.unturned ) {
+                objPos.z -= distFromObj;
             } else {
-                GetComponent<Transform>().position = Vector3.MoveTowards(GetComponent<Transform>().position,
-                    new Vector3(distFromObj,
-                        objToFollow.GetComponent<Transform>().position.y,
-                        objToFollow.GetComponent<Transform>().position.z),
-                    speed * Time.deltaTime);
+                objPos.x -= distFromObj;
             }
-        } else {    // Object is not player
-            // Check rotation of object
-            if (currentRotation == Rotation.unturned) {
-                GetComponent<Transform>().position = Vector3.MoveTowards(GetComponent<Transform>().position, 
-                    new Vector3(objToFollow.GetComponent<Transform>().position.x,
-                        objToFollow.GetComponent<Transform>().position.y,
-                        distFromObj),
-                    speed * Time.deltaTime);
+        } else {    // Not player character
+            // Check for current rotation of object and keep distance from object
+            if ( currentRotation == Rotation.unturned ) {
+                objPos.z -= distFromObj;
             } else {
-                GetComponent<Transform>().position = Vector3.MoveTowards(GetComponent<Transform>().position,
-                    new Vector3(distFromObj,
-                        objToFollow.GetComponent<Transform>().position.y,
-                        objToFollow.GetComponent<Transform>().position.z),
-                    speed * Time.deltaTime);
+                objPos.x -= distFromObj;
             }
         }
+
+        // Move the camera
+        GetComponent<Transform>().position = Vector3.Lerp( origin, objPos, speed * Time.deltaTime );
+
+        // Clamp camera position
+        Vector3 cameraPos = GetComponent<Transform>().position;
+
+        // Close to object
+        cameraPos.x = Mathf.Clamp( cameraPos.x, objPos.x - maxObjDistX, objPos.x + maxObjDistX );
+        cameraPos.y = Mathf.Clamp( cameraPos.y, objPos.y - maxObjDistX, objPos.y + maxObjDistX );
+
+        // Maximum world distances
+        cameraPos.x = Mathf.Clamp( cameraPos.x, minWorldDistX, maxWorldDistX );
+        cameraPos.y = Mathf.Clamp( cameraPos.y, minWorldDistY, maxWorldDistY );
+
+        GetComponent<Transform>().position = cameraPos;
     }
 }
