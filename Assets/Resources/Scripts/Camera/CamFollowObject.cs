@@ -12,7 +12,7 @@ public class CamFollowObject : MonoBehaviour {
 
     // Clamping camera movement
     [SerializeField]
-    [Tooltip("Max distance camera can be from player in x direction. (Used for z when player is turned)")]
+    [Tooltip("Max distance camera can be from player in x direction. (Used for z direction when player is turned)")]
     private float maxObjDistX;
     [SerializeField]
     [Tooltip("Max distance camera can be from player in y direction.")]
@@ -86,7 +86,8 @@ public class CamFollowObject : MonoBehaviour {
         // Current position of camera
         Vector3 origin = GetComponent<Transform>().localPosition;
         
-        // Check if object is player
+        // Check if object is player,
+        // Set disance from player
         if (script != null) {
             // Check for current rotation of player and keep distance from player
             if ( script.currentRotation == Rotation.unturned ) {
@@ -109,13 +110,26 @@ public class CamFollowObject : MonoBehaviour {
         // Clamp camera position
         Vector3 cameraPos = GetComponent<Transform>().position;
 
-        // Close to object
-        cameraPos.x = Mathf.Clamp( cameraPos.x, objPos.x - maxObjDistX, objPos.x + maxObjDistX );
-        cameraPos.y = Mathf.Clamp( cameraPos.y, objPos.y - maxObjDistX, objPos.y + maxObjDistX );
+        // Check rotation of object
+        if ( (script != null && script.currentRotation == Rotation.unturned) ||
+                currentRotation == Rotation.unturned ) {
+            // Close to object
+            cameraPos.x = Mathf.Clamp( cameraPos.x, objPos.x - maxObjDistX, objPos.x + maxObjDistX );
+            cameraPos.y = Mathf.Clamp( cameraPos.y, objPos.y - maxObjDistX, objPos.y + maxObjDistX );
 
-        // Maximum world distances
-        cameraPos.x = Mathf.Clamp( cameraPos.x, minWorldDistX, maxWorldDistX );
-        cameraPos.y = Mathf.Clamp( cameraPos.y, minWorldDistY, maxWorldDistY );
+            // Maximum world distances
+            cameraPos.x = Mathf.Clamp( cameraPos.x, minWorldDistX, maxWorldDistX );
+            cameraPos.y = Mathf.Clamp( cameraPos.y, minWorldDistY, maxWorldDistY );
+        } else {    // Not player
+            // Close to object
+            cameraPos.z = Mathf.Clamp( cameraPos.z, objPos.z - maxObjDistX, objPos.z + maxObjDistX );
+            cameraPos.y = Mathf.Clamp( cameraPos.y, objPos.y - maxObjDistX, objPos.y + maxObjDistX );
+
+            // Maximum world distances
+            cameraPos.z = Mathf.Clamp( cameraPos.z, minWorldDistZ, maxWorldDistZ );
+            cameraPos.y = Mathf.Clamp( cameraPos.y, minWorldDistY, maxWorldDistY );
+
+        }
 
         GetComponent<Transform>().position = cameraPos;
     }
