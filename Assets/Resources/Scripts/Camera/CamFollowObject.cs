@@ -77,6 +77,8 @@ public class CamFollowObject : MonoBehaviour {
     enum Direction { left, right };
     private Direction currDirection;
 
+    bool updateCam;
+
     // Set starting position of camera
     void Start () {
         // Set initial position reference of object
@@ -104,6 +106,8 @@ public class CamFollowObject : MonoBehaviour {
         }
 
         GetComponent<Transform>().position = startPos;
+
+        updateCam = false;
 	}
 	
 	// Update is called once per frame
@@ -112,8 +116,7 @@ public class CamFollowObject : MonoBehaviour {
         Vector3 currObjPos = objToFollow.GetComponent<Transform>().position;
 
         // Get target position for camera
-        Vector3 targetPos = currObjPos;
-        targetPos = GetTargetPosition( targetPos );
+        Vector3 targetPos = GetTargetPosition( currObjPos );
 
         // Get which direction object is moving
         currDirection = GetDirection(currObjPos);
@@ -122,11 +125,17 @@ public class CamFollowObject : MonoBehaviour {
         Vector3 origin = GetComponent<Transform>().position;
 
         // Move the camera
-        if ( origin.x <= targetPos.x - minMoveDistHor || origin.x >= targetPos.x + minMoveDistHor ||
-                origin.y <= targetPos.y - minMoveDistVer || origin.y >= targetPos.y + minMoveDistVer ) {
-            GetComponent<Transform>().position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
+        if ( (Mathf.Abs( origin.x - targetPos.x ) >= minMoveDistHor ||
+            Mathf.Abs( origin.y - targetPos.y ) >= minMoveDistVer) && !updateCam ) {
+            updateCam = true;
         }
 
+        if (updateCam) {
+            GetComponent<Transform>().position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
+            if ( Vector3.Distance( origin, targetPos ) < .2f ) {
+                updateCam = false;
+            }
+        }
         // Set final camera position
         GetComponent<Transform>().position = ClampCameraPosition( targetPos );
     }
@@ -134,6 +143,9 @@ public class CamFollowObject : MonoBehaviour {
     /// <summary>
     /// Keeps the camera within a specified distance close to object, but not outside of determined world size.
     /// </summary>
+    /// <param name="target">
+    /// Position of object to clamp camera to
+    /// </param>
     /// <returns>
     /// Vector 3 position for camera
     /// </returns>
@@ -192,7 +204,18 @@ public class CamFollowObject : MonoBehaviour {
         return newDir;
     }
 
-    Vector3 GetTargetPosition( Vector3 target ) {
+    /// <summary>
+    /// Returns a new Vector3 position based upon passed in basePos
+    /// </summary>
+    /// <param name="basePos">
+    /// Starting position for new Vector3 position
+    /// </param>
+    /// <returns>
+    /// Vector3 position
+    /// </returns>
+    Vector3 GetTargetPosition( Vector3 basePos ) {
+        Vector3 target = basePos;
+
         // Check current rotation,
         // Set disance from player
         if ( (script != null && script.currentRotation == Rotation.unturned) ||
