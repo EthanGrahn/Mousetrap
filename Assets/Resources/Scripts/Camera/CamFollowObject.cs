@@ -88,23 +88,9 @@ public class CamFollowObject : MonoBehaviour {
         currDirection = Direction.right;
         // Used to check if object is player character
         script = objToFollow.GetComponent<MouseMovement>();
-        
-        Vector3 startPos = objToFollow.GetComponent<Transform>().position;
 
-        // 
-        if ( (script != null && script.currentRotation == Rotation.unturned) ||
-                currentRotation == Rotation.unturned ) {
-            // Camera position away from player
-            startPos.z -= distFromObj;
-            // Camera position in front of player
-            startPos.x += camViewInFront;
-        } else {    // Not player character
-            // Camera position away from player
-            startPos.x -= distFromObj;
-            // Camera position in front of player
-            startPos.z -= camViewInFront;
-        }
-
+        // Set starting position of camera
+        Vector3 startPos = GetTargetPosition( oldObjPos );
         GetComponent<Transform>().position = startPos;
 
         updateCam = false;
@@ -132,6 +118,7 @@ public class CamFollowObject : MonoBehaviour {
 
         if (updateCam) {
             GetComponent<Transform>().position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
+            // Stop updating camera position when close to target point
             if ( Vector3.Distance( origin, targetPos ) < .2f ) {
                 updateCam = false;
             }
@@ -243,4 +230,8 @@ public class CamFollowObject : MonoBehaviour {
 
         return target;
     }
+
+    // Add public funcitons for changing distance from, in front of, and above object, changing object
+    // Changing rotation, ...
+    // To be called in another script using trigger
 }
