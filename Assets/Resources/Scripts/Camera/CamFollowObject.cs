@@ -77,7 +77,10 @@ public class CamFollowObject : MonoBehaviour {
     enum Direction { left, right };
     private Direction currDirection;
 
+    // Other camera variables
     bool updateCam;
+    Vector3 origin;
+    Vector3 targetPos;
 
     // Set starting position of camera
     void Start () {
@@ -102,13 +105,13 @@ public class CamFollowObject : MonoBehaviour {
         Vector3 currObjPos = objToFollow.GetComponent<Transform>().position;
 
         // Get target position for camera
-        Vector3 targetPos = GetTargetPosition( currObjPos );
+        targetPos = GetTargetPosition( currObjPos );
 
         // Get which direction object is moving
         currDirection = GetDirection(currObjPos);
 
         // Current position of camera
-        Vector3 origin = GetComponent<Transform>().position;
+        origin = GetComponent<Transform>().position;
 
         // Move the camera
         if ( (Mathf.Abs( origin.x - targetPos.x ) >= minMoveDistHor ||
@@ -116,15 +119,18 @@ public class CamFollowObject : MonoBehaviour {
             updateCam = true;
         }
 
-        if (updateCam) {
-            GetComponent<Transform>().position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
+        // Set final camera position
+        GetComponent<Transform>().position = ClampCameraPosition( targetPos );
+    }
+
+    void FixedUpdate() {
+        if ( updateCam ) {
+            GetComponent<Transform>( ).position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
             // Stop updating camera position when close to target point
             if ( Vector3.Distance( origin, targetPos ) < .1f ) {
                 updateCam = false;
             }
         }
-        // Set final camera position
-        GetComponent<Transform>().position = ClampCameraPosition( targetPos );
     }
 
     /// <summary>
@@ -172,8 +178,10 @@ public class CamFollowObject : MonoBehaviour {
                 currentRotation == Rotation.unturned ) {
             // Check where object is moving
             if ( objPos.x < oldObjPos.x && newDir == Direction.right ) {
+                Debug.Log( "Changing from right to left" );
                 newDir = Direction.left;
             } else if ( objPos.x > oldObjPos.x && newDir == Direction.left ) {
+                Debug.Log( "Changing from left to right" );
                 newDir = Direction.right;
             }
         } else {

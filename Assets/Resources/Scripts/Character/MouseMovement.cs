@@ -31,6 +31,8 @@ public class MouseMovement : MonoBehaviour {
     private float timeToSlowDown = 0.5f;
     private float timerSpeedUp = 0.0f;
     private float timerSlowDown = 0.0f;
+
+    private bool turnAround;
     
     // Direction character is moving in and for slowdown
     private int direction;
@@ -55,6 +57,8 @@ public class MouseMovement : MonoBehaviour {
         currentRotation = Rotation.unturned;
 
         grav = GetComponent<Gravity>();
+
+        turnAround = false;
     }
 	
 	// Update is called once per frame
@@ -68,22 +72,26 @@ public class MouseMovement : MonoBehaviour {
             direction = 0;
         }
 
+        
+    }
+
+    void FixedUpdate() {
         // Character is moving
         if ( direction != 0 ) {
             timerSlowDown = 0;
 
-            if ( direction != lastDirection && timerSpeedUp > (timeToSpeedUp*(.5f)) ) {
+            if ( direction != lastDirection && timerSpeedUp > (timeToSpeedUp * (.5f)) ) {
                 // Slowing down when turning around
-                timerSpeedUp = (timeToSpeedUp * (.25f));
+                turnAround = true;
             }
 
             timerSpeedUp += Time.deltaTime;
 
             // Make sure timer doesn't go above or below max and min time
-            if ( timerSpeedUp > timeToSpeedUp)
+            if ( timerSpeedUp > timeToSpeedUp )
                 timerSpeedUp = timeToSpeedUp;
 
-            xSpeed = direction * speedUpFactor.Evaluate(timerSpeedUp/timeToSpeedUp) * speedUp * Time.deltaTime;
+            xSpeed = direction * speedUpFactor.Evaluate( timerSpeedUp / timeToSpeedUp ) * speedUp;
 
             lastDirection = direction;  // Used for slowing down
         } else {
@@ -96,22 +104,22 @@ public class MouseMovement : MonoBehaviour {
                 timerSpeedUp = 0;
             }
 
-            xSpeed = lastDirection * slowDownFactor.Evaluate(timerSlowDown / timeToSlowDown) * slowDown * Time.deltaTime;
+            xSpeed = lastDirection * slowDownFactor.Evaluate( timerSlowDown / timeToSlowDown ) * slowDown;
         }
 
-        transform.position += new Vector3(xSpeed, 0, 0);
+        GetComponent<Rigidbody>( ).velocity = new Vector3( xSpeed, GetComponent<Rigidbody>( ).velocity.y, 0 );
 
         // Jumping
-        if ( Input.GetAxisRaw("Vertical") > 0 && grav.IsGrounded() ) {
-            GetComponent<Rigidbody>().velocity = new Vector3(GetComponent<Rigidbody>().velocity.x, jumpSpeed, GetComponent<Rigidbody>().velocity.z);
+        if ( Input.GetAxisRaw( "Vertical" ) > 0 && grav.IsGrounded( ) ) {
+            GetComponent<Rigidbody>( ).velocity = new Vector3( GetComponent<Rigidbody>( ).velocity.x, jumpSpeed, GetComponent<Rigidbody>( ).velocity.z );
         }
 
         // Falling
-        if ( !grav.IsGrounded() ) {
-            grav.StartGravity();
+        if ( !grav.IsGrounded( ) ) {
+            grav.StartGravity( );
         }
 
         // Lock the x-rotation of the character
-        transform.eulerAngles = new Vector3(0, (float)currentRotation, 0);
+        transform.eulerAngles = new Vector3( 0, (float)currentRotation, 0 );
     }
 }
