@@ -119,7 +119,7 @@ public class CamFollowObject : MonoBehaviour {
         if (updateCam) {
             GetComponent<Transform>().position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
             // Stop updating camera position when close to target point
-            if ( Vector3.Distance( origin, targetPos ) < .2f ) {
+            if ( Vector3.Distance( origin, targetPos ) < .1f ) {
                 updateCam = false;
             }
         }
