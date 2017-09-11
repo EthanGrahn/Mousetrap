@@ -66,7 +66,7 @@ public class CamFollowObject : MonoBehaviour {
 
     // Check if the object is player character
     // Use current rotation of character
-    private MouseMovement script;
+    private CharacterMovement script;
 
     // Else use set rotation of object
     [SerializeField]
@@ -90,7 +90,7 @@ public class CamFollowObject : MonoBehaviour {
         // Assume object is initially moving to the right
         currDirection = Direction.right;
         // Used to check if object is player character
-        script = objToFollow.GetComponent<MouseMovement>();
+        script = objToFollow.GetComponent<CharacterMovement>();
 
         // Set starting position of camera
         Vector3 startPos = GetTargetPosition( oldObjPos );
@@ -119,18 +119,16 @@ public class CamFollowObject : MonoBehaviour {
             updateCam = true;
         }
 
-        // Set final camera position
-        GetComponent<Transform>().position = ClampCameraPosition( targetPos );
-    }
-
-    void FixedUpdate() {
         if ( updateCam ) {
-            GetComponent<Transform>( ).position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
+            transform.position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
             // Stop updating camera position when close to target point
             if ( Vector3.Distance( origin, targetPos ) < .1f ) {
                 updateCam = false;
             }
         }
+
+        // Set final camera position
+        GetComponent<Transform>().position = ClampCameraPosition( targetPos );
     }
 
     /// <summary>
@@ -147,8 +145,8 @@ public class CamFollowObject : MonoBehaviour {
 
         // Check rotation of object
         // Clamp to character
-        if ( (script != null && script.currentRotation == Rotation.unturned) ||
-                currentRotation == Rotation.unturned ) {
+        if ( (script != null && script.currentRotation == Rotation.zero) ||
+                currentRotation == Rotation.zero ) {
             cameraPos.x = Mathf.Clamp( cameraPos.x, target.x - maxObjDistHor, target.x + maxObjDistHor );
         } else {
             cameraPos.z = Mathf.Clamp( cameraPos.z, target.z - maxObjDistHor, target.z + maxObjDistHor );
@@ -174,21 +172,19 @@ public class CamFollowObject : MonoBehaviour {
         Direction newDir = currDirection;
 
         // Check for current rotation of object
-        if ( (script != null && script.currentRotation == Rotation.unturned) ||
-                currentRotation == Rotation.unturned ) {
+        if ( (script != null && script.currentRotation == Rotation.zero) ||
+                currentRotation == Rotation.zero ) {
             // Check where object is moving
-            if ( objPos.x < oldObjPos.x && newDir == Direction.right ) {
-                Debug.Log( "Changing from right to left" );
+            if ( objPos.x < oldObjPos.x - 0.01f) {
                 newDir = Direction.left;
-            } else if ( objPos.x > oldObjPos.x && newDir == Direction.left ) {
-                Debug.Log( "Changing from left to right" );
+            } else if ( objPos.x > oldObjPos.x + 0.01f) {
                 newDir = Direction.right;
             }
         } else {
             // Check where object is moving
-            if ( objPos.z < oldObjPos.z && newDir == Direction.left ) {
+            if ( objPos.z < oldObjPos.z) {
                 newDir = Direction.right;
-            } else if ( objPos.z > oldObjPos.z && newDir == Direction.right ) {
+            } else if ( objPos.z > oldObjPos.z) {
                 newDir = Direction.left;
             }
         }
@@ -213,8 +209,8 @@ public class CamFollowObject : MonoBehaviour {
 
         // Check current rotation,
         // Set disance from player
-        if ( (script != null && script.currentRotation == Rotation.unturned) ||
-                currentRotation == Rotation.unturned ) {
+        if ( (script != null && script.currentRotation == Rotation.zero) ||
+                currentRotation == Rotation.zero ) {
             // Camera position away from player
             target.z -= distFromObj;
 
