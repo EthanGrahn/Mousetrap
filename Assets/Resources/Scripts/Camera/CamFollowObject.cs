@@ -119,6 +119,12 @@ public class CamFollowObject : MonoBehaviour {
             updateCam = true;
         }
 
+
+        // Set final camera position
+        GetComponent<Transform>().position = ClampCameraPosition( targetPos );
+    }
+
+    private void FixedUpdate() {
         if ( updateCam ) {
             transform.position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
             // Stop updating camera position when close to target point
@@ -126,9 +132,6 @@ public class CamFollowObject : MonoBehaviour {
                 updateCam = false;
             }
         }
-
-        // Set final camera position
-        GetComponent<Transform>().position = ClampCameraPosition( targetPos );
     }
 
     /// <summary>

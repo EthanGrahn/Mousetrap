@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// ---------------SHOULD PROBABLY MOVE THIS TO SEPARATE SCRIPT----------------//
+// ---------------SHOULD PROBABLY MOVE THESE TO SEPARATE SCRIPT----------------//
 // Current rotation
 [HideInInspector]
-public enum Rotation {zero = 0, one = 90, two = 180, three = 270};
+public enum Rotation { zero = 0, one = 90, two = 180, three = 270 };
+public enum Direction { left = -1, right = 1, idle = 0 };
 
 [RequireComponent(typeof(Gravity))]
 public class CharacterMovement : MonoBehaviour {
@@ -27,8 +28,8 @@ public class CharacterMovement : MonoBehaviour {
     private bool turnAround;
     
     // Direction character is moving in and for slowdown
-    private int direction;
-    private int lastDirection;
+    private Direction currDirection;
+    private Direction lastDirection;
 
     // Used for Jumping
     [SerializeField]
@@ -54,11 +55,11 @@ public class CharacterMovement : MonoBehaviour {
 	void Update () {
         // Get integer value for direction character is moving
         if ( Input.GetAxisRaw("Horizontal") > 0 ) {
-            direction = (int)Mathf.Ceil(Input.GetAxisRaw("Horizontal"));
+            currDirection = Direction.right;
         } else if ( Input.GetAxisRaw("Horizontal") < 0 ) {
-            direction = (int)Mathf.Floor(Input.GetAxisRaw("Horizontal"));
+            currDirection = Direction.left;
         } else {
-            direction = 0;
+            currDirection = Direction.idle;
         }
 
         // Lock the x-rotation of the character
@@ -94,14 +95,14 @@ public class CharacterMovement : MonoBehaviour {
     /// <returns>Float value to be used in setting velocity</returns>
     private float GetHorizontalVelocity() {
         // Character is moving
-        if ( direction != 0 ) {
-            if ( direction != lastDirection && timerSpeedUp > (timeToSpeedUp * (.5f)) ) {
+        if ( currDirection != Direction.idle ) {
+            if ( currDirection != lastDirection && timerSpeedUp > (timeToSpeedUp * (.5f)) ) {
                 // Slowing down when turning around
                 turnAround = true;
             } 
             
             if (turnAround) {
-                if (direction > 0) {
+                if (currDirection == Direction.right) {
                     horSpeed += .5f;
                     if (horSpeed > 1) {
                         turnAround = false;
@@ -120,18 +121,18 @@ public class CharacterMovement : MonoBehaviour {
                 if ( timerSpeedUp > timeToSpeedUp )
                     timerSpeedUp = timeToSpeedUp;
 
-                horSpeed = direction * speedUpRatio.Evaluate( timerSpeedUp / timeToSpeedUp ) * speedUpFactor;
+                horSpeed = (int)currDirection * speedUpRatio.Evaluate( timerSpeedUp / timeToSpeedUp ) * speedUpFactor;
             }
 
-            lastDirection = direction;  // Used for slowing down
+            lastDirection = currDirection;  // Used for slowing down
         } else { // slow character down
-            if ( lastDirection > 0 && horSpeed > 0 ) {
+            if ( lastDirection == Direction.right && horSpeed > 0 ) {
                 horSpeed -= 0.45f;
                 if (horSpeed <= 0) {
                     horSpeed = 0;
                     timerSpeedUp = 0;
                 }
-            } else if ( lastDirection < 0 && horSpeed < 0 ) {
+            } else if ( lastDirection == Direction.left && horSpeed < 0 ) {
                 horSpeed += 0.45f;
                 if ( horSpeed >= 0 ) {
                     horSpeed = 0;
