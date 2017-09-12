@@ -10,6 +10,8 @@ public class ButtonHover : MonoBehaviour {
     [SerializeField]
     private float transitionSpeed = 0.5f;
     [SerializeField]
+    private float transitionDelay = 0.2f;
+    [SerializeField]
     private AnimationCurve transitionCurve;
     private RectTransform rTransform;
     private float initOffset;
@@ -63,6 +65,7 @@ public class ButtonHover : MonoBehaviour {
     /// <returns></returns>
     private IEnumerator Shrink()
     {
+        yield return new WaitForSecondsRealtime(transitionDelay);
         float ratio = 0;
         for (float i = scaleTime; i > 0; i -= Time.deltaTime)
         {
