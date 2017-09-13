@@ -9,11 +9,13 @@ public class CamFollowObject : MonoBehaviour {
     [Tooltip( "Object that the camera will follow." )]
     private GameObject objToFollow;
     private Vector3 oldObjPos;
+    [Space(10)]
 
     // Movement speed of camera
     [SerializeField]
     [Tooltip( "How fast camera will move to player when close." )]
     private float speed;
+    [Space( 10 )]
 
     // How far camera looks from object
     [SerializeField]
@@ -22,6 +24,7 @@ public class CamFollowObject : MonoBehaviour {
     [SerializeField]
     [Tooltip( "How far camera will look above object." )]
     private float camViewAbove;
+    [Space( 10 )]
 
 
     // How far object must move before camera follows
@@ -31,6 +34,7 @@ public class CamFollowObject : MonoBehaviour {
     [SerializeField]
     [Tooltip( "Minimum distance object must move in vertical direction before camera follows." )]
     private float minMoveDistVer;
+    [Space( 10 )]
 
     // Clamping camera movement
     // Max distance allowed from object
@@ -69,18 +73,19 @@ public class CamFollowObject : MonoBehaviour {
     private CharacterMovement script;
 
     // Else use set rotation of object
+    [Space( 10 )]
     [SerializeField]
     [Tooltip( "Used to follow object in x or z position. Not used when object is player." )]
-    private Rotation currentRotation;
+    private GlobalVars.Rotation currentRotation;
 
     // Store direction object is moving
     enum Direction { left, right };
     private Direction currDirection;
 
     // Other camera variables
-    bool updateCam;
-    Vector3 origin;
-    Vector3 targetPos;
+    private bool updateCam;
+    private Vector3 origin;
+    private Vector3 targetPos;
 
     // Set starting position of camera
     void Start () {
@@ -148,8 +153,8 @@ public class CamFollowObject : MonoBehaviour {
 
         // Check rotation of object
         // Clamp to character
-        if ( (script != null && script.currentRotation == Rotation.zero) ||
-                currentRotation == Rotation.zero ) {
+        if ( (script != null && script.currentRotation == GlobalVars.Rotation.zero) ||
+                currentRotation == GlobalVars.Rotation.zero ) {
             cameraPos.x = Mathf.Clamp( cameraPos.x, target.x - maxObjDistHor, target.x + maxObjDistHor );
         } else {
             cameraPos.z = Mathf.Clamp( cameraPos.z, target.z - maxObjDistHor, target.z + maxObjDistHor );
@@ -175,8 +180,8 @@ public class CamFollowObject : MonoBehaviour {
         Direction newDir = currDirection;
 
         // Check for current rotation of object
-        if ( (script != null && script.currentRotation == Rotation.zero) ||
-                currentRotation == Rotation.zero ) {
+        if ( (script != null && script.currentRotation == GlobalVars.Rotation.zero) ||
+                currentRotation == GlobalVars.Rotation.zero ) {
             // Check where object is moving
             if ( objPos.x < oldObjPos.x - 0.01f) {
                 newDir = Direction.left;
@@ -212,8 +217,8 @@ public class CamFollowObject : MonoBehaviour {
 
         // Check current rotation,
         // Set disance from player
-        if ( (script != null && script.currentRotation == Rotation.zero) ||
-                currentRotation == Rotation.zero ) {
+        if ( (script != null && script.currentRotation == GlobalVars.Rotation.zero) ||
+                currentRotation == GlobalVars.Rotation.zero ) {
             // Camera position away from player
             target.z -= distFromObj;
 

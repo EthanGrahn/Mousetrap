@@ -2,53 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Gravity))]
-public class CharacterMovement : MonoBehaviour {
-
-    // Variables for movement
-    [SerializeField]
-    [Tooltip("Multiplier for how fast character may travel.")]
-    private float speedUpFactor = 5;
-    [SerializeField]
-    [Tooltip("The curve of character speed from start to top speed. (End at 1,1)")]
-    private AnimationCurve speedUpRatio;
-    [SerializeField]
-    [Tooltip("How many seconds it takes to reach top speed.")]
-    private float timeToSpeedUp = 2.0f;
-    private float timerSpeedUp = 0.0f;
-
-    private float horSpeed = 0.0f;
-
-    private bool turnAround;
+public class PlayerInput : CharacterStates {
     
-    // Direction character is moving in and for slowdown
-    private GlobalVars.Direction currDirection;
-    private GlobalVars.Direction lastDirection;
-
-    // Used for Jumping
-    [SerializeField]
-    [Tooltip("How fast the character jumps in the air.")]
-    private float jumpSpeed = 50.0f;
-
-    [HideInInspector]
-    public GlobalVars.Rotation currentRotation;
-
-    private Gravity grav;
-
-	// Use this for initialization
-	void Start () {
-        // Set initial rotation of character
-        currentRotation = GlobalVars.Rotation.zero;
-
-        grav = GetComponent<Gravity>();
-
-        turnAround = false;
-    }
-	
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update( ) {
         // Get integer value for direction character is moving
-        if ( Rebind.GetInput("Right") ) {
+        if ( Rebind.GetInput( "Right" ) ) {
             currDirection = GlobalVars.Direction.right;
         } else if ( Rebind.GetInput( "Left" ) ) {
             currDirection = GlobalVars.Direction.left;
@@ -60,12 +19,12 @@ public class CharacterMovement : MonoBehaviour {
         transform.eulerAngles = new Vector3( 0, (float)currentRotation, 0 );
     }
 
-    void FixedUpdate() {
+    void FixedUpdate( ) {
         // Horizontal movement
         float horVel = GetHorizontalVelocity( );
-        if( currentRotation == GlobalVars.Rotation.zero )
+        if ( currentRotation == GlobalVars.Rotation.zero )
             GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, GetComponent<Rigidbody>( ).velocity.y, 0 );
-        else if ( currentRotation == GlobalVars.Rotation.one)
+        else if ( currentRotation == GlobalVars.Rotation.one )
             GetComponent<Rigidbody>( ).velocity = new Vector3( 0, GetComponent<Rigidbody>( ).velocity.y, -horVel );
         else if ( currentRotation == GlobalVars.Rotation.two )
             GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, GetComponent<Rigidbody>( ).velocity.y, 0 );
@@ -87,18 +46,18 @@ public class CharacterMovement : MonoBehaviour {
     /// Determines the horizontal velocity for the player
     /// </summary>
     /// <returns>Float value to be used in setting velocity</returns>
-    private float GetHorizontalVelocity() {
+    private float GetHorizontalVelocity( ) {
         // Character is moving
         if ( currDirection != GlobalVars.Direction.idle ) {
             if ( currDirection != lastDirection && timerSpeedUp > (timeToSpeedUp * (.5f)) ) {
                 // Slowing down when turning around
                 turnAround = true;
-            } 
-            
-            if (turnAround) {
-                if (currDirection == GlobalVars.Direction.right) {
+            }
+
+            if ( turnAround ) {
+                if ( currDirection == GlobalVars.Direction.right ) {
                     horSpeed += .5f;
-                    if (horSpeed > 1) {
+                    if ( horSpeed > 1 ) {
                         turnAround = false;
                     }
                 } else {
@@ -107,8 +66,7 @@ public class CharacterMovement : MonoBehaviour {
                         turnAround = false;
                     }
                 }
-            }
-            else {
+            } else {
                 timerSpeedUp += Time.deltaTime;
 
                 // Make sure timer doesn't go above or below max and min time
@@ -122,7 +80,7 @@ public class CharacterMovement : MonoBehaviour {
         } else { // slow character down
             if ( lastDirection == GlobalVars.Direction.right && horSpeed > 0 ) {
                 horSpeed -= 0.45f;
-                if (horSpeed <= 0) {
+                if ( horSpeed <= 0 ) {
                     horSpeed = 0;
                     timerSpeedUp = 0;
                 }
