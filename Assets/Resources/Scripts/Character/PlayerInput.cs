@@ -3,42 +3,47 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInput : CharacterStates {
+    private readonly CharacterMovement player;
+
+    public PlayerInput ( CharacterMovement characterMovement ) {
+        player = characterMovement;
+    }
     
     // Update is called once per frame
-    void Update( ) {
+    public void Update( ) {
         // Get integer value for direction character is moving
         if ( Rebind.GetInput( "Right" ) ) {
-            currDirection = GlobalVars.Direction.right;
+            player.currDirection = PositionStates.Direction.right;
         } else if ( Rebind.GetInput( "Left" ) ) {
-            currDirection = GlobalVars.Direction.left;
+            player.currDirection = PositionStates.Direction.left;
         } else {
-            currDirection = GlobalVars.Direction.idle;
+            player.currDirection = PositionStates.Direction.idle;
         }
 
         // Lock the x-rotation of the character
-        transform.eulerAngles = new Vector3( 0, (float)currentRotation, 0 );
+        player.transform.eulerAngles = new Vector3( 0, (float)player.currentRotation, 0 );
     }
 
-    void FixedUpdate( ) {
+    public void FixedUpdate( ) {
         // Horizontal movement
         float horVel = GetHorizontalVelocity( );
-        if ( currentRotation == GlobalVars.Rotation.zero )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, GetComponent<Rigidbody>( ).velocity.y, 0 );
-        else if ( currentRotation == GlobalVars.Rotation.one )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0, GetComponent<Rigidbody>( ).velocity.y, -horVel );
-        else if ( currentRotation == GlobalVars.Rotation.two )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, GetComponent<Rigidbody>( ).velocity.y, 0 );
-        else if ( currentRotation == GlobalVars.Rotation.three )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0, GetComponent<Rigidbody>( ).velocity.y, horVel );
+        if ( player.currentRotation == PositionStates.Rotation.zero )
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
+        else if ( player.currentRotation == PositionStates.Rotation.one )
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, -horVel );
+        else if ( player.currentRotation == PositionStates.Rotation.two )
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
+        else if ( player.currentRotation == PositionStates.Rotation.three )
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, horVel );
 
         // Jumping
-        if ( Rebind.GetInputDown( "Up" ) && grav.IsGrounded( ) ) {
-            GetComponent<Rigidbody>( ).velocity = new Vector3( GetComponent<Rigidbody>( ).velocity.x, jumpSpeed, GetComponent<Rigidbody>( ).velocity.z );
+        if ( Rebind.GetInputDown( "Up" ) && player.grav.IsGrounded( ) ) {
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( player.GetComponent<Rigidbody>( ).velocity.x, player.jumpSpeed, player.GetComponent<Rigidbody>( ).velocity.z );
         }
 
         // Falling
-        if ( !grav.IsGrounded( ) ) {
-            grav.StartGravity( );
+        if ( !player.grav.IsGrounded( ) ) {
+            player.grav.StartGravity( );
         }
     }
 
@@ -48,51 +53,59 @@ public class PlayerInput : CharacterStates {
     /// <returns>Float value to be used in setting velocity</returns>
     private float GetHorizontalVelocity( ) {
         // Character is moving
-        if ( currDirection != GlobalVars.Direction.idle ) {
-            if ( currDirection != lastDirection && timerSpeedUp > (timeToSpeedUp * (.5f)) ) {
+        if ( player.currDirection != PositionStates.Direction.idle ) {
+            if ( player.currDirection != player.lastDirection && player.timerSpeedUp > (player.timeToSpeedUp * (.5f)) ) {
                 // Slowing down when turning around
-                turnAround = true;
+                player.turnAround = true;
             }
 
-            if ( turnAround ) {
-                if ( currDirection == GlobalVars.Direction.right ) {
-                    horSpeed += .5f;
-                    if ( horSpeed > 1 ) {
-                        turnAround = false;
+            if ( player.turnAround ) {
+                if ( player.currDirection == PositionStates.Direction.right ) {
+                    player.horSpeed += .5f;
+                    if ( player.horSpeed > 1 ) {
+                        player.turnAround = false;
                     }
                 } else {
-                    horSpeed -= .5f;
-                    if ( horSpeed < -1 ) {
-                        turnAround = false;
+                    player.horSpeed -= .5f;
+                    if ( player.horSpeed < -1 ) {
+                        player.turnAround = false;
                     }
                 }
             } else {
-                timerSpeedUp += Time.deltaTime;
+                player.timerSpeedUp += Time.deltaTime;
 
                 // Make sure timer doesn't go above or below max and min time
-                if ( timerSpeedUp > timeToSpeedUp )
-                    timerSpeedUp = timeToSpeedUp;
+                if ( player.timerSpeedUp > player.timeToSpeedUp )
+                    player.timerSpeedUp = player.timeToSpeedUp;
 
-                horSpeed = (int)currDirection * speedUpRatio.Evaluate( timerSpeedUp / timeToSpeedUp ) * speedUpFactor;
+                player.horSpeed = (int)player.currDirection * player.speedUpRatio.Evaluate( player.timerSpeedUp / player.timeToSpeedUp ) * player.speedUpFactor;
             }
 
-            lastDirection = currDirection;  // Used for slowing down
+            player.lastDirection = player.currDirection;  // Used for slowing down
         } else { // slow character down
-            if ( lastDirection == GlobalVars.Direction.right && horSpeed > 0 ) {
-                horSpeed -= 0.45f;
-                if ( horSpeed <= 0 ) {
-                    horSpeed = 0;
-                    timerSpeedUp = 0;
+            if ( player.lastDirection == PositionStates.Direction.right && player.horSpeed > 0 ) {
+                player.horSpeed -= 0.45f;
+                if ( player.horSpeed <= 0 ) {
+                    player.horSpeed = 0;
+                    player.timerSpeedUp = 0;
                 }
-            } else if ( lastDirection == GlobalVars.Direction.left && horSpeed < 0 ) {
-                horSpeed += 0.45f;
-                if ( horSpeed >= 0 ) {
-                    horSpeed = 0;
-                    timerSpeedUp = 0;
+            } else if ( player.lastDirection == PositionStates.Direction.left && player.horSpeed < 0 ) {
+                player.horSpeed += 0.45f;
+                if ( player.horSpeed >= 0 ) {
+                    player.horSpeed = 0;
+                    player.timerSpeedUp = 0;
                 }
             }
         }
 
-        return horSpeed;
+        return player.horSpeed;
+    }
+
+    public void SwitchToRotation() {
+
+    }
+
+    public void SwitchToPlayerMovement( ) {
+        // Do nothing, can't switch to same state
     }
 }

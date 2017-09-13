@@ -6,135 +6,64 @@ using UnityEngine;
 public class CharacterMovement : MonoBehaviour {
 
     // Variables for movement
-    [SerializeField]
     [Tooltip("Multiplier for how fast character may travel.")]
-    private float speedUpFactor = 5;
-    [SerializeField]
+    public float speedUpFactor = 5;
     [Tooltip("The curve of character speed from start to top speed. (End at 1,1)")]
-    private AnimationCurve speedUpRatio;
-    [SerializeField]
+    public AnimationCurve speedUpRatio;
     [Tooltip("How many seconds it takes to reach top speed.")]
-    private float timeToSpeedUp = 2.0f;
-    private float timerSpeedUp = 0.0f;
-
-    private float horSpeed = 0.0f;
-
-    private bool turnAround;
-    
-    // Direction character is moving in and for slowdown
-    private GlobalVars.Direction currDirection;
-    private GlobalVars.Direction lastDirection;
-
-    // Used for Jumping
-    [SerializeField]
-    [Tooltip("How fast the character jumps in the air.")]
-    private float jumpSpeed = 50.0f;
+    public float timeToSpeedUp = 2.0f;
+    [HideInInspector]
+    public float timerSpeedUp = 0.0f;
 
     [HideInInspector]
-    public GlobalVars.Rotation currentRotation;
+    public float horSpeed = 0.0f;
 
-    private Gravity grav;
+    [HideInInspector]
+    public bool turnAround;
+    
+    // Direction character is moving in and for slowdown
+    [HideInInspector]
+    public PositionStates.Direction currDirection;
+    [HideInInspector]
+    public PositionStates.Direction lastDirection;
+
+    // Used for Jumping
+    [Tooltip("How fast the character jumps in the air.")]
+    public float jumpSpeed = 50.0f;
+
+    [HideInInspector]
+    public PositionStates.Rotation currentRotation;
+
+    [HideInInspector]
+    public Gravity grav;
+
+    [HideInInspector]
+    public CharacterStates currentState;
+    [HideInInspector]
+    public PlayerInput playerInput;
+
+    void Awake() {
+        playerInput = new PlayerInput(this);
+    }
 
 	// Use this for initialization
 	void Start () {
         // Set initial rotation of character
-        currentRotation = GlobalVars.Rotation.zero;
+        currentRotation = PositionStates.Rotation.zero;
 
         grav = GetComponent<Gravity>();
 
         turnAround = false;
+
+        currentState = playerInput;
     }
 	
 	// Update is called once per frame
 	void Update () {
-        // Get integer value for direction character is moving
-        if ( Rebind.GetInput("Right") ) {
-            currDirection = GlobalVars.Direction.right;
-        } else if ( Rebind.GetInput( "Left" ) ) {
-            currDirection = GlobalVars.Direction.left;
-        } else {
-            currDirection = GlobalVars.Direction.idle;
-        }
-
-        // Lock the x-rotation of the character
-        transform.eulerAngles = new Vector3( 0, (float)currentRotation, 0 );
+        currentState.Update( );
     }
 
     void FixedUpdate() {
-        // Horizontal movement
-        float horVel = GetHorizontalVelocity( );
-        if( currentRotation == GlobalVars.Rotation.zero )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, GetComponent<Rigidbody>( ).velocity.y, 0 );
-        else if ( currentRotation == GlobalVars.Rotation.one)
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0, GetComponent<Rigidbody>( ).velocity.y, -horVel );
-        else if ( currentRotation == GlobalVars.Rotation.two )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, GetComponent<Rigidbody>( ).velocity.y, 0 );
-        else if ( currentRotation == GlobalVars.Rotation.three )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0, GetComponent<Rigidbody>( ).velocity.y, horVel );
-
-        // Jumping
-        if ( Rebind.GetInputDown( "Up" ) && grav.IsGrounded( ) ) {
-            GetComponent<Rigidbody>( ).velocity = new Vector3( GetComponent<Rigidbody>( ).velocity.x, jumpSpeed, GetComponent<Rigidbody>( ).velocity.z );
-        }
-
-        // Falling
-        if ( !grav.IsGrounded( ) ) {
-            grav.StartGravity( );
-        }
-    }
-
-    /// <summary>
-    /// Determines the horizontal velocity for the player
-    /// </summary>
-    /// <returns>Float value to be used in setting velocity</returns>
-    private float GetHorizontalVelocity() {
-        // Character is moving
-        if ( currDirection != GlobalVars.Direction.idle ) {
-            if ( currDirection != lastDirection && timerSpeedUp > (timeToSpeedUp * (.5f)) ) {
-                // Slowing down when turning around
-                turnAround = true;
-            } 
-            
-            if (turnAround) {
-                if (currDirection == GlobalVars.Direction.right) {
-                    horSpeed += .5f;
-                    if (horSpeed > 1) {
-                        turnAround = false;
-                    }
-                } else {
-                    horSpeed -= .5f;
-                    if ( horSpeed < -1 ) {
-                        turnAround = false;
-                    }
-                }
-            }
-            else {
-                timerSpeedUp += Time.deltaTime;
-
-                // Make sure timer doesn't go above or below max and min time
-                if ( timerSpeedUp > timeToSpeedUp )
-                    timerSpeedUp = timeToSpeedUp;
-
-                horSpeed = (int)currDirection * speedUpRatio.Evaluate( timerSpeedUp / timeToSpeedUp ) * speedUpFactor;
-            }
-
-            lastDirection = currDirection;  // Used for slowing down
-        } else { // slow character down
-            if ( lastDirection == GlobalVars.Direction.right && horSpeed > 0 ) {
-                horSpeed -= 0.45f;
-                if (horSpeed <= 0) {
-                    horSpeed = 0;
-                    timerSpeedUp = 0;
-                }
-            } else if ( lastDirection == GlobalVars.Direction.left && horSpeed < 0 ) {
-                horSpeed += 0.45f;
-                if ( horSpeed >= 0 ) {
-                    horSpeed = 0;
-                    timerSpeedUp = 0;
-                }
-            }
-        }
-
-        return horSpeed;
+        currentState.FixedUpdate( );
     }
 }
