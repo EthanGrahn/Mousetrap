@@ -38,12 +38,18 @@ public class CharacterMovement : MonoBehaviour {
     public Gravity grav;
 
     [HideInInspector]
+    public Vector3 rotationPoint;
+
+    [HideInInspector]
     public CharacterStates currentState;
     [HideInInspector]
     public PlayerInput playerInput;
+    [HideInInspector]
+    public PlayerRotation playerRotation;
 
     void Awake() {
-        playerInput = new PlayerInput(this);
+        playerInput = new PlayerInput( this );
+        playerRotation = new PlayerRotation( this );
     }
 
 	// Use this for initialization
@@ -51,7 +57,7 @@ public class CharacterMovement : MonoBehaviour {
         // Set initial rotation of character
         currentRotation = PositionStates.Rotation.zero;
 
-        grav = GetComponent<Gravity>();
+        grav = GetComponent<Gravity>( );
 
         turnAround = false;
 
@@ -65,5 +71,13 @@ public class CharacterMovement : MonoBehaviour {
 
     void FixedUpdate() {
         currentState.FixedUpdate( );
+    }
+
+    void OnTriggerEnter( Collider other ) {
+        currentState.OnTriggerEnter( other );
+    }
+
+    public void StartStateCoroutine(IEnumerator routine) {
+        StartCoroutine( routine );
     }
 }

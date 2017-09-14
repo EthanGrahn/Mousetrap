@@ -102,10 +102,25 @@ public class PlayerInput : CharacterStates {
     }
 
     public void SwitchToRotation() {
-
+        Vector3 vel = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
+        player.GetComponent<Rigidbody>( ).velocity = vel;
+        player.currentState = player.playerRotation;
     }
 
     public void SwitchToPlayerMovement( ) {
         // Do nothing, can't switch to same state
+    }
+
+    public void OnTriggerEnter( Collider other ) {
+        player.StartStateCoroutine( WaitForGrounded( ));
+        Vector3 point = other.transform.parent.transform.position;
+        player.rotationPoint = new Vector3( point.x, player.transform.position.y, point.z );
+        SwitchToRotation( );
+    }
+
+    public IEnumerator WaitForGrounded() {
+        while (!player.grav.IsGrounded()) {
+            yield return null;
+        }
     }
 }
