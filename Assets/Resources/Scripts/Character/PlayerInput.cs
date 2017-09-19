@@ -30,11 +30,11 @@ public class PlayerInput : CharacterStates {
         if ( player.currentRotation == PositionStates.Rotation.zero )
             player.GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
         else if ( player.currentRotation == PositionStates.Rotation.one )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, -horVel );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, horVel );
         else if ( player.currentRotation == PositionStates.Rotation.two )
             player.GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
         else if ( player.currentRotation == PositionStates.Rotation.three )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, horVel );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, -horVel );
 
         // Jumping
         if ( Rebind.GetInputDown( "Up" ) && player.grav.IsGrounded( ) ) {
@@ -112,15 +112,8 @@ public class PlayerInput : CharacterStates {
     }
 
     public void OnTriggerEnter( Collider other ) {
-        player.StartStateCoroutine( WaitForGrounded( ));
         Vector3 point = other.transform.parent.transform.position;
         player.rotationPoint = new Vector3( point.x, player.transform.position.y, point.z );
         SwitchToRotation( );
-    }
-
-    public IEnumerator WaitForGrounded() {
-        while (!player.grav.IsGrounded()) {
-            yield return null;
-        }
     }
 }

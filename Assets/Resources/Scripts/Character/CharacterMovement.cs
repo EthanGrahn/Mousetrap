@@ -23,9 +23,9 @@ public class CharacterMovement : MonoBehaviour {
     
     // Direction character is moving in and for slowdown
     [HideInInspector]
-    public PositionStates.Direction currDirection;
+    public PositionStates.Direction currDirection = PositionStates.Direction.right;
     [HideInInspector]
-    public PositionStates.Direction lastDirection;
+    public PositionStates.Direction lastDirection = PositionStates.Direction.right;
 
     // Used for Jumping
     [Tooltip("How fast the character jumps in the air.")]
