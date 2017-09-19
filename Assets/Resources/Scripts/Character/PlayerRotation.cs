@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerRotation : CharacterStates {
     private readonly CharacterMovement player;
+    private bool rotating = false;
+    private float rotSpeed = 100;
 
     public PlayerRotation (CharacterMovement characterMovement) {
         player = characterMovement;
@@ -15,6 +17,7 @@ public class PlayerRotation : CharacterStates {
     }
 
     IEnumerator MoveToPoint() {
+        rotating = true;
         // Make sure rotation is kept on ground
         while ( !player.grav.IsGrounded( ) ) {
             yield return null;
@@ -41,8 +44,9 @@ public class PlayerRotation : CharacterStates {
 
         // Rotate the player
         while (!QuaternionsEqual(player.transform.rotation, targetRotation)) {
-            player.transform.rotation = Quaternion.RotateTowards( player.transform.rotation, targetRotation, 4 * Time.deltaTime );
-            yield return null;
+            player.transform.rotation = Quaternion.RotateTowards( player.transform.rotation, targetRotation, rotSpeed * Time.deltaTime );
+            Debug.Log(player.transform.rotation.eulerAngles + "||" + targetRotation.eulerAngles);
+            yield return new WaitForEndOfFrame();
         }
         player.transform.rotation = targetRotation;
 
@@ -50,17 +54,20 @@ public class PlayerRotation : CharacterStates {
         // Move player to outside of trigger area
         Vector3 targetPosition = player.transform.position;
         targetPosition.z += 6;
+        Debug.Log("Starting Horizontal Movement");
         while ( Vector3.Distance( player.transform.position, targetPosition ) > 0.1f ) {
-        Debug.Log( "Got here" );
             HorizontalMovement( );
             yield return null;
         }
+        Debug.Log("Horizontal Movement Complete");
 
         SwitchToPlayerMovement( );
+        rotating = false;
     }
 
     public void FixedUpdate( ) {
-        player.StartStateCoroutine( MoveToPoint() );
+        if (!rotating)
+            player.StartStateCoroutine( MoveToPoint() );
     }
 
     public void OnTriggerEnter( Collider other ) {
