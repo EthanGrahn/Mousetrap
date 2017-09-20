@@ -20,6 +20,14 @@ public class CharacterMovement : MonoBehaviour {
 
     [HideInInspector]
     public bool turnAround;
+
+    // Variables for turning points
+    [HideInInspector]
+    public Vector3 rotationPoint;
+    [HideInInspector]
+    public float rotationAdd;
+    [HideInInspector]
+    public PositionStates.Rotation endingRotation;
     
     // Direction character is moving in and for slowdown
     [HideInInspector]
@@ -36,9 +44,6 @@ public class CharacterMovement : MonoBehaviour {
 
     [HideInInspector]
     public Gravity grav;
-
-    [HideInInspector]
-    public Vector3 rotationPoint;
 
     [HideInInspector]
     public CharacterStates currentState;

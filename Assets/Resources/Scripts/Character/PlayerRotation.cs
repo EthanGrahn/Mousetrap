@@ -6,6 +6,7 @@ public class PlayerRotation : CharacterStates {
     private readonly CharacterMovement player;
     private bool rotating = false;
     private float rotSpeed = 100;
+    private float endingDist = 6;
 
     public PlayerRotation (CharacterMovement characterMovement) {
         player = characterMovement;
@@ -38,28 +39,30 @@ public class PlayerRotation : CharacterStates {
         player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
 
         float targetAngle = player.transform.eulerAngles.y;
-        targetAngle -= 90;
+        targetAngle += player.rotationAdd;
         Quaternion targetRotation = Quaternion.identity;
         targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
 
+        Debug.Log( player.rotationAdd );
         // Rotate the player
+        if (player.rotationAdd > 0) {
+            rotSpeed *= -1;
+        }
+        Debug.Log( rotSpeed );
         while (!QuaternionsEqual(player.transform.rotation, targetRotation)) {
             player.transform.rotation = Quaternion.RotateTowards( player.transform.rotation, targetRotation, rotSpeed * Time.deltaTime );
-            Debug.Log(player.transform.rotation.eulerAngles + "||" + targetRotation.eulerAngles);
             yield return new WaitForEndOfFrame();
         }
         player.transform.rotation = targetRotation;
+        player.currentRotation = player.endingRotation;
 
-        player.currentRotation = PositionStates.Rotation.one;
         // Move player to outside of trigger area
         Vector3 targetPosition = player.transform.position;
-        targetPosition.z += 6;
-        Debug.Log("Starting Horizontal Movement");
+        targetPosition = GetEndingPosition( targetPosition );
         while ( Vector3.Distance( player.transform.position, targetPosition ) > 0.1f ) {
             HorizontalMovement( );
             yield return null;
         }
-        Debug.Log("Horizontal Movement Complete");
 
         SwitchToPlayerMovement( );
         rotating = false;
@@ -93,6 +96,36 @@ public class PlayerRotation : CharacterStates {
             player.GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
         else if ( player.currentRotation == PositionStates.Rotation.three )
             player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, -horVel );
+    }
+
+    private Vector3 GetEndingPosition (Vector3 targetPosition) {
+        if ( player.currentRotation == PositionStates.Rotation.zero ) {
+            if ( player.lastDirection == PositionStates.Direction.left ) {
+                targetPosition.x -= endingDist;
+            } else {
+                targetPosition.x += endingDist;
+            }
+        } else if ( player.currentRotation == PositionStates.Rotation.one ) {
+            if ( player.lastDirection == PositionStates.Direction.left ) {
+                targetPosition.z -= endingDist;
+            } else {
+                targetPosition.z += endingDist;
+            }
+        } else if ( player.currentRotation == PositionStates.Rotation.two ) {
+            if ( player.lastDirection == PositionStates.Direction.left ) {
+                targetPosition.x += endingDist;
+            } else {
+                targetPosition.x -= endingDist;
+            }
+        } else if ( player.currentRotation == PositionStates.Rotation.three ) {
+            if ( player.lastDirection == PositionStates.Direction.left ) {
+                targetPosition.x += endingDist;
+            } else {
+                targetPosition.x -= endingDist;
+            }
+        }
+
+        return targetPosition;
     }
 
     private bool QuaternionsEqual( Quaternion q1, Quaternion q2 ) {
