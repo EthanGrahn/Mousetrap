@@ -83,6 +83,7 @@ public class PlayerInput : CharacterStates {
 
             player.lastDirection = player.currDirection;  // Used for slowing down
         } else { // slow character down
+            player.turnAround = false;
             if ( player.lastDirection == PositionStates.Direction.right && player.horSpeed > 0 ) {
                 player.horSpeed -= 0.45f;
                 if ( player.horSpeed <= 0 ) {

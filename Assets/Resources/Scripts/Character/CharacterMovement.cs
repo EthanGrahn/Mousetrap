@@ -52,6 +52,9 @@ public class CharacterMovement : MonoBehaviour {
     [HideInInspector]
     public PlayerRotation playerRotation;
 
+    // Camera reference
+    public Camera mainCam;
+
     void Awake() {
         playerInput = new PlayerInput( this );
         playerRotation = new PlayerRotation( this );

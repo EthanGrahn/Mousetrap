@@ -39,16 +39,24 @@ public class PlayerRotation : CharacterStates {
         player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
 
         float targetAngle = player.transform.eulerAngles.y;
-        targetAngle += player.rotationAdd;
+        targetAngle += player.rotationAdd % 360;
+        float cameraAngle = player.mainCam.transform.eulerAngles.y;
+        cameraAngle += player.rotationAdd % 360;
         Quaternion targetRotation = Quaternion.identity;
         targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
+        Quaternion cameraRotation = Quaternion.identity;
+        cameraRotation = Quaternion.Euler( 0.0f, cameraAngle, 0.0f );
 
-        Debug.Log( player.rotationAdd );
-        // Rotate the player
-        if (player.rotationAdd > 0) {
-            rotSpeed *= -1;
+        // Rotate the camera
+        player.mainCam.GetComponent<CamFollowObject>().enabled = false;
+        while ( !QuaternionsEqual( player.mainCam.transform.rotation, cameraRotation ) ) {
+            player.mainCam.transform.rotation = Quaternion.RotateTowards( player.mainCam.transform.rotation, cameraRotation, rotSpeed * Time.deltaTime );
+            yield return new WaitForEndOfFrame();
         }
-        Debug.Log( rotSpeed );
+        player.mainCam.transform.rotation = cameraRotation;
+        player.mainCam.GetComponent<CamFollowObject>().enabled = true;
+
+        // Rotate the player
         while (!QuaternionsEqual(player.transform.rotation, targetRotation)) {
             player.transform.rotation = Quaternion.RotateTowards( player.transform.rotation, targetRotation, rotSpeed * Time.deltaTime );
             yield return new WaitForEndOfFrame();
