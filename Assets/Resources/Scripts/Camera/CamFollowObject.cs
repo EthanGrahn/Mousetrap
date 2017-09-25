@@ -82,7 +82,8 @@ public class CamFollowObject : MonoBehaviour {
     private PositionStates.Direction currDirection;
 
     // Other camera variables
-    private bool updateCam;
+    [HideInInspector]
+    public bool updateCam;
     private Vector3 origin;
     private Vector3 targetPos;
 
@@ -247,7 +248,7 @@ public class CamFollowObject : MonoBehaviour {
     /// <returns>
     /// Vector3 position
     /// </returns>
-    Vector3 GetTargetPosition( Vector3 basePos, PositionStates.Rotation rot ) {
+    public Vector3 GetTargetPosition( Vector3 basePos, PositionStates.Rotation rot ) {
         Vector3 target = basePos;
 
         // Check current rotation,

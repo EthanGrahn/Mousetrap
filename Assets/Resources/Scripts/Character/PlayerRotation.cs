@@ -7,6 +7,7 @@ public class PlayerRotation : CharacterStates {
     private bool rotating = false;
     private float rotSpeed = 100;
     private float endingDist = 6;
+    private float distFromPoint = 0.15f;
 
     public PlayerRotation (CharacterMovement characterMovement) {
         player = characterMovement;
@@ -30,7 +31,7 @@ public class PlayerRotation : CharacterStates {
         player.rotationPoint = groundedPos;
 
         // Move character to point of rotation
-        while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > 0.1f ) {
+        while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint ) {
             HorizontalMovement( );
             yield return null;
         }
@@ -38,36 +39,39 @@ public class PlayerRotation : CharacterStates {
         player.transform.position = player.rotationPoint;
         player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
 
+        // Rotate the camera
         float targetAngle = player.transform.eulerAngles.y;
         targetAngle += player.rotationAdd % 360;
         float cameraAngle = player.mainCam.transform.eulerAngles.y;
         cameraAngle += player.rotationAdd % 360;
+
         Quaternion targetRotation = Quaternion.identity;
         targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
         Quaternion cameraRotation = Quaternion.identity;
         cameraRotation = Quaternion.Euler( 0.0f, cameraAngle, 0.0f );
 
-        // Rotate the camera
-        player.mainCam.GetComponent<CamFollowObject>().enabled = false;
+        player.currentRotation = player.endingRotation;
+
         while ( !QuaternionsEqual( player.mainCam.transform.rotation, cameraRotation ) ) {
             player.mainCam.transform.rotation = Quaternion.RotateTowards( player.mainCam.transform.rotation, cameraRotation, rotSpeed * Time.deltaTime );
             yield return new WaitForEndOfFrame();
         }
+
         player.mainCam.transform.rotation = cameraRotation;
-        player.mainCam.GetComponent<CamFollowObject>().enabled = true;
 
         // Rotate the player
         while (!QuaternionsEqual(player.transform.rotation, targetRotation)) {
             player.transform.rotation = Quaternion.RotateTowards( player.transform.rotation, targetRotation, rotSpeed * Time.deltaTime );
             yield return new WaitForEndOfFrame();
         }
+
         player.transform.rotation = targetRotation;
-        player.currentRotation = player.endingRotation;
 
         // Move player to outside of trigger area
         Vector3 targetPosition = player.transform.position;
         targetPosition = GetEndingPosition( targetPosition );
-        while ( Vector3.Distance( player.transform.position, targetPosition ) > 0.1f ) {
+
+        while ( Vector3.Distance( player.transform.position, targetPosition ) > distFromPoint ) {
             HorizontalMovement( );
             yield return null;
         }
