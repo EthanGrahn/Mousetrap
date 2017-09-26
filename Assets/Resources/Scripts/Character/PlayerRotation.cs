@@ -8,6 +8,7 @@ public class PlayerRotation : CharacterStates {
     private float rotSpeed = 100;
     private float endingDist = 6;
     private float distFromPoint = 0.15f;
+    float inTime = 1.7f;
 
     public PlayerRotation (CharacterMovement characterMovement) {
         player = characterMovement;
@@ -52,12 +53,10 @@ public class PlayerRotation : CharacterStates {
 
         player.currentRotation = player.endingRotation;
 
-        while ( !QuaternionsEqual( player.mainCam.transform.rotation, cameraRotation ) ) {
-            player.mainCam.transform.rotation = Quaternion.RotateTowards( player.mainCam.transform.rotation, cameraRotation, rotSpeed * Time.deltaTime );
-            Debug.Log( QuaternionsEqual( player.mainCam.transform.rotation, cameraRotation ) + " " + player.mainCam.transform.rotation + " " + cameraRotation );
+        for (float t = 0f; t < 1; t += Time.deltaTime/inTime ) {
+            player.mainCam.transform.rotation = Quaternion.Lerp( player.mainCam.transform.rotation, cameraRotation, t );
             yield return null;
         }
-        Debug.Log( "Here" );
 
         player.mainCam.transform.rotation = cameraRotation;
 
