@@ -54,15 +54,17 @@ public class PlayerRotation : CharacterStates {
 
         while ( !QuaternionsEqual( player.mainCam.transform.rotation, cameraRotation ) ) {
             player.mainCam.transform.rotation = Quaternion.RotateTowards( player.mainCam.transform.rotation, cameraRotation, rotSpeed * Time.deltaTime );
-            yield return new WaitForEndOfFrame();
+            Debug.Log( QuaternionsEqual( player.mainCam.transform.rotation, cameraRotation ) + " " + player.mainCam.transform.rotation + " " + cameraRotation );
+            yield return null;
         }
+        Debug.Log( "Here" );
 
         player.mainCam.transform.rotation = cameraRotation;
 
         // Rotate the player
         while (!QuaternionsEqual(player.transform.rotation, targetRotation)) {
             player.transform.rotation = Quaternion.RotateTowards( player.transform.rotation, targetRotation, rotSpeed * Time.deltaTime );
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
 
         player.transform.rotation = targetRotation;
@@ -75,6 +77,9 @@ public class PlayerRotation : CharacterStates {
             HorizontalMovement( );
             yield return null;
         }
+
+        player.transform.position = targetPosition;
+        player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
 
         SwitchToPlayerMovement( );
         rotating = false;
