@@ -62,12 +62,12 @@ public class PlayerInput : CharacterStates {
             if ( player.turnAround ) {
                 if ( player.currDirection == PositionStates.Direction.right ) {
                     player.horSpeed += .5f;
-                    if ( player.horSpeed > 1 ) {
+                    if ( player.horSpeed > 0 ) {
                         player.turnAround = false;
                     }
                 } else {
                     player.horSpeed -= .5f;
-                    if ( player.horSpeed < -1 ) {
+                    if ( player.horSpeed < 0 ) {
                         player.turnAround = false;
                     }
                 }
@@ -80,8 +80,8 @@ public class PlayerInput : CharacterStates {
 
                 player.horSpeed = (int)player.currDirection * player.speedUpRatio.Evaluate( player.timerSpeedUp / player.timeToSpeedUp ) * player.speedUpFactor;
             }
-
-            player.lastDirection = player.currDirection;  // Used for slowing down
+            if (!player.turnAround)
+                player.lastDirection = player.currDirection;  // Used for slowing down
         } else { // slow character down
             player.turnAround = false;
             if ( player.lastDirection == PositionStates.Direction.right && player.horSpeed > 0 ) {

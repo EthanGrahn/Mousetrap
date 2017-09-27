@@ -82,8 +82,7 @@ public class CamFollowObject : MonoBehaviour {
     private PositionStates.Direction currDirection;
 
     // Other camera variables
-    [HideInInspector]
-    public bool updateCam;
+    private bool updateCam;
     private Vector3 origin;
     private Vector3 targetPos;
 
@@ -135,7 +134,8 @@ public class CamFollowObject : MonoBehaviour {
 
         // Move the camera
         if ( (Mathf.Abs( origin.x - targetPos.x ) >= minMoveDistHor ||
-            Mathf.Abs( origin.y - targetPos.y ) >= minMoveDistVer) && !updateCam ) {
+            Mathf.Abs( origin.y - targetPos.y ) >= minMoveDistVer) ||
+            Mathf.Abs(origin.z - targetPos.z ) >= minMoveDistHor && !updateCam ) {
             updateCam = true;
         }
 
@@ -205,31 +205,31 @@ public class CamFollowObject : MonoBehaviour {
         // Check for current rotation of object
         if ( rot == PositionStates.Rotation.zero ) {
             // Check where object is moving
-            if ( objPos.x < oldObjPos.x - 0.01f) {
+            if ( objPos.x < oldObjPos.x - 0.02f) {
                 newDir = PositionStates.Direction.left;
             } else if ( objPos.x > oldObjPos.x + 0.01f) {
                 newDir = PositionStates.Direction.right;
             }
         } else if ( rot == PositionStates.Rotation.one ) {
             // Check where object is moving
-            if ( objPos.z < oldObjPos.z - 0.01f ) {
+            if ( objPos.z < oldObjPos.z - 0.02f ) {
                 newDir = PositionStates.Direction.right;
             } else if ( objPos.z > oldObjPos.z) {
                 newDir = PositionStates.Direction.left;
             }
         } else if ( rot == PositionStates.Rotation.two ) {
             // Check where object is moving
-            if ( objPos.x < oldObjPos.x - 0.01f ) {
+            if ( objPos.x < oldObjPos.x - 0.02f ) {
                 newDir = PositionStates.Direction.right;
-            } else if ( objPos.x > oldObjPos.x + 0.01f ) {
+            } else if ( objPos.x > oldObjPos.x + 0.02f ) {
                 newDir = PositionStates.Direction.left;
             }
         } else if ( rot == PositionStates.Rotation.three ) {
             // Check where object is moving
-            if ( objPos.z < oldObjPos.z - 0.01f ) {
-                newDir = PositionStates.Direction.left;
-            } else if ( objPos.z > oldObjPos.z ) {
+            if ( objPos.z < oldObjPos.z - 0.02f ) {
                 newDir = PositionStates.Direction.right;
+            } else if ( objPos.z > oldObjPos.z ) {
+                newDir = PositionStates.Direction.left;
             }
         }
 

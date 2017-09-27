@@ -135,9 +135,9 @@ public class PlayerRotation : CharacterStates {
             }
         } else if ( player.currentRotation == PositionStates.Rotation.three ) {
             if ( player.lastDirection == PositionStates.Direction.left ) {
-                targetPosition.x += endingDist;
+                targetPosition.z += endingDist;
             } else {
-                targetPosition.x -= endingDist;
+                targetPosition.z -= endingDist;
             }
         }
 
