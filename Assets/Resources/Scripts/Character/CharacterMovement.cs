@@ -20,12 +20,20 @@ public class CharacterMovement : MonoBehaviour {
 
     [HideInInspector]
     public bool turnAround;
+
+    // Variables for turning points
+    [HideInInspector]
+    public Vector3 rotationPoint;
+    [HideInInspector]
+    public float rotationAdd;
+    [HideInInspector]
+    public PositionStates.Rotation endingRotation;
     
     // Direction character is moving in and for slowdown
     [HideInInspector]
-    public PositionStates.Direction currDirection;
+    public PositionStates.Direction currDirection = PositionStates.Direction.right;
     [HideInInspector]
-    public PositionStates.Direction lastDirection;
+    public PositionStates.Direction lastDirection = PositionStates.Direction.right;
 
     // Used for Jumping
     [Tooltip("How fast the character jumps in the air.")]
@@ -38,14 +46,14 @@ public class CharacterMovement : MonoBehaviour {
     public Gravity grav;
 
     [HideInInspector]
-    public Vector3 rotationPoint;
-
-    [HideInInspector]
     public CharacterStates currentState;
     [HideInInspector]
     public PlayerInput playerInput;
     [HideInInspector]
     public PlayerRotation playerRotation;
+
+    // Camera reference
+    public Camera mainCam;
 
     void Awake() {
         playerInput = new PlayerInput( this );

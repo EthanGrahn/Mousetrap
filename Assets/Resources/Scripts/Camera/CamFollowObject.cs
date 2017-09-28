@@ -97,7 +97,13 @@ public class CamFollowObject : MonoBehaviour {
         script = objToFollow.GetComponent<CharacterMovement>();
 
         // Set starting position of camera
-        Vector3 startPos = GetTargetPosition( oldObjPos );
+        Vector3 startPos;
+        if ( script != null ) {
+            startPos = GetTargetPosition( oldObjPos, script.currentRotation );
+        } else {
+            startPos = GetTargetPosition( oldObjPos, currentRotation );
+        }
+        
         GetComponent<Transform>().position = startPos;
 
         updateCam = false;
@@ -109,23 +115,37 @@ public class CamFollowObject : MonoBehaviour {
         Vector3 currObjPos = objToFollow.GetComponent<Transform>().position;
 
         // Get target position for camera
-        targetPos = GetTargetPosition( currObjPos );
+        if ( script != null ) {
+            targetPos = GetTargetPosition( currObjPos, script.currentRotation );
+        } else {
+            targetPos = GetTargetPosition( currObjPos, currentRotation );
+        }
+        
 
         // Get which direction object is moving
-        currDirection = GetDirection(currObjPos);
+        if ( script != null ) {
+            currDirection = GetDirection( currObjPos, script.currentRotation );
+        } else {
+            currDirection = GetDirection( currObjPos, currentRotation );
+        }
 
         // Current position of camera
         origin = GetComponent<Transform>().position;
 
         // Move the camera
         if ( (Mathf.Abs( origin.x - targetPos.x ) >= minMoveDistHor ||
-            Mathf.Abs( origin.y - targetPos.y ) >= minMoveDistVer) && !updateCam ) {
+            Mathf.Abs( origin.y - targetPos.y ) >= minMoveDistVer) ||
+            Mathf.Abs(origin.z - targetPos.z ) >= minMoveDistHor && !updateCam ) {
             updateCam = true;
         }
 
 
         // Set final camera position
-        GetComponent<Transform>().position = ClampCameraPosition( targetPos );
+        if (script != null) {
+            GetComponent<Transform>().position = ClampCameraPosition( targetPos, script.currentRotation );
+        } else {
+            GetComponent<Transform>().position = ClampCameraPosition( targetPos, currentRotation );
+        }
     }
 
     private void FixedUpdate() {
@@ -147,15 +167,19 @@ public class CamFollowObject : MonoBehaviour {
     /// <returns>
     /// Vector 3 position for camera
     /// </returns>
-    Vector3 ClampCameraPosition( Vector3 target ) {
+    Vector3 ClampCameraPosition( Vector3 target, PositionStates.Rotation rot ) {
         Vector3 cameraPos = GetComponent<Transform>().position;
 
         // Check rotation of object
         // Clamp to character
-        if ( (script != null && script.currentRotation == PositionStates.Rotation.zero) ||
-                currentRotation == PositionStates.Rotation.zero ) {
+
+        if ( rot == PositionStates.Rotation.zero ) {
             cameraPos.x = Mathf.Clamp( cameraPos.x, target.x - maxObjDistHor, target.x + maxObjDistHor );
-        } else {
+        } else if ( rot == PositionStates.Rotation.one ) {
+            cameraPos.z = Mathf.Clamp( cameraPos.z, target.z - maxObjDistHor, target.z + maxObjDistHor );
+        } else if ( rot == PositionStates.Rotation.two ) {
+            cameraPos.x = Mathf.Clamp( cameraPos.x, target.x - maxObjDistHor, target.x + maxObjDistHor );
+        } else if ( rot == PositionStates.Rotation.three ) {
             cameraPos.z = Mathf.Clamp( cameraPos.z, target.z - maxObjDistHor, target.z + maxObjDistHor );
         }
         cameraPos.y = Mathf.Clamp( cameraPos.y, target.y - maxObjDistVer, target.y + maxObjDistVer );
@@ -174,24 +198,37 @@ public class CamFollowObject : MonoBehaviour {
     /// <returns>
     /// Enum containing direction
     /// </returns>
-    PositionStates.Direction GetDirection( Vector3 objPos ) {
+    PositionStates.Direction GetDirection( Vector3 objPos, PositionStates.Rotation rot ) {
         // Don't change directions unless moving
         PositionStates.Direction newDir = currDirection;
 
         // Check for current rotation of object
-        if ( (script != null && script.currentRotation == PositionStates.Rotation.zero) ||
-                currentRotation == PositionStates.Rotation.zero ) {
+        if ( rot == PositionStates.Rotation.zero ) {
             // Check where object is moving
-            if ( objPos.x < oldObjPos.x - 0.01f) {
+            if ( objPos.x < oldObjPos.x - 0.02f) {
                 newDir = PositionStates.Direction.left;
             } else if ( objPos.x > oldObjPos.x + 0.01f) {
                 newDir = PositionStates.Direction.right;
             }
-        } else {
+        } else if ( rot == PositionStates.Rotation.one ) {
             // Check where object is moving
-            if ( objPos.z < oldObjPos.z) {
+            if ( objPos.z < oldObjPos.z - 0.02f ) {
                 newDir = PositionStates.Direction.right;
             } else if ( objPos.z > oldObjPos.z) {
+                newDir = PositionStates.Direction.left;
+            }
+        } else if ( rot == PositionStates.Rotation.two ) {
+            // Check where object is moving
+            if ( objPos.x < oldObjPos.x - 0.02f ) {
+                newDir = PositionStates.Direction.right;
+            } else if ( objPos.x > oldObjPos.x + 0.02f ) {
+                newDir = PositionStates.Direction.left;
+            }
+        } else if ( rot == PositionStates.Rotation.three ) {
+            // Check where object is moving
+            if ( objPos.z < oldObjPos.z - 0.02f ) {
+                newDir = PositionStates.Direction.right;
+            } else if ( objPos.z > oldObjPos.z ) {
                 newDir = PositionStates.Direction.left;
             }
         }
@@ -211,26 +248,46 @@ public class CamFollowObject : MonoBehaviour {
     /// <returns>
     /// Vector3 position
     /// </returns>
-    Vector3 GetTargetPosition( Vector3 basePos ) {
+    public Vector3 GetTargetPosition( Vector3 basePos, PositionStates.Rotation rot ) {
         Vector3 target = basePos;
 
         // Check current rotation,
         // Set disance from player
-        if ( (script != null && script.currentRotation == PositionStates.Rotation.zero) ||
-                currentRotation == PositionStates.Rotation.zero ) {
-            // Camera position away from player
+        if ( rot == PositionStates.Rotation.zero ) {
+            // Camera position away from object
             target.z -= distFromObj;
 
-            // Camera position in from of character
+            // Camera position in front of object
             if ( currDirection == PositionStates.Direction.right ) {
                 target.x += camViewInFront;
             } else {
                 target.x -= camViewInFront;
             }
-        } else {    // Turned
+        } else if ( rot == PositionStates.Rotation.one) {
+            // Camera position away from object
+            target.x += distFromObj;
+
+            // Camera position in front of object
+            if ( currDirection == PositionStates.Direction.right ) {
+                target.z -= camViewInFront;
+            } else {
+                target.z += camViewInFront;
+            }
+        } else if ( rot == PositionStates.Rotation.two ) {
+            // Camera position away from object
+            target.z += distFromObj;
+
+            // Camera position in front of object
+            if ( currDirection == PositionStates.Direction.right ) {
+                target.x -= camViewInFront;
+            } else {
+                target.x += camViewInFront;
+            }
+        } else if ( rot == PositionStates.Rotation.three ) {
+            // Camera position away from object
             target.x -= distFromObj;
 
-            // Camera position in from of character
+            // Camera position in front of object
             if ( currDirection == PositionStates.Direction.right ) {
                 target.z -= camViewInFront;
             } else {
@@ -241,12 +298,4 @@ public class CamFollowObject : MonoBehaviour {
 
         return target;
     }
-
-    public void StartRotation(PositionStates.Direction dir, PositionStates.Rotation rot) {
-
-    }
-
-    // Add public funcitons for changing distance from, in front of, and above object, changing object
-    // Changing rotation, ...
-    // To be called in another script using trigger
 }

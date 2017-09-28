@@ -30,11 +30,11 @@ public class PlayerInput : CharacterStates {
         if ( player.currentRotation == PositionStates.Rotation.zero )
             player.GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
         else if ( player.currentRotation == PositionStates.Rotation.one )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, -horVel );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, horVel );
         else if ( player.currentRotation == PositionStates.Rotation.two )
             player.GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
         else if ( player.currentRotation == PositionStates.Rotation.three )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, horVel );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, -horVel );
 
         // Jumping
         if ( Rebind.GetInputDown( "Up" ) && player.grav.IsGrounded( ) ) {
@@ -62,12 +62,12 @@ public class PlayerInput : CharacterStates {
             if ( player.turnAround ) {
                 if ( player.currDirection == PositionStates.Direction.right ) {
                     player.horSpeed += .5f;
-                    if ( player.horSpeed > 1 ) {
+                    if ( player.horSpeed > 0 ) {
                         player.turnAround = false;
                     }
                 } else {
                     player.horSpeed -= .5f;
-                    if ( player.horSpeed < -1 ) {
+                    if ( player.horSpeed < 0 ) {
                         player.turnAround = false;
                     }
                 }
@@ -80,9 +80,10 @@ public class PlayerInput : CharacterStates {
 
                 player.horSpeed = (int)player.currDirection * player.speedUpRatio.Evaluate( player.timerSpeedUp / player.timeToSpeedUp ) * player.speedUpFactor;
             }
-
-            player.lastDirection = player.currDirection;  // Used for slowing down
+            if (!player.turnAround)
+                player.lastDirection = player.currDirection;  // Used for slowing down
         } else { // slow character down
+            player.turnAround = false;
             if ( player.lastDirection == PositionStates.Direction.right && player.horSpeed > 0 ) {
                 player.horSpeed -= 0.45f;
                 if ( player.horSpeed <= 0 ) {
@@ -112,15 +113,12 @@ public class PlayerInput : CharacterStates {
     }
 
     public void OnTriggerEnter( Collider other ) {
-        player.StartStateCoroutine( WaitForGrounded( ));
-        Vector3 point = other.transform.parent.transform.position;
-        player.rotationPoint = new Vector3( point.x, player.transform.position.y, point.z );
-        SwitchToRotation( );
-    }
-
-    public IEnumerator WaitForGrounded() {
-        while (!player.grav.IsGrounded()) {
-            yield return null;
+        if ( other.CompareTag("TriggerRotationSwitch") ) {
+            player.rotationAdd = (int)other.GetComponent<RotationVars>( ).rotationDir;
+            player.endingRotation = other.GetComponent<RotationVars>( ).endingRotation;
+            Vector3 point = other.transform.parent.transform.position;
+            player.rotationPoint = new Vector3( point.x, player.transform.position.y, point.z );
+            SwitchToRotation( );
         }
     }
 }
