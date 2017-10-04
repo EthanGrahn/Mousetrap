@@ -58,6 +58,7 @@ public class CharacterMovement : MonoBehaviour {
     void Awake() {
         playerInput = new PlayerInput( this );
         playerRotation = new PlayerRotation( this );
+        GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
     }
 
 	// Use this for initialization

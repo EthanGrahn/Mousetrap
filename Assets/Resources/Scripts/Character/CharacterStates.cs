@@ -7,5 +7,6 @@ public interface CharacterStates {
     void FixedUpdate( );
     void SwitchToRotation( );
     void SwitchToPlayerMovement( );
+    void SwitchToPlayerCrawl( );
     void OnTriggerEnter( Collider other );
 }

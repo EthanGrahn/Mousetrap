@@ -16,6 +16,7 @@ public class Gravity : MonoBehaviour {
 
     // Falling object variables
     private float distToGround;
+    private float distToSide;
 
     float termVel;
 
@@ -28,7 +29,8 @@ public class Gravity : MonoBehaviour {
         termVel = Mathf.Sqrt((2 * GetComponent<Rigidbody>().mass * Physics.gravity.y)/(density * pArea * dCoeff));
 
         // Distance from object to ground
-        distToGround = GetComponent<Collider>().bounds.extents.y;
+        distToGround = GetComponent<Collider>( ).bounds.extents.y;
+        distToSide = GetComponent<Collider>( ).bounds.extents.x;
     }
 
     /// <summary>
@@ -38,7 +40,25 @@ public class Gravity : MonoBehaviour {
     /// Boolean representing grounded status
     /// </returns>
     public bool IsGrounded() {
-        return Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f);
+        return Physics.Raycast(transform.position, -transform.up, distToGround + 0.1f);
+    }
+
+    public bool RightGrounded() {
+        Debug.DrawRay( transform.position, transform.right );
+        Debug.DrawRay( transform.position + new Vector3( 0, distToGround, 0 ), transform.right );
+        Debug.DrawRay( transform.position + new Vector3( 0, -distToGround, 0 ), transform.right );
+        return Physics.Raycast( transform.position, transform.right, distToSide + .1f ) ||
+            Physics.Raycast( transform.position + new Vector3( 0, distToGround, 0 ), transform.right, distToSide + .1f ) ||
+            Physics.Raycast( transform.position + new Vector3( 0, -distToGround, 0 ), transform.right, distToSide + .1f );
+    }
+
+    public bool LeftGrounded() {
+        Debug.DrawRay( transform.position, -transform.right );
+        Debug.DrawRay( transform.position + new Vector3( 0, distToGround, 0 ), -transform.right );
+        Debug.DrawRay( transform.position + new Vector3( 0, -distToGround, 0 ), -transform.right );
+        return Physics.Raycast( transform.position, -transform.right, distToSide + .1f ) ||
+            Physics.Raycast( transform.position + new Vector3( 0, distToGround, 0 ), -transform.right, distToSide + .1f ) ||
+            Physics.Raycast( transform.position + new Vector3( 0, -distToGround, 0 ), -transform.right, distToSide + .1f );
     }
 
     /// <summary>

@@ -10,16 +10,16 @@ public class PlayerRotation : CharacterStates {
     private float distFromPoint = 0.15f;
     float inTime = 1.7f;
 
-    public PlayerRotation (CharacterMovement characterMovement) {
+    public PlayerRotation( CharacterMovement characterMovement ) {
         player = characterMovement;
     }
-	
-	// Update is called once per frame
-	public void Update () {
+
+    // Update is called once per frame
+    public void Update( ) {
         // Do nothing
     }
 
-    IEnumerator MoveToPoint() {
+    IEnumerator MoveToPoint( ) {
         rotating = true;
         // Make sure rotation is kept on ground
         while ( !player.grav.IsGrounded( ) ) {
@@ -41,19 +41,14 @@ public class PlayerRotation : CharacterStates {
         player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
 
         // Rotate the camera
-        float targetAngle = player.transform.eulerAngles.y;
-        targetAngle += player.rotationAdd % 360;
         float cameraAngle = player.mainCam.transform.eulerAngles.y;
         cameraAngle += player.rotationAdd % 360;
-
-        Quaternion targetRotation = Quaternion.identity;
-        targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
         Quaternion cameraRotation = Quaternion.identity;
         cameraRotation = Quaternion.Euler( 0.0f, cameraAngle, 0.0f );
 
         player.currentRotation = player.endingRotation;
 
-        for (float t = 0f; t < 1; t += Time.deltaTime/inTime ) {
+        for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
             player.mainCam.transform.rotation = Quaternion.Lerp( player.mainCam.transform.rotation, cameraRotation, t );
             yield return null;
         }
@@ -61,12 +56,18 @@ public class PlayerRotation : CharacterStates {
         player.mainCam.transform.rotation = cameraRotation;
 
         // Rotate the player
-        while (!QuaternionsEqual(player.transform.rotation, targetRotation)) {
+        player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        float targetAngle = player.transform.eulerAngles.y;
+        targetAngle += player.rotationAdd % 360;
+        Quaternion targetRotation = Quaternion.identity;
+        targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
+
+        while ( !QuaternionsEqual( player.transform.rotation, targetRotation ) ) {
             player.transform.rotation = Quaternion.RotateTowards( player.transform.rotation, targetRotation, rotSpeed * Time.deltaTime );
             yield return null;
         }
 
-        player.transform.rotation = targetRotation;
+        GetConstraints( );
 
         // Move player to outside of trigger area
         Vector3 targetPosition = player.transform.position;
@@ -77,16 +78,16 @@ public class PlayerRotation : CharacterStates {
             yield return null;
         }
 
-        player.transform.position = targetPosition;
-        player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
+        //player.transform.position = targetPosition;
+        //player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
 
         SwitchToPlayerMovement( );
         rotating = false;
     }
 
     public void FixedUpdate( ) {
-        if (!rotating)
-            player.StartStateCoroutine( MoveToPoint() );
+        if ( !rotating )
+            player.StartStateCoroutine( MoveToPoint( ) );
     }
 
     public void OnTriggerEnter( Collider other ) {
@@ -101,7 +102,11 @@ public class PlayerRotation : CharacterStates {
         player.currentState = player.playerInput;
     }
 
-    private void HorizontalMovement() {
+    public void SwitchToPlayerCrawl( ) {
+
+    }
+
+    private void HorizontalMovement( ) {
         // Horizontal movement
         float horVel = (int)player.lastDirection * player.speedUpFactor;
         if ( player.currentRotation == PositionStates.Rotation.zero )
@@ -114,7 +119,7 @@ public class PlayerRotation : CharacterStates {
             player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, -horVel );
     }
 
-    private Vector3 GetEndingPosition (Vector3 targetPosition) {
+    private Vector3 GetEndingPosition( Vector3 targetPosition ) {
         if ( player.currentRotation == PositionStates.Rotation.zero ) {
             if ( player.lastDirection == PositionStates.Direction.left ) {
                 targetPosition.x -= endingDist;
@@ -146,5 +151,12 @@ public class PlayerRotation : CharacterStates {
 
     private bool QuaternionsEqual( Quaternion q1, Quaternion q2 ) {
         return (q1.Equals( q2 ) || (q1 == q2));
+    }
+    private void GetConstraints( ) {
+        if ( player.currentRotation == PositionStates.Rotation.zero ||
+            player.currentRotation == PositionStates.Rotation.two )
+            player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
+        else
+            player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX;
     }
 }

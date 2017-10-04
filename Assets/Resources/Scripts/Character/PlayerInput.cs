@@ -12,16 +12,16 @@ public class PlayerInput : CharacterStates {
     // Update is called once per frame
     public void Update( ) {
         // Get integer value for direction character is moving
-        if ( Rebind.GetInput( "Right" ) ) {
+        if ( Rebind.GetInput( "Right" ) && !player.grav.RightGrounded() ) {
             player.currDirection = PositionStates.Direction.right;
-        } else if ( Rebind.GetInput( "Left" ) ) {
+        } else if ( Rebind.GetInput( "Left" ) && !player.grav.LeftGrounded( ) ) {
             player.currDirection = PositionStates.Direction.left;
         } else {
             player.currDirection = PositionStates.Direction.idle;
         }
 
         // Lock the x-rotation of the character
-        player.transform.eulerAngles = new Vector3( 0, (float)player.currentRotation, 0 );
+        //player.transform.eulerAngles = new Vector3( 0, (float)player.currentRotation, 0 );
     }
 
     public void FixedUpdate( ) {
@@ -38,7 +38,8 @@ public class PlayerInput : CharacterStates {
 
         // Jumping
         if ( Rebind.GetInputDown( "Up" ) && player.grav.IsGrounded( ) ) {
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( player.GetComponent<Rigidbody>( ).velocity.x, player.jumpSpeed, player.GetComponent<Rigidbody>( ).velocity.z );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( player.GetComponent<Rigidbody>( ).velocity.x,
+                player.jumpSpeed, player.GetComponent<Rigidbody>( ).velocity.z );
         }
 
         // Falling
@@ -102,7 +103,7 @@ public class PlayerInput : CharacterStates {
         return player.horSpeed;
     }
 
-    public void SwitchToRotation() {
+    public void SwitchToRotation( ) {
         Vector3 vel = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
         player.GetComponent<Rigidbody>( ).velocity = vel;
         player.currentState = player.playerRotation;
@@ -112,6 +113,10 @@ public class PlayerInput : CharacterStates {
         // Do nothing, can't switch to same state
     }
 
+    public void SwitchToPlayerCrawl( ) {
+
+    }
+
     public void OnTriggerEnter( Collider other ) {
         if ( other.CompareTag("TriggerRotationSwitch") ) {
             player.rotationAdd = (int)other.GetComponent<RotationVars>( ).rotationDir;
@@ -119,6 +124,9 @@ public class PlayerInput : CharacterStates {
             Vector3 point = other.transform.parent.transform.position;
             player.rotationPoint = new Vector3( point.x, player.transform.position.y, point.z );
             SwitchToRotation( );
+        }
+        if ( other.CompareTag("TriggerCrawl") ) {;
+            
         }
     }
 }
