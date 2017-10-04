@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(RectTransform))]
 public class ButtonHover : MonoBehaviour {
 
     [SerializeField]
@@ -13,15 +12,15 @@ public class ButtonHover : MonoBehaviour {
     private float transitionDelay = 0.2f;
     [SerializeField]
     private AnimationCurve transitionCurve;
-    private RectTransform rTransform;
+    private Transform rTransform;
     private float initOffset;
     private float scaleTime = 0;
 
     private void Start()
     {
-        rTransform = GetComponent<RectTransform>();
+        rTransform = gameObject.transform;
         transitionCurve.MoveKey(1, new Keyframe(transitionSpeed, 1));
-        initOffset = rTransform.offsetMin.x;
+        initOffset = rTransform.position.x;
     }
 
     /// <summary>
@@ -53,10 +52,10 @@ public class ButtonHover : MonoBehaviour {
         {
             yield return null;
             ratio = transitionCurve.Evaluate(i) * extentionAmt;
-            rTransform.offsetMin = new Vector2(initOffset - ratio, rTransform.offsetMin.y);
+            rTransform.position = new Vector3(initOffset - ratio, rTransform.position.y);
             scaleTime = i;
         }
-        rTransform.offsetMin = new Vector2(initOffset - extentionAmt, rTransform.offsetMin.y);
+        rTransform.position = new Vector3(initOffset - extentionAmt, rTransform.position.y);
     }
 
     /// <summary>
@@ -71,9 +70,9 @@ public class ButtonHover : MonoBehaviour {
         {
             yield return null;
             ratio = transitionCurve.Evaluate(i) * extentionAmt;
-            rTransform.offsetMin = new Vector2(initOffset - ratio, rTransform.offsetMin.y);
+            rTransform.position = new Vector3(initOffset - ratio, rTransform.position.y);
             scaleTime = i;
         }
-        rTransform.offsetMin = new Vector2(initOffset, rTransform.offsetMin.y);
+        rTransform.position = new Vector3(initOffset, rTransform.position.y);
     }
 }
