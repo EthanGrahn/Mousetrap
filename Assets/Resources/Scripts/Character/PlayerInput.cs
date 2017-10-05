@@ -114,18 +114,19 @@ public class PlayerInput : CharacterStates {
     }
 
     public void SwitchToPlayerCrawl( ) {
-
+        // Need to implement
     }
 
     public void OnTriggerEnter( Collider other ) {
         if ( other.CompareTag("TriggerRotationSwitch") ) {
             player.rotationAdd = (int)other.GetComponent<RotationVars>( ).rotationDir;
             player.endingRotation = other.GetComponent<RotationVars>( ).endingRotation;
+            player.endingDirection = other.GetComponent<RotationVars>( ).endingDirection;
             Vector3 point = other.transform.parent.transform.position;
             player.rotationPoint = new Vector3( point.x, player.transform.position.y, point.z );
             SwitchToRotation( );
         }
-        if ( other.CompareTag("TriggerCrawl") ) {;
+        if ( other.CompareTag("TriggerCrawl") ) {
             
         }
     }

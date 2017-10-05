@@ -28,6 +28,8 @@ public class CharacterMovement : MonoBehaviour {
     public float rotationAdd;
     [HideInInspector]
     public PositionStates.Rotation endingRotation;
+    [HideInInspector]
+    public PositionStates.Direction endingDirection;
     
     // Direction character is moving in and for slowdown
     [HideInInspector]

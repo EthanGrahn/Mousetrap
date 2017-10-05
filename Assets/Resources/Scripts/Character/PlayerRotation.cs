@@ -8,15 +8,10 @@ public class PlayerRotation : CharacterStates {
     private float rotSpeed = 100;
     private float endingDist = 6;
     private float distFromPoint = 0.15f;
-    float inTime = 1.7f;
+    float inTime = 1.1f;
 
     public PlayerRotation( CharacterMovement characterMovement ) {
         player = characterMovement;
-    }
-
-    // Update is called once per frame
-    public void Update( ) {
-        // Do nothing
     }
 
     IEnumerator MoveToPoint( ) {
@@ -32,11 +27,13 @@ public class PlayerRotation : CharacterStates {
         player.rotationPoint = groundedPos;
 
         // Move character to point of rotation
+        PositionStates.Direction dir = GetDirection( player.rotationPoint );
         while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint ) {
-            HorizontalMovement( );
+            HorizontalMovement( dir );
+            Debug.Log( "Inside movement while, player direction = " + dir + " " + (int)dir + " " + Vector3.Distance(player.rotationPoint, player.transform.position) );
             yield return null;
         }
-
+        Debug.Log( "Outside of movement while" );
         player.transform.position = player.rotationPoint;
         player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
 
@@ -62,11 +59,10 @@ public class PlayerRotation : CharacterStates {
         Quaternion targetRotation = Quaternion.identity;
         targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
 
-        while ( !QuaternionsEqual( player.transform.rotation, targetRotation ) ) {
-            player.transform.rotation = Quaternion.RotateTowards( player.transform.rotation, targetRotation, rotSpeed * Time.deltaTime );
+        for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
+            player.transform.rotation = Quaternion.Lerp( player.transform.rotation, targetRotation, t );
             yield return null;
         }
-
         GetConstraints( );
 
         // Move player to outside of trigger area
@@ -74,49 +70,76 @@ public class PlayerRotation : CharacterStates {
         targetPosition = GetEndingPosition( targetPosition );
 
         while ( Vector3.Distance( player.transform.position, targetPosition ) > distFromPoint ) {
-            HorizontalMovement( );
+            HorizontalMovement( player.endingDirection );
+            Debug.Log( "Inside end movement while, player direction = " + player.endingDirection + " " + Vector3.Distance(targetPosition, player.transform.position) );
             yield return null;
         }
-
-        //player.transform.position = targetPosition;
-        //player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
+        Debug.Log( "Outside end movement while" );
 
         SwitchToPlayerMovement( );
         rotating = false;
     }
+    //--------------------------------------------------------------------------------------------------//
+    //----------------------------------------END OF IENUMERATOR----------------------------------------//
+    //--------------------------------------------------------------------------------------------------//
 
+
+    //--------------------------------------------------------------------------------------------------//
+    //-----------------------------------------STATE FUNCTIONS------------------------------------------//
+    //--------------------------------------------------------------------------------------------------//
     public void FixedUpdate( ) {
         if ( !rotating )
             player.StartStateCoroutine( MoveToPoint( ) );
-    }
-
-    public void OnTriggerEnter( Collider other ) {
-        // Do nothing
-    }
-
-    public void SwitchToRotation( ) {
-        // Can't switch to same state
     }
 
     public void SwitchToPlayerMovement( ) {
         player.currentState = player.playerInput;
     }
 
-    public void SwitchToPlayerCrawl( ) {
-
+    
+    //---------------------------------------------MOVEMENT---------------------------------------------//
+    private void HorizontalMovement( PositionStates.Direction dir ) {
+        // Horizontal movement
+        float horVel = (int)dir * player.speedUpFactor;
+        if ( player.currentRotation == PositionStates.Rotation.zero )
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, 0.0f, 0.0f );
+        else if ( player.currentRotation == PositionStates.Rotation.one )
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, 0.0f, horVel );
+        else if ( player.currentRotation == PositionStates.Rotation.two )
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, 0.0f, 0.0f );
+        else if ( player.currentRotation == PositionStates.Rotation.three )
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, 0.0f, -horVel );
     }
 
-    private void HorizontalMovement( ) {
-        // Horizontal movement
-        float horVel = (int)player.lastDirection * player.speedUpFactor;
-        if ( player.currentRotation == PositionStates.Rotation.zero )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
-        else if ( player.currentRotation == PositionStates.Rotation.one )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, horVel );
-        else if ( player.currentRotation == PositionStates.Rotation.two )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
-        else if ( player.currentRotation == PositionStates.Rotation.three )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, -horVel );
+    private PositionStates.Direction GetDirection( Vector3 targetPosition ) {
+        PositionStates.Direction dir;
+        if ( player.currentRotation == PositionStates.Rotation.zero ) {
+            if ( targetPosition.x > player.transform.position.x ) {
+                dir = PositionStates.Direction.right;
+            } else {
+                dir = PositionStates.Direction.left;
+            }
+        } else if ( player.currentRotation == PositionStates.Rotation.one ) {
+            if ( targetPosition.z > player.transform.position.z ) {
+                dir = PositionStates.Direction.right;
+            } else {
+                dir = PositionStates.Direction.left;
+            }
+        } else if ( player.currentRotation == PositionStates.Rotation.two ) {
+            if ( targetPosition.x < player.transform.position.x ) {
+                dir = PositionStates.Direction.right;
+            } else {
+                dir = PositionStates.Direction.left;
+            }
+        } else {
+            if ( targetPosition.z < player.transform.position.z ) {
+                dir = PositionStates.Direction.right;
+            } else {
+                dir = PositionStates.Direction.left;
+            }
+        }
+
+        return dir;
     }
 
     private Vector3 GetEndingPosition( Vector3 targetPosition ) {
@@ -149,14 +172,33 @@ public class PlayerRotation : CharacterStates {
         return targetPosition;
     }
 
+    //---------------------------------------------ROTATION---------------------------------------------//
     private bool QuaternionsEqual( Quaternion q1, Quaternion q2 ) {
         return (q1.Equals( q2 ) || (q1 == q2));
     }
+
     private void GetConstraints( ) {
         if ( player.currentRotation == PositionStates.Rotation.zero ||
             player.currentRotation == PositionStates.Rotation.two )
             player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
         else
             player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX;
+    }
+
+    //---------------------------------------------UNUSED----------------------------------------------//
+    public void Update( ) {
+        // Do nothing
+    }
+
+    public void OnTriggerEnter( Collider other ) {
+        // Do nothing
+    }
+
+    public void SwitchToRotation( ) {
+        // Can't switch to same state
+    }
+
+    public void SwitchToPlayerCrawl( ) {
+        // Do nothing
     }
 }
