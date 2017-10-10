@@ -8,4 +8,5 @@ public interface CharacterStates {
     void SwitchToRotation( );
     void SwitchToPlayerMovement( );
     void OnTriggerEnter( Collider other );
+    void OnTriggerExit(Collider other);
 }

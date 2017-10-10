@@ -1,25 +1,28 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerInput : CharacterStates
+public class Climbing : CharacterStates
 {
-    private readonly CharacterMovement player;
+    public CharacterMovement player;
+    private int climbing = 0;
+    private bool hanging = false;
+    private Vector3 hangPos;
 
-    public PlayerInput(CharacterMovement characterMovement)
+    public Climbing(CharacterMovement cMovement)
     {
-        player = characterMovement;
+        player = cMovement;
     }
 
     // Update is called once per frame
     public void Update()
     {
         // Get integer value for direction character is moving
-        if (Rebind.GetInput("Right"))
+        if (Rebind.GetInput("Right") && !Physics.Raycast(player.transform.position, player.transform.right, 1))
         {
             player.currDirection = PositionStates.Direction.right;
         }
-        else if (Rebind.GetInput("Left"))
+        else if (Rebind.GetInput("Left") && !Physics.Raycast(player.transform.position, -player.transform.right, 1))
         {
             player.currDirection = PositionStates.Direction.left;
         }
@@ -28,12 +31,49 @@ public class PlayerInput : CharacterStates
             player.currDirection = PositionStates.Direction.idle;
         }
 
+        if (Rebind.GetInput("Up"))
+        {
+            hanging = false;
+            player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            climbing = 1;
+        }
+        else if (Rebind.GetInput("Down"))
+        {
+            hanging = false;
+            player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            climbing = -1;
+        }
+        else if (!hanging)
+        {
+            hanging = true;
+            player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            climbing = 0;
+        }
+
         // Lock the x-rotation of the character
         player.transform.eulerAngles = new Vector3(0, (float)player.currentRotation, 0);
     }
 
     public void FixedUpdate()
     {
+        // Ascending
+        if (climbing == 1)
+        {
+            player.GetComponent<Rigidbody>().velocity = new Vector3(0, player.jumpSpeed / 5, 0);
+        }
+        // Descending
+        else if (climbing == -1)
+        {
+            player.GetComponent<Rigidbody>().velocity = new Vector3(0, -player.jumpSpeed / 5, 0);
+            player.gameObject.GetComponent<Rigidbody>().useGravity = false;
+
+        }
+        // Hanging
+        else if (climbing == 0)
+        {
+
+        }
+
         // Horizontal movement
         float horVel = GetHorizontalVelocity();
         if (player.currentRotation == PositionStates.Rotation.zero)
@@ -44,18 +84,6 @@ public class PlayerInput : CharacterStates
             player.GetComponent<Rigidbody>().velocity = new Vector3(-horVel, player.GetComponent<Rigidbody>().velocity.y, 0);
         else if (player.currentRotation == PositionStates.Rotation.three)
             player.GetComponent<Rigidbody>().velocity = new Vector3(0, player.GetComponent<Rigidbody>().velocity.y, -horVel);
-
-        // Jumping
-        if (Rebind.GetInputDown("Up") && player.grav.IsGrounded())
-        {
-            player.GetComponent<Rigidbody>().velocity = new Vector3(player.GetComponent<Rigidbody>().velocity.x, player.jumpSpeed, player.GetComponent<Rigidbody>().velocity.z);
-        }
-
-        // Falling
-        if (!player.grav.IsGrounded())
-        {
-            player.grav.StartGravity();
-        }
     }
 
     /// <summary>
@@ -131,36 +159,26 @@ public class PlayerInput : CharacterStates
         return player.horSpeed;
     }
 
+
     public void SwitchToRotation()
     {
-        Vector3 vel = new Vector3(0, player.GetComponent<Rigidbody>().velocity.y, 0);
-        player.GetComponent<Rigidbody>().velocity = vel;
-        player.currentState = player.playerRotation;
+
     }
 
     public void SwitchToPlayerMovement()
     {
-        // Do nothing, can't switch to same state
+        player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        player.gameObject.GetComponent<Rigidbody>().useGravity = true;
+        player.currentState = player.playerInput;
     }
 
     public void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("TriggerRotationSwitch"))
-        {
-            player.rotationAdd = (int)other.GetComponent<RotationVars>().rotationDir;
-            player.endingRotation = other.GetComponent<RotationVars>().endingRotation;
-            Vector3 point = other.transform.parent.transform.position;
-            player.rotationPoint = new Vector3(point.x, player.transform.position.y, point.z);
-            SwitchToRotation();
-        }
-        else if (other.CompareTag("Climbable"))
-        {
-            player.currentState = player.climbing;
-        }
+
     }
 
     public void OnTriggerExit(Collider other)
     {
-
+        SwitchToPlayerMovement();
     }
 }

@@ -147,4 +147,9 @@ public class PlayerRotation : CharacterStates {
     private bool QuaternionsEqual( Quaternion q1, Quaternion q2 ) {
         return (q1.Equals( q2 ) || (q1 == q2));
     }
+
+    public void OnTriggerExit(Collider other)
+    {
+
+    }
 }
