@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -180,5 +180,9 @@ public class Climbing : CharacterStates
     public void OnTriggerExit(Collider other)
     {
         SwitchToPlayerMovement();
+    }
+
+    public void SwitchToPlayerCrawl( ) {
+
     }
 }
