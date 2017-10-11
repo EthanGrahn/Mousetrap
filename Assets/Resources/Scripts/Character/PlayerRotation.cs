@@ -204,4 +204,8 @@ public class PlayerRotation : CharacterStates {
     public void SwitchToPlayerCrawl( ) {
         // Do nothing
     }
+
+    public void OnTriggerExit( Collider other ) {
+
+    }
 }
