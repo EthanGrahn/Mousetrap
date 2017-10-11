@@ -28,10 +28,13 @@ public class PlayerRotation : CharacterStates {
 
         // Move character to point of rotation
         PositionStates.Direction dir = GetDirection( player.rotationPoint );
-        while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint ) {
+        bool thing = true;
+        while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint && thing ) {
+            thing = false;
             HorizontalMovement( dir );
-            Debug.Log( "Inside movement while, player direction = " + dir + " " + (int)dir + " " + Vector3.Distance(player.rotationPoint, player.transform.position) );
-            yield return null;
+            Debug.Log( "Inside movement while, player direction = " + dir + " " + (int)dir + " " + Vector3.Distance(player.rotationPoint, player.transform.position) + player.GetComponent<Rigidbody>().velocity );
+            thing = true;
+            yield return new WaitForFixedUpdate();
         }
         Debug.Log( "Outside of movement while" );
         player.transform.position = player.rotationPoint;
@@ -72,7 +75,7 @@ public class PlayerRotation : CharacterStates {
         while ( Vector3.Distance( player.transform.position, targetPosition ) > distFromPoint ) {
             HorizontalMovement( player.endingDirection );
             Debug.Log( "Inside end movement while, player direction = " + player.endingDirection + " " + Vector3.Distance(targetPosition, player.transform.position) );
-            yield return null;
+            yield return new WaitForFixedUpdate( );
         }
         Debug.Log( "Outside end movement while" );
 
