@@ -9,4 +9,5 @@ public interface CharacterStates {
     void SwitchToPlayerMovement( );
     void SwitchToPlayerCrawl( );
     void OnTriggerEnter( Collider other );
+    void OnTriggerExit(Collider other);
 }

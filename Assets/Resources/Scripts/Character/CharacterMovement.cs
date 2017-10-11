@@ -49,10 +49,14 @@ public class CharacterMovement : MonoBehaviour {
 
     [HideInInspector]
     public CharacterStates currentState;
+    // Character States ##################################
     [HideInInspector]
     public PlayerInput playerInput;
     [HideInInspector]
     public PlayerRotation playerRotation;
+    [HideInInspector]
+    public Climbing climbing;
+    // ################################################### 
 
     // Camera reference
     public Camera mainCam;
@@ -73,6 +77,8 @@ public class CharacterMovement : MonoBehaviour {
         turnAround = false;
 
         currentState = playerInput;
+
+        climbing = new Climbing(this);
     }
 	
 	// Update is called once per frame
@@ -88,7 +94,13 @@ public class CharacterMovement : MonoBehaviour {
         currentState.OnTriggerEnter( other );
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        currentState.OnTriggerExit(other);
+    }
+
     public void StartStateCoroutine(IEnumerator routine) {
         StartCoroutine( routine );
     }
+    
 }
