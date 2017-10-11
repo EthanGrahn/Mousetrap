@@ -28,6 +28,8 @@ public class CharacterMovement : MonoBehaviour {
     public float rotationAdd;
     [HideInInspector]
     public PositionStates.Rotation endingRotation;
+    [HideInInspector]
+    public PositionStates.Direction endingDirection;
     
     // Direction character is moving in and for slowdown
     [HideInInspector]
@@ -62,6 +64,7 @@ public class CharacterMovement : MonoBehaviour {
     void Awake() {
         playerInput = new PlayerInput( this );
         playerRotation = new PlayerRotation( this );
+        GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
     }
 
 	// Use this for initialization

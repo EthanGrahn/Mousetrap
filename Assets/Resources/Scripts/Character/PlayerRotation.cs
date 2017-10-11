@@ -8,18 +8,13 @@ public class PlayerRotation : CharacterStates {
     private float rotSpeed = 100;
     private float endingDist = 6;
     private float distFromPoint = 0.15f;
-    float inTime = 1.7f;
+    float inTime = 1.1f;
 
-    public PlayerRotation (CharacterMovement characterMovement) {
+    public PlayerRotation( CharacterMovement characterMovement ) {
         player = characterMovement;
     }
-	
-	// Update is called once per frame
-	public void Update () {
-        // Do nothing
-    }
 
-    IEnumerator MoveToPoint() {
+    IEnumerator MoveToPoint( ) {
         rotating = true;
         // Make sure rotation is kept on ground
         while ( !player.grav.IsGrounded( ) ) {
@@ -32,28 +27,28 @@ public class PlayerRotation : CharacterStates {
         player.rotationPoint = groundedPos;
 
         // Move character to point of rotation
-        while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint ) {
-            HorizontalMovement( );
-            yield return null;
+        PositionStates.Direction dir = GetDirection( player.rotationPoint );
+        bool thing = true;
+        while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint && thing ) {
+            thing = false;
+            HorizontalMovement( dir );
+            Debug.Log( "Inside movement while, player direction = " + dir + " " + (int)dir + " " + Vector3.Distance(player.rotationPoint, player.transform.position) + player.GetComponent<Rigidbody>().velocity );
+            thing = true;
+            yield return new WaitForFixedUpdate();
         }
-
+        Debug.Log( "Outside of movement while" );
         player.transform.position = player.rotationPoint;
         player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
 
         // Rotate the camera
-        float targetAngle = player.transform.eulerAngles.y;
-        targetAngle += player.rotationAdd % 360;
         float cameraAngle = player.mainCam.transform.eulerAngles.y;
         cameraAngle += player.rotationAdd % 360;
-
-        Quaternion targetRotation = Quaternion.identity;
-        targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
         Quaternion cameraRotation = Quaternion.identity;
         cameraRotation = Quaternion.Euler( 0.0f, cameraAngle, 0.0f );
 
         player.currentRotation = player.endingRotation;
 
-        for (float t = 0f; t < 1; t += Time.deltaTime/inTime ) {
+        for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
             player.mainCam.transform.rotation = Quaternion.Lerp( player.mainCam.transform.rotation, cameraRotation, t );
             yield return null;
         }
@@ -61,60 +56,96 @@ public class PlayerRotation : CharacterStates {
         player.mainCam.transform.rotation = cameraRotation;
 
         // Rotate the player
-        while (!QuaternionsEqual(player.transform.rotation, targetRotation)) {
-            player.transform.rotation = Quaternion.RotateTowards( player.transform.rotation, targetRotation, rotSpeed * Time.deltaTime );
+        player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        float targetAngle = player.transform.eulerAngles.y;
+        targetAngle += player.rotationAdd % 360;
+        Quaternion targetRotation = Quaternion.identity;
+        targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
+
+        for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
+            player.transform.rotation = Quaternion.Lerp( player.transform.rotation, targetRotation, t );
             yield return null;
         }
-
-        player.transform.rotation = targetRotation;
+        GetConstraints( );
 
         // Move player to outside of trigger area
         Vector3 targetPosition = player.transform.position;
         targetPosition = GetEndingPosition( targetPosition );
 
         while ( Vector3.Distance( player.transform.position, targetPosition ) > distFromPoint ) {
-            HorizontalMovement( );
-            yield return null;
+            HorizontalMovement( player.endingDirection );
+            Debug.Log( "Inside end movement while, player direction = " + player.endingDirection + " " + Vector3.Distance(targetPosition, player.transform.position) );
+            yield return new WaitForFixedUpdate( );
         }
-
-        player.transform.position = targetPosition;
-        player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
+        Debug.Log( "Outside end movement while" );
 
         SwitchToPlayerMovement( );
         rotating = false;
     }
+    //--------------------------------------------------------------------------------------------------//
+    //----------------------------------------END OF IENUMERATOR----------------------------------------//
+    //--------------------------------------------------------------------------------------------------//
 
+
+    //--------------------------------------------------------------------------------------------------//
+    //-----------------------------------------STATE FUNCTIONS------------------------------------------//
+    //--------------------------------------------------------------------------------------------------//
     public void FixedUpdate( ) {
-        if (!rotating)
-            player.StartStateCoroutine( MoveToPoint() );
-    }
-
-    public void OnTriggerEnter( Collider other ) {
-        // Do nothing
-    }
-
-    public void SwitchToRotation( ) {
-        // Can't switch to same state
+        if ( !rotating )
+            player.StartStateCoroutine( MoveToPoint( ) );
     }
 
     public void SwitchToPlayerMovement( ) {
         player.currentState = player.playerInput;
     }
 
-    private void HorizontalMovement() {
+    
+    //---------------------------------------------MOVEMENT---------------------------------------------//
+    private void HorizontalMovement( PositionStates.Direction dir ) {
         // Horizontal movement
-        float horVel = (int)player.lastDirection * player.speedUpFactor;
+        float horVel = (int)dir * player.speedUpFactor;
         if ( player.currentRotation == PositionStates.Rotation.zero )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, 0.0f, 0.0f );
         else if ( player.currentRotation == PositionStates.Rotation.one )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, horVel );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, 0.0f, horVel );
         else if ( player.currentRotation == PositionStates.Rotation.two )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, 0.0f, 0.0f );
         else if ( player.currentRotation == PositionStates.Rotation.three )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, -horVel );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, 0.0f, -horVel );
     }
 
-    private Vector3 GetEndingPosition (Vector3 targetPosition) {
+    private PositionStates.Direction GetDirection( Vector3 targetPosition ) {
+        PositionStates.Direction dir;
+        if ( player.currentRotation == PositionStates.Rotation.zero ) {
+            if ( targetPosition.x > player.transform.position.x ) {
+                dir = PositionStates.Direction.right;
+            } else {
+                dir = PositionStates.Direction.left;
+            }
+        } else if ( player.currentRotation == PositionStates.Rotation.one ) {
+            if ( targetPosition.z > player.transform.position.z ) {
+                dir = PositionStates.Direction.right;
+            } else {
+                dir = PositionStates.Direction.left;
+            }
+        } else if ( player.currentRotation == PositionStates.Rotation.two ) {
+            if ( targetPosition.x < player.transform.position.x ) {
+                dir = PositionStates.Direction.right;
+            } else {
+                dir = PositionStates.Direction.left;
+            }
+        } else {
+            if ( targetPosition.z < player.transform.position.z ) {
+                dir = PositionStates.Direction.right;
+            } else {
+                dir = PositionStates.Direction.left;
+            }
+        }
+
+        return dir;
+    }
+
+    private Vector3 GetEndingPosition( Vector3 targetPosition ) {
         if ( player.currentRotation == PositionStates.Rotation.zero ) {
             if ( player.lastDirection == PositionStates.Direction.left ) {
                 targetPosition.x -= endingDist;
@@ -144,12 +175,33 @@ public class PlayerRotation : CharacterStates {
         return targetPosition;
     }
 
+    //---------------------------------------------ROTATION---------------------------------------------//
     private bool QuaternionsEqual( Quaternion q1, Quaternion q2 ) {
         return (q1.Equals( q2 ) || (q1 == q2));
     }
 
-    public void OnTriggerExit(Collider other)
-    {
+    private void GetConstraints( ) {
+        if ( player.currentRotation == PositionStates.Rotation.zero ||
+            player.currentRotation == PositionStates.Rotation.two )
+            player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
+        else
+            player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX;
+    }
 
+    //---------------------------------------------UNUSED----------------------------------------------//
+    public void Update( ) {
+        // Do nothing
+    }
+
+    public void OnTriggerEnter( Collider other ) {
+        // Do nothing
+    }
+
+    public void SwitchToRotation( ) {
+        // Can't switch to same state
+    }
+
+    public void SwitchToPlayerCrawl( ) {
+        // Do nothing
     }
 }
