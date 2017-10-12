@@ -5,10 +5,9 @@ using UnityEngine;
 public class PlayerRotation : CharacterStates {
     private readonly CharacterMovement player;
     private bool rotating = false;
-    private float rotSpeed = 100;
     private float endingDist = 6;
     private float distFromPoint = 0.15f;
-    float inTime = 1.1f;
+    float inTime = 1.2f;
 
     public PlayerRotation( CharacterMovement characterMovement ) {
         player = characterMovement;
@@ -18,7 +17,7 @@ public class PlayerRotation : CharacterStates {
         rotating = true;
         // Make sure rotation is kept on ground
         while ( !player.grav.IsGrounded( ) ) {
-            yield return null;
+            yield return new WaitForFixedUpdate();
         }
 
         // Set new point to grounded position
@@ -28,15 +27,10 @@ public class PlayerRotation : CharacterStates {
 
         // Move character to point of rotation
         PositionStates.Direction dir = GetDirection( player.rotationPoint );
-        bool thing = true;
-        while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint && thing ) {
-            thing = false;
+        while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint ) {
             HorizontalMovement( dir );
-            Debug.Log( "Inside movement while, player direction = " + dir + " " + (int)dir + " " + Vector3.Distance(player.rotationPoint, player.transform.position) + player.GetComponent<Rigidbody>().velocity );
-            thing = true;
             yield return new WaitForFixedUpdate();
         }
-        Debug.Log( "Outside of movement while" );
         player.transform.position = player.rotationPoint;
         player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
 
@@ -50,7 +44,7 @@ public class PlayerRotation : CharacterStates {
 
         for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
             player.mainCam.transform.rotation = Quaternion.Lerp( player.mainCam.transform.rotation, cameraRotation, t );
-            yield return null;
+            yield return new WaitForFixedUpdate();
         }
 
         player.mainCam.transform.rotation = cameraRotation;
@@ -64,7 +58,7 @@ public class PlayerRotation : CharacterStates {
 
         for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
             player.transform.rotation = Quaternion.Lerp( player.transform.rotation, targetRotation, t );
-            yield return null;
+            yield return new WaitForFixedUpdate();
         }
         GetConstraints( );
 
@@ -74,10 +68,8 @@ public class PlayerRotation : CharacterStates {
 
         while ( Vector3.Distance( player.transform.position, targetPosition ) > distFromPoint ) {
             HorizontalMovement( player.endingDirection );
-            Debug.Log( "Inside end movement while, player direction = " + player.endingDirection + " " + Vector3.Distance(targetPosition, player.transform.position) );
             yield return new WaitForFixedUpdate( );
         }
-        Debug.Log( "Outside end movement while" );
 
         SwitchToPlayerMovement( );
         rotating = false;
@@ -183,9 +175,11 @@ public class PlayerRotation : CharacterStates {
     private void GetConstraints( ) {
         if ( player.currentRotation == PositionStates.Rotation.zero ||
             player.currentRotation == PositionStates.Rotation.two )
-            player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
+            player.GetComponent<Rigidbody>( ).constraints =
+                RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
         else
-            player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX;
+            player.GetComponent<Rigidbody>( ).constraints =
+                RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX;
     }
 
     //---------------------------------------------UNUSED----------------------------------------------//
