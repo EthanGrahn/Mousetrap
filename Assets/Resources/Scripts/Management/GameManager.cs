@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour {
 
     public static GameManager Instance;
     public SceneSwitch SceneSwitch;
+    public CharacterMovement CharMovement;
 
     private void Start()
     {
