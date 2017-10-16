@@ -60,7 +60,7 @@ public class PlayerRotation : CharacterStates {
             player.transform.rotation = Quaternion.Lerp( player.transform.rotation, targetRotation, t );
             yield return new WaitForFixedUpdate();
         }
-        GetConstraints( );
+        player.GetConstraints( );
 
         // Move player to outside of trigger area
         Vector3 targetPosition = player.transform.position;
@@ -172,34 +172,11 @@ public class PlayerRotation : CharacterStates {
         return (q1.Equals( q2 ) || (q1 == q2));
     }
 
-    private void GetConstraints( ) {
-        if ( player.currentRotation == PositionStates.Rotation.zero ||
-            player.currentRotation == PositionStates.Rotation.two )
-            player.GetComponent<Rigidbody>( ).constraints =
-                RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
-        else
-            player.GetComponent<Rigidbody>( ).constraints =
-                RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX;
-    }
-
     //---------------------------------------------UNUSED----------------------------------------------//
-    public void Update( ) {
-        // Do nothing
-    }
-
-    public void OnTriggerEnter( Collider other ) {
-        // Do nothing
-    }
-
-    public void SwitchToRotation( ) {
-        // Can't switch to same state
-    }
-
-    public void SwitchToPlayerCrawl( ) {
-        // Do nothing
-    }
-
-    public void OnTriggerExit( Collider other ) {
-
-    }
+    public void Update( ) {}
+    public void OnTriggerEnter( Collider other ) {}
+    public void SwitchToRotation( ) {}
+    public void SwitchToPlayerCrawl( ) {}
+    public void OnTriggerExit( Collider other ) {}
+    public void SwitchToPlayerClimb( ) {}
 }
