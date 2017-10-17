@@ -16,7 +16,7 @@ public class PlayerRotation : CharacterStates {
     IEnumerator MoveToPoint( ) {
         rotating = true;
         // Make sure rotation is kept on ground
-        while ( !player.grav.IsGrounded( ) ) {
+        while ( !player.grav.IsGrounded() ) {
             yield return new WaitForFixedUpdate();
         }
 
@@ -28,11 +28,11 @@ public class PlayerRotation : CharacterStates {
         // Move character to point of rotation
         PositionStates.Direction dir = GetDirection( player.rotationPoint );
         while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint ) {
-            HorizontalMovement( dir );
+            player.SetHorizontalMovement( dir );
             yield return new WaitForFixedUpdate();
         }
         player.transform.position = player.rotationPoint;
-        player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
+        player.GetComponent<Rigidbody>().velocity = new Vector3( 0, 0, 0 );
 
         // Rotate the camera
         float cameraAngle = player.mainCam.transform.eulerAngles.y;
@@ -50,7 +50,7 @@ public class PlayerRotation : CharacterStates {
         player.mainCam.transform.rotation = cameraRotation;
 
         // Rotate the player
-        player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         float targetAngle = player.transform.eulerAngles.y;
         targetAngle += player.rotationAdd % 360;
         Quaternion targetRotation = Quaternion.identity;
@@ -60,18 +60,18 @@ public class PlayerRotation : CharacterStates {
             player.transform.rotation = Quaternion.Lerp( player.transform.rotation, targetRotation, t );
             yield return new WaitForFixedUpdate();
         }
-        player.GetConstraints( );
+        player.GetConstraints();
 
         // Move player to outside of trigger area
         Vector3 targetPosition = player.transform.position;
         targetPosition = GetEndingPosition( targetPosition );
 
         while ( Vector3.Distance( player.transform.position, targetPosition ) > distFromPoint ) {
-            HorizontalMovement( player.endingDirection );
-            yield return new WaitForFixedUpdate( );
+            player.SetHorizontalMovement( player.endingDirection );
+            yield return new WaitForFixedUpdate();
         }
 
-        SwitchToPlayerMovement( );
+        SwitchToPlayerMovement();
         rotating = false;
     }
     //--------------------------------------------------------------------------------------------------//
@@ -84,27 +84,16 @@ public class PlayerRotation : CharacterStates {
     //--------------------------------------------------------------------------------------------------//
     public void FixedUpdate( ) {
         if ( !rotating )
-            player.StartStateCoroutine( MoveToPoint( ) );
+            player.StartStateCoroutine( MoveToPoint() );
     }
 
     public void SwitchToPlayerMovement( ) {
         player.currentState = player.playerInput;
     }
 
-    
+
     //---------------------------------------------MOVEMENT---------------------------------------------//
-    private void HorizontalMovement( PositionStates.Direction dir ) {
-        // Horizontal movement
-        float horVel = (int)dir * player.speedUpFactor;
-        if ( player.currentRotation == PositionStates.Rotation.zero )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, 0.0f, 0.0f );
-        else if ( player.currentRotation == PositionStates.Rotation.one )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, 0.0f, horVel );
-        else if ( player.currentRotation == PositionStates.Rotation.two )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, 0.0f, 0.0f );
-        else if ( player.currentRotation == PositionStates.Rotation.three )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, 0.0f, -horVel );
-    }
+    
 
     private PositionStates.Direction GetDirection( Vector3 targetPosition ) {
         PositionStates.Direction dir;
@@ -173,10 +162,10 @@ public class PlayerRotation : CharacterStates {
     }
 
     //---------------------------------------------UNUSED----------------------------------------------//
-    public void Update( ) {}
-    public void OnTriggerEnter( Collider other ) {}
-    public void SwitchToRotation( ) {}
-    public void SwitchToPlayerCrawl( ) {}
-    public void OnTriggerExit( Collider other ) {}
-    public void SwitchToPlayerClimb( ) {}
+    public void Update( ) { }
+    public void OnTriggerEnter( Collider other ) { }
+    public void SwitchToRotation( ) { }
+    public void SwitchToPlayerCrawl( ) { }
+    public void OnTriggerExit( Collider other ) { }
+    public void SwitchToPlayerClimb( ) { }
 }

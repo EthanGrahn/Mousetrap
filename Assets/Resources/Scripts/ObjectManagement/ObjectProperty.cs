@@ -5,8 +5,7 @@ public class ObjectProperty : MonoBehaviour {
     /// <summary>
     /// Type of interactable object.
     /// </summary>
-    public enum ObjectType
-    {
+    public enum ObjectType {
         Climbable,
         Smashable,
         Pushable
@@ -14,10 +13,8 @@ public class ObjectProperty : MonoBehaviour {
 
     public ObjectType objectType;
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        switch (collision.gameObject.GetComponent<ObjectProperty>().objectType)
-        {
+    private void OnCollisionEnter( Collision collision ) {
+        switch ( collision.gameObject.GetComponent<ObjectProperty>().objectType ) {
             case ObjectType.Climbable:
 
                 break;

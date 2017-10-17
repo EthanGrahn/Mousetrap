@@ -2,15 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Gravity))]
+[RequireComponent( typeof( Gravity ) )]
 public class CharacterMovement : MonoBehaviour {
     #region Variables
     // Variables for movement
-    [Tooltip("Multiplier for how fast character may travel.")]
+    [Tooltip( "Multiplier for how fast character may travel." )]
     public float speedUpFactor = 5;
-    [Tooltip("The curve of character speed from start to top speed. (End at 1,1)")]
+    [Tooltip( "The curve of character speed from start to top speed. (End at 1,1)" )]
     public AnimationCurve speedUpRatio;
-    [Tooltip("How many seconds it takes to reach top speed.")]
+    [Tooltip( "How many seconds it takes to reach top speed." )]
     public float timeToSpeedUp = 2.0f;
     [HideInInspector]
     public float timerSpeedUp = 0.0f;
@@ -30,7 +30,7 @@ public class CharacterMovement : MonoBehaviour {
     public PositionStates.Rotation endingRotation;
     [HideInInspector]
     public PositionStates.Direction endingDirection;
-    
+
     // Direction character is moving in and for slowdown
     [HideInInspector]
     public PositionStates.Direction currDirection = PositionStates.Direction.right;
@@ -38,7 +38,7 @@ public class CharacterMovement : MonoBehaviour {
     public PositionStates.Direction lastDirection = PositionStates.Direction.right;
 
     // Used for Jumping
-    [Tooltip("How fast the character jumps in the air.")]
+    [Tooltip( "How fast the character jumps in the air." )]
     public float jumpSpeed = 50.0f;
 
     // Used for Climbing
@@ -65,22 +65,22 @@ public class CharacterMovement : MonoBehaviour {
 
     // Camera reference
     public Camera mainCam;
-    #endregion Variables6
+    #endregion
 
     //--------------------------------------------------------------------------------------------------//
     //------------------------------------------INITIALIZATION------------------------------------------//
     //--------------------------------------------------------------------------------------------------//
-    void Awake() {
+    void Awake( ) {
         playerInput = new PlayerInput( this );
         playerRotation = new PlayerRotation( this );
-        climbing = new Climbing(this);
+        climbing = new Climbing( this );
     }
-    
-	void Start () {
-        currentRotation = PositionStates.Rotation.zero;
-        GetConstraints( );
 
-        grav = GetComponent<Gravity>( );
+    void Start( ) {
+        currentRotation = PositionStates.Rotation.zero;
+        GetConstraints();
+
+        grav = GetComponent<Gravity>();
 
         turnAround = false;
 
@@ -91,24 +91,23 @@ public class CharacterMovement : MonoBehaviour {
     //--------------------------------------------------------------------------------------------------//
     //-----------------------------------------STATE FUNCTIONS------------------------------------------//
     //--------------------------------------------------------------------------------------------------//
-    void Update () {
-        currentState.Update( );
+    void Update( ) {
+        currentState.Update();
     }
 
-    void FixedUpdate() {
-        currentState.FixedUpdate( );
+    void FixedUpdate( ) {
+        currentState.FixedUpdate();
     }
 
     void OnTriggerEnter( Collider other ) {
         currentState.OnTriggerEnter( other );
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        currentState.OnTriggerExit(other);
+    private void OnTriggerExit( Collider other ) {
+        currentState.OnTriggerExit( other );
     }
 
-    public void StartStateCoroutine(IEnumerator routine) {
+    public void StartStateCoroutine( IEnumerator routine ) {
         StartCoroutine( routine );
     }
 
@@ -119,11 +118,11 @@ public class CharacterMovement : MonoBehaviour {
     /// <summary>
     /// Gets the current direction the player is moving in
     /// </summary>
-    public void GetDirection() {
+    public void GetDirection( ) {
         // Get integer value for direction character is moving
-        if ( Rebind.GetInput( "Right" ) && !grav.RightGrounded( ) ) {
+        if ( Rebind.GetInput( "Right" ) && !grav.RightGrounded() ) {
             currDirection = PositionStates.Direction.right;
-        } else if ( Rebind.GetInput( "Left" ) && !grav.LeftGrounded( ) ) {
+        } else if ( Rebind.GetInput( "Left" ) && !grav.LeftGrounded() ) {
             currDirection = PositionStates.Direction.left;
         } else {
             currDirection = PositionStates.Direction.idle;
@@ -188,28 +187,75 @@ public class CharacterMovement : MonoBehaviour {
     /// <summary>
     /// Sets the current velocity of the character
     /// </summary>
-    public void SetHorizontalMovment() {
-        float horVel = GetHorizontalVelocity( );
+    public void SetHorizontalMovement( ) {
+        float horVel = GetHorizontalVelocity();
         if ( currentRotation == PositionStates.Rotation.zero )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, GetComponent<Rigidbody>( ).velocity.y, 0 );
+            GetComponent<Rigidbody>().velocity = new Vector3( horVel, GetComponent<Rigidbody>().velocity.y, 0 );
         else if ( currentRotation == PositionStates.Rotation.one )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0, GetComponent<Rigidbody>( ).velocity.y, horVel );
+            GetComponent<Rigidbody>().velocity = new Vector3( 0, GetComponent<Rigidbody>().velocity.y, horVel );
         else if ( currentRotation == PositionStates.Rotation.two )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, GetComponent<Rigidbody>( ).velocity.y, 0 );
+            GetComponent<Rigidbody>().velocity = new Vector3( -horVel, GetComponent<Rigidbody>().velocity.y, 0 );
         else if ( currentRotation == PositionStates.Rotation.three )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0, GetComponent<Rigidbody>( ).velocity.y, -horVel );
+            GetComponent<Rigidbody>().velocity = new Vector3( 0, GetComponent<Rigidbody>().velocity.y, -horVel );
     }
-    
+
+    /// <summary>
+    /// Automatically moves player based on direction
+    /// </summary>
+    /// <param name="dir">Direction of horizontal movement</param>
+    public void SetHorizontalMovement( PositionStates.Direction dir ) {
+        float horVel = (int)dir * speedUpFactor;
+        if ( currentRotation == PositionStates.Rotation.zero )
+            GetComponent<Rigidbody>().velocity = new Vector3( horVel, 0.0f, 0.0f );
+        else if ( currentRotation == PositionStates.Rotation.one )
+            GetComponent<Rigidbody>().velocity = new Vector3( 0.0f, 0.0f, horVel );
+        else if ( currentRotation == PositionStates.Rotation.two )
+            GetComponent<Rigidbody>().velocity = new Vector3( -horVel, 0.0f, 0.0f );
+        else if ( currentRotation == PositionStates.Rotation.three )
+            GetComponent<Rigidbody>().velocity = new Vector3( 0.0f, 0.0f, -horVel );
+    }
+
+    /// <summary>
+    /// Squares Unity's gravity constant
+    /// </summary>
+    public void Falling() {
+        if ( !grav.IsGrounded() ) {
+            grav.StartGravity();
+        }
+    }
+
+    /// <summary>
+    /// Make the character jump
+    /// </summary>
+    public void Jumping() {
+        if ( Rebind.GetInputDown( "Up" ) && grav.IsGrounded() ) {
+            GetComponent<Rigidbody>().velocity = new Vector3( GetComponent<Rigidbody>().velocity.x,
+                jumpSpeed, GetComponent<Rigidbody>().velocity.z );
+        }
+    }
+
     /// <summary>
     /// Constrains the movement and rotation of the character in certain axes.
     /// </summary>
     public void GetConstraints( ) {
         if ( currentRotation == PositionStates.Rotation.zero ||
             currentRotation == PositionStates.Rotation.two )
-            GetComponent<Rigidbody>( ).constraints =
+            GetComponent<Rigidbody>().constraints =
                 RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
         else
-            GetComponent<Rigidbody>( ).constraints =
+            GetComponent<Rigidbody>().constraints =
                 RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX;
+    }
+
+    /// <summary>
+    /// Set rotation point, direction of rotation, and ending direction to leave rotation point from for the character.
+    /// </summary>
+    /// <param name="other">Collider that triggers the rotation to occur</param>
+    public void SetRotationVars( Collider other) {
+        rotationAdd = (int)other.GetComponent<RotationVars>().rotationDir;
+        endingRotation = other.GetComponent<RotationVars>().endingRotation;
+        endingDirection = other.GetComponent<RotationVars>().endingDirection;
+        Vector3 point = other.transform.parent.transform.position;
+        rotationPoint = new Vector3( point.x, transform.position.y, point.z );
     }
 }
