@@ -46,13 +46,13 @@ public class Gravity : MonoBehaviour {
     public bool RightGrounded( ) {
         return Physics.Raycast( transform.position, transform.right, distToSide + .1f ) ||
             Physics.Raycast( transform.position + new Vector3( 0, distToGround, 0 ), transform.right, distToSide + .1f ) ||
-            Physics.Raycast( transform.position + new Vector3( 0, -distToGround, 0 ), transform.right, distToSide + .1f );
+            Physics.Raycast( transform.position + new Vector3( 0, (-distToGround + .01f), 0 ), transform.right, distToSide + .1f );
     }
 
     public bool LeftGrounded( ) {
         return Physics.Raycast( transform.position, -transform.right, distToSide + .1f ) ||
             Physics.Raycast( transform.position + new Vector3( 0, distToGround, 0 ), -transform.right, distToSide + .1f ) ||
-            Physics.Raycast( transform.position + new Vector3( 0, -distToGround, 0 ), -transform.right, distToSide + .1f );
+            Physics.Raycast( transform.position + new Vector3( 0, (-distToGround + .01f), 0 ), -transform.right, distToSide + .1f );
     }
 
     /// <summary>
