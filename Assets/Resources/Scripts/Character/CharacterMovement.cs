@@ -54,14 +54,14 @@ public class CharacterMovement : MonoBehaviour {
     // Character States ##################################
     [HideInInspector]
     public CharacterStates currentState;
-    // ################################################### 
+    // ###################################################
     [HideInInspector]
     public PlayerInput playerInput;
     [HideInInspector]
     public PlayerRotation playerRotation;
     [HideInInspector]
     public Climbing climbing;
-    // ################################################### 
+    // ###################################################
 
     // Camera reference
     public Camera mainCam;
@@ -93,6 +93,13 @@ public class CharacterMovement : MonoBehaviour {
     //--------------------------------------------------------------------------------------------------//
     void Update( ) {
         currentState.Update( );
+        if ( currDirection != PositionStates.Direction.idle ) {
+            if ( currDirection == PositionStates.Direction.right ) {
+                transform.localScale = new Vector3( Mathf.Abs( transform.localScale.x ), transform.localScale.y, transform.localScale.z );
+            } else {
+                transform.localScale = new Vector3( Mathf.Abs( transform.localScale.x ) * -1, transform.localScale.y, transform.localScale.z );
+            }
+        }
     }
 
     void FixedUpdate( ) {

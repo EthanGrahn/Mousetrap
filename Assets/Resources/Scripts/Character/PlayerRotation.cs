@@ -16,8 +16,8 @@ public class PlayerRotation : CharacterStates {
     IEnumerator MoveToPoint( ) {
         rotating = true;
         // Make sure rotation is kept on ground
-        while ( !player.grav.IsGrounded() ) {
-            yield return new WaitForFixedUpdate();
+        while ( !player.grav.IsGrounded( ) ) {
+            yield return new WaitForFixedUpdate( );
         }
 
         // Set new point to grounded position
@@ -26,13 +26,13 @@ public class PlayerRotation : CharacterStates {
         player.rotationPoint = groundedPos;
 
         // Move character to point of rotation
-        PositionStates.Direction dir = GetDirection( player.rotationPoint );
+        player.currDirection = GetDirection( player.rotationPoint );
         while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint ) {
-            player.SetHorizontalMovement( dir );
-            yield return new WaitForFixedUpdate();
+            player.SetHorizontalMovement( player.currDirection );
+            yield return new WaitForFixedUpdate( );
         }
         player.transform.position = player.rotationPoint;
-        player.GetComponent<Rigidbody>().velocity = new Vector3( 0, 0, 0 );
+        player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
 
         // Rotate the camera
         float cameraAngle = player.mainCam.transform.eulerAngles.y;
@@ -44,13 +44,13 @@ public class PlayerRotation : CharacterStates {
 
         for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
             player.mainCam.transform.rotation = Quaternion.Lerp( player.mainCam.transform.rotation, cameraRotation, t );
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate( );
         }
 
         player.mainCam.transform.rotation = cameraRotation;
 
         // Rotate the player
-        player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        player.GetComponent<Rigidbody>( ).constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         float targetAngle = player.transform.eulerAngles.y;
         targetAngle += player.rotationAdd % 360;
         Quaternion targetRotation = Quaternion.identity;
@@ -58,9 +58,9 @@ public class PlayerRotation : CharacterStates {
 
         for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
             player.transform.rotation = Quaternion.Lerp( player.transform.rotation, targetRotation, t );
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate( );
         }
-        player.GetConstraints();
+        player.GetConstraints( );
 
         // Move player to outside of trigger area
         Vector3 targetPosition = player.transform.position;
@@ -68,10 +68,10 @@ public class PlayerRotation : CharacterStates {
 
         while ( Vector3.Distance( player.transform.position, targetPosition ) > distFromPoint ) {
             player.SetHorizontalMovement( player.endingDirection );
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate( );
         }
 
-        SwitchToPlayerMovement();
+        SwitchToPlayerMovement( );
         rotating = false;
     }
     //--------------------------------------------------------------------------------------------------//
@@ -84,7 +84,7 @@ public class PlayerRotation : CharacterStates {
     //--------------------------------------------------------------------------------------------------//
     public void FixedUpdate( ) {
         if ( !rotating )
-            player.StartStateCoroutine( MoveToPoint() );
+            player.StartStateCoroutine( MoveToPoint( ) );
     }
 
     public void SwitchToPlayerMovement( ) {
@@ -93,8 +93,6 @@ public class PlayerRotation : CharacterStates {
 
 
     //---------------------------------------------MOVEMENT---------------------------------------------//
-    
-
     private PositionStates.Direction GetDirection( Vector3 targetPosition ) {
         PositionStates.Direction dir;
         if ( player.currentRotation == PositionStates.Rotation.zero ) {
