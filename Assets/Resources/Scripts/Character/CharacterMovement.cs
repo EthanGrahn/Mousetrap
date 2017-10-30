@@ -51,7 +51,8 @@ public class CharacterMovement : MonoBehaviour {
     public PositionStates.Rotation currentRotation;
     [HideInInspector]
     public Gravity grav;
-    private PlayerCollision coll;
+    [HideInInspector]
+    public PlayerCollision coll;
 
     // Character States ##################################
     [HideInInspector]
@@ -80,7 +81,7 @@ public class CharacterMovement : MonoBehaviour {
 
     void Start( ) {
         currentRotation = PositionStates.Rotation.zero;
-        GetConstraints( );
+        PositionStates.GetConstraints( gameObject, currentRotation );
 
         grav = GetComponent<Gravity>( );
         coll = GetComponent<PlayerCollision>( );
@@ -238,23 +239,10 @@ public class CharacterMovement : MonoBehaviour {
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
-        if ( Rebind.GetInputDown( "Up" ) && grav.IsGrounded( ) ) {
+        if ( Rebind.GetInputDown( "Jump" ) && grav.IsGrounded( ) ) {
             GetComponent<Rigidbody>( ).velocity = new Vector3( GetComponent<Rigidbody>( ).velocity.x,
                 jumpSpeed, GetComponent<Rigidbody>( ).velocity.z );
         }
-    }
-
-    /// <summary>
-    /// Constrains the movement and rotation of the character in certain axes.
-    /// </summary>
-    public void GetConstraints( ) {
-        if ( currentRotation == PositionStates.Rotation.zero ||
-            currentRotation == PositionStates.Rotation.two )
-            GetComponent<Rigidbody>( ).constraints =
-                RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
-        else
-            GetComponent<Rigidbody>( ).constraints =
-                RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX;
     }
 
     /// <summary>

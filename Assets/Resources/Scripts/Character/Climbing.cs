@@ -16,16 +16,16 @@ public class Climbing : CharacterStates {
     // Update is called once per frame
     public void Update( ) {
         // Get integer value for direction character is moving
-        player.GetDirection();
+        player.GetDirection( );
 
         if ( Rebind.GetInput( "Up" ) ) {
-            GetConstraints();
+            GetConstraints( );
             climbing = ClimbingDir.up;
         } else if ( Rebind.GetInput( "Down" ) ) {
-            GetConstraints();
+            GetConstraints( );
             climbing = ClimbingDir.down;
         } else {
-            GetConstraints();
+            GetConstraints( );
             climbing = ClimbingDir.idle;
         }
     }
@@ -33,31 +33,31 @@ public class Climbing : CharacterStates {
     public void FixedUpdate( ) {
         // Ascending
         if ( climbing == ClimbingDir.up ) {
-            player.GetComponent<Rigidbody>().velocity = new Vector3( 0, player.climbSpeed, 0 );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.climbSpeed, 0 );
         }
         // Descending
         else if ( climbing == ClimbingDir.down ) {
-            player.GetComponent<Rigidbody>().velocity = new Vector3( 0, -player.climbSpeed, 0 );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, -player.climbSpeed, 0 );
         }
 
         // Horizontal movement
-        player.SetHorizontalMovement();
+        player.SetHorizontalMovement( );
     }
 
     public void OnTriggerExit( Collider other ) {
-        SwitchToPlayerMovement();
+        SwitchToPlayerMovement( );
     }
 
     private void GetConstraints( ) {
-        player.GetConstraints();
+        PositionStates.GetConstraints( player.gameObject, player.currentRotation );
         if ( climbing == ClimbingDir.idle ) {
-            player.GetComponent<Rigidbody>().constraints |= RigidbodyConstraints.FreezePositionY;
+            player.GetComponent<Rigidbody>( ).constraints |= RigidbodyConstraints.FreezePositionY;
         }
     }
 
     public void SwitchToPlayerMovement( ) {
-        player.GetConstraints();
-        player.gameObject.GetComponent<Rigidbody>().useGravity = true;
+        PositionStates.GetConstraints( player.gameObject, player.currentRotation );
+        player.gameObject.GetComponent<Rigidbody>( ).useGravity = true;
         player.currentState = player.playerInput;
     }
 
