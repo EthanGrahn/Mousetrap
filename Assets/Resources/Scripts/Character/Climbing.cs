@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Climbing : CharacterStates {
+public class Climbing :CharacterStates {
     private readonly CharacterMovement player;
-    private Vector3 hangPos;
 
     private enum ClimbingDir { up = 1, down = -1, idle = 0 };
     private ClimbingDir climbing;
@@ -13,20 +12,29 @@ public class Climbing : CharacterStates {
         player = cMovement;
     }
 
-    // Update is called once per frame
     public void Update( ) {
         // Get integer value for direction character is moving
         player.GetDirection( );
 
+        // Get input for climbing up or down the wall
         if ( Rebind.GetInput( "Up" ) ) {
-            GetConstraints( );
             climbing = ClimbingDir.up;
-        } else if ( Rebind.GetInput( "Down" ) ) {
             GetConstraints( );
+        } else if ( Rebind.GetInput( "Down" ) ) {
             climbing = ClimbingDir.down;
+            GetConstraints( );
         } else {
             GetConstraints( );
             climbing = ClimbingDir.idle;
+        }
+
+        if ( Rebind.GetInputDown( "Jump" ) ) {
+            climbing = ClimbingDir.up;
+            GetConstraints( );
+            player.gameObject.GetComponent<Rigidbody>( ).useGravity = true;
+            // can't get player to jump or move away from wall
+            player.SetHorizontalMovement( player.currDirection );
+            SwitchToPlayerMovement( );
         }
     }
 

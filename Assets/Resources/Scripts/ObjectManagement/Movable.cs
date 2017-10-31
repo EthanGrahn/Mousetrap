@@ -13,14 +13,10 @@ public class Movable : MonoBehaviour {
 
     public float forceMultiplier = 8;
 
-    private new Rigidbody rigidbody;
-
     private ObjectCollision coll;
     public PositionStates.Rotation currRotation;
 
     void Start( ) {
-        rigidbody = GetComponent<Rigidbody>( );
-
         PositionStates.GetConstraintsRot( gameObject, currRotation );
 
         coll = GetComponent<ObjectCollision>( );

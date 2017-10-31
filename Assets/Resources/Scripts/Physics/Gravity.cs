@@ -16,7 +16,6 @@ public class Gravity : MonoBehaviour {
 
     // Falling object variables
     private float distToGround;
-    private float distToSide;
 
     float termVel;
 
@@ -30,7 +29,6 @@ public class Gravity : MonoBehaviour {
 
         // Distance from object to ground
         distToGround = GetComponent<Collider>( ).bounds.extents.y;
-        distToSide = GetComponent<Collider>( ).bounds.extents.x;
     }
 
     /// <summary>

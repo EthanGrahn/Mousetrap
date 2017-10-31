@@ -14,12 +14,16 @@ public class PlayerCollision : MonoBehaviour {
 
     public bool RightCollided( ) {
         RaycastHit hit;
+        Debug.DrawRay( transform.position, transform.right );
+        Debug.DrawRay( transform.position + new Vector3( 0, distToGround, 0 ), transform.right );
+        Debug.DrawRay( transform.position + new Vector3( 0, (-distToGround + .01f), 0 ), transform.right );
         if ( Physics.Raycast( transform.position, transform.right, out hit, distToSide + .1f ) ||
             Physics.Raycast( transform.position + new Vector3( 0, distToGround, 0 ), transform.right, out hit, distToSide + .1f ) ||
             Physics.Raycast( transform.position + new Vector3( 0, (-distToGround + .01f), 0 ), transform.right, out hit, distToSide + .1f ) ) {
             if ( hit.collider.GetComponent<ObjectProperties>( ) != null && hit.collider.GetComponent<ObjectProperties>( ).GetBoolProperty( "movable" ) ) {
-                return true;
+                return false;
             }
+            return true;
         }
 
         return false;
@@ -27,12 +31,16 @@ public class PlayerCollision : MonoBehaviour {
 
     public bool LeftCollided( ) {
         RaycastHit hit;
+        Debug.DrawRay( transform.position, -transform.right );
+        Debug.DrawRay( transform.position + new Vector3( 0, distToGround, 0 ), -transform.right );
+        Debug.DrawRay( transform.position + new Vector3( 0, (-distToGround + .01f), 0 ), -transform.right );
         if ( Physics.Raycast( transform.position, -transform.right, out hit, distToSide + .1f ) ||
             Physics.Raycast( transform.position + new Vector3( 0, distToGround, 0 ), -transform.right, out hit, distToSide + .1f ) ||
             Physics.Raycast( transform.position + new Vector3( 0, (-distToGround + .01f), 0 ), -transform.right, out hit, distToSide + .1f ) ) {
             if ( hit.collider.GetComponent<ObjectProperties>( ) != null && hit.collider.GetComponent<ObjectProperties>( ).GetBoolProperty( "movable" ) ) {
-                return true;
+                return false;
             }
+            return true;
         }
 
         return false;
