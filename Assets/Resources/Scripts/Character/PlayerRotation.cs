@@ -17,7 +17,7 @@ public class PlayerRotation : CharacterStates {
         rotating = true;
         // Make sure rotation is kept on ground
         while ( !player.grav.IsGrounded( ) ) {
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate( );
         }
 
         // Set new point to grounded position
@@ -26,10 +26,10 @@ public class PlayerRotation : CharacterStates {
         player.rotationPoint = groundedPos;
 
         // Move character to point of rotation
-        PositionStates.Direction dir = GetDirection( player.rotationPoint );
+        player.currDirection = GetDirection( player.rotationPoint );
         while ( Vector3.Distance( player.transform.position, player.rotationPoint ) > distFromPoint ) {
-            HorizontalMovement( dir );
-            yield return new WaitForFixedUpdate();
+            player.SetHorizontalMovement( player.currDirection );
+            yield return new WaitForFixedUpdate( );
         }
         player.transform.position = player.rotationPoint;
         player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, 0, 0 );
@@ -44,7 +44,7 @@ public class PlayerRotation : CharacterStates {
 
         for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
             player.mainCam.transform.rotation = Quaternion.Lerp( player.mainCam.transform.rotation, cameraRotation, t );
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate( );
         }
 
         player.mainCam.transform.rotation = cameraRotation;
@@ -58,16 +58,16 @@ public class PlayerRotation : CharacterStates {
 
         for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
             player.transform.rotation = Quaternion.Lerp( player.transform.rotation, targetRotation, t );
-            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate( );
         }
-        GetConstraints( );
+        PositionStates.GetConstraints( player.gameObject, player.currentRotation );
 
         // Move player to outside of trigger area
         Vector3 targetPosition = player.transform.position;
         targetPosition = GetEndingPosition( targetPosition );
 
         while ( Vector3.Distance( player.transform.position, targetPosition ) > distFromPoint ) {
-            HorizontalMovement( player.endingDirection );
+            player.SetHorizontalMovement( player.endingDirection );
             yield return new WaitForFixedUpdate( );
         }
 
@@ -91,21 +91,8 @@ public class PlayerRotation : CharacterStates {
         player.currentState = player.playerInput;
     }
 
-    
-    //---------------------------------------------MOVEMENT---------------------------------------------//
-    private void HorizontalMovement( PositionStates.Direction dir ) {
-        // Horizontal movement
-        float horVel = (int)dir * player.speedUpFactor;
-        if ( player.currentRotation == PositionStates.Rotation.zero )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, 0.0f, 0.0f );
-        else if ( player.currentRotation == PositionStates.Rotation.one )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, 0.0f, horVel );
-        else if ( player.currentRotation == PositionStates.Rotation.two )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, 0.0f, 0.0f );
-        else if ( player.currentRotation == PositionStates.Rotation.three )
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, 0.0f, -horVel );
-    }
 
+    //---------------------------------------------MOVEMENT---------------------------------------------//
     private PositionStates.Direction GetDirection( Vector3 targetPosition ) {
         PositionStates.Direction dir;
         if ( player.currentRotation == PositionStates.Rotation.zero ) {
@@ -172,34 +159,11 @@ public class PlayerRotation : CharacterStates {
         return (q1.Equals( q2 ) || (q1 == q2));
     }
 
-    private void GetConstraints( ) {
-        if ( player.currentRotation == PositionStates.Rotation.zero ||
-            player.currentRotation == PositionStates.Rotation.two )
-            player.GetComponent<Rigidbody>( ).constraints =
-                RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
-        else
-            player.GetComponent<Rigidbody>( ).constraints =
-                RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX;
-    }
-
     //---------------------------------------------UNUSED----------------------------------------------//
-    public void Update( ) {
-        // Do nothing
-    }
-
-    public void OnTriggerEnter( Collider other ) {
-        // Do nothing
-    }
-
-    public void SwitchToRotation( ) {
-        // Can't switch to same state
-    }
-
-    public void SwitchToPlayerCrawl( ) {
-        // Do nothing
-    }
-
-    public void OnTriggerExit( Collider other ) {
-
-    }
+    public void Update( ) { }
+    public void OnTriggerEnter( Collider other ) { }
+    public void SwitchToRotation( ) { }
+    public void SwitchToPlayerCrawl( ) { }
+    public void OnTriggerExit( Collider other ) { }
+    public void SwitchToPlayerClimb( ) { }
 }

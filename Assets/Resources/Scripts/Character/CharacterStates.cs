@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +8,7 @@ public interface CharacterStates {
     void SwitchToRotation( );
     void SwitchToPlayerMovement( );
     void SwitchToPlayerCrawl( );
+    void SwitchToPlayerClimb( );
     void OnTriggerEnter( Collider other );
-    void OnTriggerExit(Collider other);
+    void OnTriggerExit( Collider other );
 }

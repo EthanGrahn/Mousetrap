@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class CamFollowObject : MonoBehaviour {
 
+    #region Variables
     // Object camera will follow and its position
     [SerializeField]
     [Tooltip( "Object that the camera will follow." )]
     private GameObject objToFollow;
     private Vector3 oldObjPos;
-    [Space(10)]
+    [Space( 10 )]
 
     // Movement speed of camera
     [SerializeField]
@@ -85,9 +86,10 @@ public class CamFollowObject : MonoBehaviour {
     private bool updateCam;
     private Vector3 origin;
     private Vector3 targetPos;
+    #endregion
 
     // Set starting position of camera
-    void Start () {
+    void Start( ) {
         // Set initial position reference of object
         oldObjPos = objToFollow.GetComponent<Transform>().position;
 
@@ -103,14 +105,14 @@ public class CamFollowObject : MonoBehaviour {
         } else {
             startPos = GetTargetPosition( oldObjPos, currentRotation );
         }
-        
+
         GetComponent<Transform>().position = startPos;
 
         updateCam = false;
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
+
+    // Update is called once per frame
+    void Update( ) {
         // Get most recent position of followed object
         Vector3 currObjPos = objToFollow.GetComponent<Transform>().position;
 
@@ -120,7 +122,7 @@ public class CamFollowObject : MonoBehaviour {
         } else {
             targetPos = GetTargetPosition( currObjPos, currentRotation );
         }
-        
+
 
         // Get which direction object is moving
         if ( script != null ) {
@@ -135,20 +137,20 @@ public class CamFollowObject : MonoBehaviour {
         // Move the camera
         if ( (Mathf.Abs( origin.x - targetPos.x ) >= minMoveDistHor ||
             Mathf.Abs( origin.y - targetPos.y ) >= minMoveDistVer) ||
-            Mathf.Abs(origin.z - targetPos.z ) >= minMoveDistHor && !updateCam ) {
+            Mathf.Abs( origin.z - targetPos.z ) >= minMoveDistHor && !updateCam ) {
             updateCam = true;
         }
 
 
         // Set final camera position
-        if (script != null) {
+        if ( script != null ) {
             GetComponent<Transform>().position = ClampCameraPosition( targetPos, script.currentRotation );
         } else {
             GetComponent<Transform>().position = ClampCameraPosition( targetPos, currentRotation );
         }
     }
 
-    private void FixedUpdate() {
+    private void FixedUpdate( ) {
         if ( updateCam ) {
             transform.position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
             // Stop updating camera position when close to target point
@@ -205,16 +207,16 @@ public class CamFollowObject : MonoBehaviour {
         // Check for current rotation of object
         if ( rot == PositionStates.Rotation.zero ) {
             // Check where object is moving
-            if ( objPos.x < oldObjPos.x - 0.02f) {
+            if ( objPos.x < oldObjPos.x - 0.02f ) {
                 newDir = PositionStates.Direction.left;
-            } else if ( objPos.x > oldObjPos.x + 0.01f) {
+            } else if ( objPos.x > oldObjPos.x + 0.01f ) {
                 newDir = PositionStates.Direction.right;
             }
         } else if ( rot == PositionStates.Rotation.one ) {
             // Check where object is moving
             if ( objPos.z < oldObjPos.z - 0.02f ) {
                 newDir = PositionStates.Direction.right;
-            } else if ( objPos.z > oldObjPos.z) {
+            } else if ( objPos.z > oldObjPos.z ) {
                 newDir = PositionStates.Direction.left;
             }
         } else if ( rot == PositionStates.Rotation.two ) {
@@ -263,7 +265,7 @@ public class CamFollowObject : MonoBehaviour {
             } else {
                 target.x -= camViewInFront;
             }
-        } else if ( rot == PositionStates.Rotation.one) {
+        } else if ( rot == PositionStates.Rotation.one ) {
             // Camera position away from object
             target.x += distFromObj;
 
