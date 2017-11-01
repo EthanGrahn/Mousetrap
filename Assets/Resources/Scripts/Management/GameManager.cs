@@ -8,8 +8,9 @@ public class GameManager : MonoBehaviour {
     public static GameManager Instance;
     public SceneSwitch SceneSwitch;
     public CharacterMovement CharMovement;
+    public CpManager cpManager;
 
-    private void Start( ) {
+    private void Awake( ) {
         if ( Instance ) {
             DestroyImmediate( gameObject );
             return;
@@ -23,10 +24,10 @@ public class GameManager : MonoBehaviour {
         if ( level == 1 ) // Menu
         {
             // Set the scenes for each button
-            GameObject.Find( "StartButton" ).GetComponent<Button>().onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Level1" ); } );
-            GameObject.Find( "OptionsButton" ).GetComponent<Button>().onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Options" ); } );
-            GameObject.Find( "CreditsButton" ).GetComponent<Button>().onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Credits" ); } );
-            GameObject.Find( "ExitButton" ).GetComponent<Button>().onClick.AddListener( delegate { SceneSwitch.ExitGame(); } );
+            GameObject.Find( "StartButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Level1" ); } );
+            GameObject.Find( "OptionsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Options" ); } );
+            GameObject.Find( "CreditsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Credits" ); } );
+            GameObject.Find( "ExitButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ExitGame( ); } );
         }
     }
 }

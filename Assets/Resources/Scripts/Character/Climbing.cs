@@ -5,7 +5,7 @@ using UnityEngine;
 public class Climbing :CharacterStates {
     private readonly CharacterMovement player;
 
-    private enum ClimbingDir { up = 1, down = -1, idle = 0 };
+    private enum ClimbingDir { up = 1, down = -1, idle = 0, jump = 2 };
     private ClimbingDir climbing;
 
     public Climbing( CharacterMovement cMovement ) {
@@ -29,11 +29,16 @@ public class Climbing :CharacterStates {
         }
 
         if ( Rebind.GetInputDown( "Jump" ) ) {
-            climbing = ClimbingDir.up;
+            climbing = ClimbingDir.jump;
             GetConstraints( );
             player.gameObject.GetComponent<Rigidbody>( ).useGravity = true;
             // can't get player to jump or move away from wall
-            player.SetHorizontalMovement( player.currDirection );
+            PositionStates.Direction dir;
+            if ( player.coll.RightCollided( ) )
+                dir = PositionStates.Direction.left;
+            else
+                dir = PositionStates.Direction.right;
+            player.SetHorizontalMovement( dir );
             SwitchToPlayerMovement( );
         }
     }
@@ -64,6 +69,10 @@ public class Climbing :CharacterStates {
     }
 
     public void SwitchToPlayerMovement( ) {
+        if (climbing == ClimbingDir.jump) {
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( player.GetComponent<Rigidbody>( ).velocity.x,
+                player.jumpSpeed, player.GetComponent<Rigidbody>( ).velocity.z );
+        }
         PositionStates.GetConstraints( player.gameObject, player.currentRotation );
         player.gameObject.GetComponent<Rigidbody>( ).useGravity = true;
         player.currentState = player.playerInput;
