@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,8 +9,10 @@ public class CpObject : MonoBehaviour {
             if ( enemy ) {
                 GameManager.Instance.cpManager.ResetPlayer( );
                 Debug.Log( "Got here" );
-            } else
+            } else {
                 GameManager.Instance.cpManager.currCheckpoint = gameObject.transform.position;
+                Debug.Log( "Got inside changing checkpoint position" );
+            }
         }
     }
 }
