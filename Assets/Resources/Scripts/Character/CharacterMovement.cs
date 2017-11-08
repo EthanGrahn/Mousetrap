@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent( typeof( Gravity ) )]
+<<<<<<< Updated upstream
+=======
+[RequireComponent( typeof( PlayerCollision ) )]
+>>>>>>> Stashed changes
 public class CharacterMovement : MonoBehaviour {
     #region Variables
     // Variables for movement
@@ -50,6 +54,8 @@ public class CharacterMovement : MonoBehaviour {
     public PositionStates.Rotation currentRotation;
     [HideInInspector]
     public Gravity grav;
+    [HideInInspector]
+    public PlayerCollision coll;
 
     // Character States ##################################
     [HideInInspector]
@@ -78,9 +84,14 @@ public class CharacterMovement : MonoBehaviour {
 
     void Start( ) {
         currentRotation = PositionStates.Rotation.zero;
+<<<<<<< Updated upstream
         GetConstraints( );
+=======
+        PositionStates.GetConstraints( gameObject, currentRotation );
+>>>>>>> Stashed changes
 
         grav = GetComponent<Gravity>( );
+        coll = GetComponent<PlayerCollision>( );
 
         turnAround = false;
 
@@ -127,9 +138,15 @@ public class CharacterMovement : MonoBehaviour {
     /// </summary>
     public void GetDirection( ) {
         // Get integer value for direction character is moving
+<<<<<<< Updated upstream
         if ( Rebind.GetInput( "Right" ) && !grav.RightGrounded( ) ) {
             currDirection = PositionStates.Direction.right;
         } else if ( Rebind.GetInput( "Left" ) && !grav.LeftGrounded( ) ) {
+=======
+        if ( Input.GetKey( KeyCode.D ) && !coll.RightCollided( ) ) {
+            currDirection = PositionStates.Direction.right;
+        } else if ( Input.GetKey( KeyCode.A ) && !coll.LeftCollided( ) ) {
+>>>>>>> Stashed changes
             currDirection = PositionStates.Direction.left;
         } else {
             currDirection = PositionStates.Direction.idle;
@@ -235,13 +252,18 @@ public class CharacterMovement : MonoBehaviour {
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
+<<<<<<< Updated upstream
         if ( Rebind.GetInputDown( "Up" ) && grav.IsGrounded( ) ) {
+=======
+        if ( Input.GetKeyDown( KeyCode.Space ) && grav.IsGrounded( ) ) {
+>>>>>>> Stashed changes
             GetComponent<Rigidbody>( ).velocity = new Vector3( GetComponent<Rigidbody>( ).velocity.x,
                 jumpSpeed, GetComponent<Rigidbody>( ).velocity.z );
         }
     }
 
     /// <summary>
+<<<<<<< Updated upstream
     /// Constrains the movement and rotation of the character in certain axes.
     /// </summary>
     public void GetConstraints( ) {
@@ -255,6 +277,8 @@ public class CharacterMovement : MonoBehaviour {
     }
 
     /// <summary>
+=======
+>>>>>>> Stashed changes
     /// Set rotation point, direction of rotation, and ending direction to leave rotation point from for the character.
     /// </summary>
     /// <param name="other">Collider that triggers the rotation to occur</param>

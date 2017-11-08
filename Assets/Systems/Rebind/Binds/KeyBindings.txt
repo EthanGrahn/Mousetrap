@@ -3,3 +3,4 @@ Down=DownArrow,S
 Left=LeftArrow,A
 Right=RightArrow,D
 Interact=E
+Jump=Space
