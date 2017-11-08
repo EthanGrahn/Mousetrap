@@ -131,9 +131,9 @@ public class CharacterMovement : MonoBehaviour {
     /// </summary>
     public void GetDirection( ) {
         // Get integer value for direction character is moving
-        if ( Rebind.GetInput( "Right" ) && !coll.RightCollided( ) ) {
+        if ( Input.GetKey( KeyCode.D ) && !coll.RightCollided( ) ) {
             currDirection = PositionStates.Direction.right;
-        } else if ( Rebind.GetInput( "Left" ) && !coll.LeftCollided( ) ) {
+        } else if ( Input.GetKey( KeyCode.A ) && !coll.LeftCollided( ) ) {
             currDirection = PositionStates.Direction.left;
         } else {
             currDirection = PositionStates.Direction.idle;
@@ -239,7 +239,7 @@ public class CharacterMovement : MonoBehaviour {
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
-        if ( Rebind.GetInputDown( "Jump" ) && grav.IsGrounded( ) ) {
+        if ( Input.GetKeyDown( KeyCode.Space ) && grav.IsGrounded( ) ) {
             GetComponent<Rigidbody>( ).velocity = new Vector3( GetComponent<Rigidbody>( ).velocity.x,
                 jumpSpeed, GetComponent<Rigidbody>( ).velocity.z );
         }

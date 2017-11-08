@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Climbing :CharacterStates {
+public class Climbing : CharacterStates {
     private readonly CharacterMovement player;
 
     private enum ClimbingDir { up = 1, down = -1, idle = 0, jump = 2 };
@@ -17,10 +17,10 @@ public class Climbing :CharacterStates {
         player.GetDirection( );
 
         // Get input for climbing up or down the wall
-        if ( Rebind.GetInput( "Up" ) ) {
+        if ( Input.GetKey( KeyCode.W ) ) {
             climbing = ClimbingDir.up;
             GetConstraints( );
-        } else if ( Rebind.GetInput( "Down" ) ) {
+        } else if ( Input.GetKey( KeyCode.S ) ) {
             climbing = ClimbingDir.down;
             GetConstraints( );
         } else {
@@ -28,7 +28,7 @@ public class Climbing :CharacterStates {
             climbing = ClimbingDir.idle;
         }
 
-        if ( Rebind.GetInputDown( "Jump" ) ) {
+        if ( Input.GetKeyDown( KeyCode.Space ) ) {
             climbing = ClimbingDir.jump;
             GetConstraints( );
             player.gameObject.GetComponent<Rigidbody>( ).useGravity = true;
@@ -69,7 +69,7 @@ public class Climbing :CharacterStates {
     }
 
     public void SwitchToPlayerMovement( ) {
-        if (climbing == ClimbingDir.jump) {
+        if ( climbing == ClimbingDir.jump ) {
             player.GetComponent<Rigidbody>( ).velocity = new Vector3( player.GetComponent<Rigidbody>( ).velocity.x,
                 player.jumpSpeed, player.GetComponent<Rigidbody>( ).velocity.z );
         }

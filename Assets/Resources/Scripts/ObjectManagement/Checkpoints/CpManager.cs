@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class CpManager : MonoBehaviour {
     public Vector3 currCheckpoint;
-    public CharacterMovement player;
+    private CharacterMovement player;
 
     void Awake( ) {
-        currCheckpoint = player.transform.position;
+        player = GameManager.Instance.CharMovement;
+        if (player)
+            currCheckpoint = player.transform.position;
     }
 
     public void ResetPlayer( ) {
