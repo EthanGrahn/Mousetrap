@@ -18,7 +18,7 @@ public class Squeek : MonoBehaviour {
 	void Update () {
 		if (Input.anyKeyDown && Input.inputString.Length > 0)
         {
-            Debug.Log(">" + ((int)Input.inputString.ToCharArray()[0]) + "<");
+            //Debug.Log(">" + ((int)Input.inputString.ToCharArray()[0]) + "<");
             int key = ((int)Input.inputString.ToCharArray()[0]);
             float result = 0;
             if (key >= 97 && key <= 122)
@@ -64,7 +64,7 @@ public class Squeek : MonoBehaviour {
                         return;
                 }
             }
-            Debug.Log(result);
+            //Debug.Log(result);
             aSource.pitch = result;
             aSource.Play();
         }
