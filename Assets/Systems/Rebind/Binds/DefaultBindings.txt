@@ -1,5 +1,5 @@
-Up=UpArrow
-Down=DownArrow
-Left=LeftArrow
-Right=RightArrow
+Up=UpArrow,W
+Down=DownArrow,S
+Left=LeftArrow,A
+Right=RightArrow,D
 Interact=E
