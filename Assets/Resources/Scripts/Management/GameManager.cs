@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour {
         if ( level == 1 ) // Menu
         {
             // Set the scenes for each button
-            GameObject.Find( "StartButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Level1" ); } );
+            GameObject.Find( "StartButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Level1-Backup" ); } );
             GameObject.Find( "OptionsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Options" ); } );
             //GameObject.Find( "CreditsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Credits" ); } );
             GameObject.Find( "ExitButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ExitGame( ); } );

@@ -26,14 +26,17 @@ public class Chewable : MonoBehaviour {
 
     private void OnTriggerStay(Collider other)
     {
-        if (Input.GetKeyDown("e"))
+        if (other.CompareTag("Player"))
         {
-            StartCoroutine("ChewSound");
-            mashCount++;
-        }
+            if (Input.GetKeyDown("e"))
+            {
+                StartCoroutine("ChewSound");
+                mashCount++;
+            }
 
-        if (mashCount >= mashes)
-            Destroy(this.gameObject);
+            if (mashCount >= mashes)
+                Destroy(this.gameObject);
+        }
     }
 
     IEnumerator ChewSound()
