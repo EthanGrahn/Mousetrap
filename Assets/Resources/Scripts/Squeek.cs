@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Squeek : MonoBehaviour {
 
-    List<int> skipNum1 = new List<int>{ 65, 68, 69, 74, 75, 85, 87 };
-    List<int> skipNum2 = new List<int>{ 79, 100, 101, 106, 107, 117, 119 };
+    List<int> skipNum1 = new List<int>{ 65, 68, 69, 74, 75, 83, 85, 87 };
+    List<int> skipNum2 = new List<int>{ 79, 100, 101, 106, 107, 115, 117, 119 };
 
     AudioSource aSource;
 
@@ -23,15 +23,13 @@ public class Squeek : MonoBehaviour {
             float result = 0;
             if (key >= 97 && key <= 122)
             {
-                if (skipNum1.Contains(key))
-                    return;
-                result = ((float)key - 97) / 26 * 3;
+                if (!skipNum2.Contains(key))
+                    result = ((float)key - 97) / 26 * 3;
             }
             else if (key >= 65 && key <= 90)
             {
-                if (skipNum2.Contains(key))
-                    return;
-                result = ((float)key - 65) / 26 * 3;
+                if (!skipNum1.Contains(key))
+                    result = ((float)key - 65) / 26 * 3;
             }
             else if (key >= 48 && key <= 57)
             {
