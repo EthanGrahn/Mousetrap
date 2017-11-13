@@ -38,7 +38,7 @@ public class Gravity : MonoBehaviour {
     /// Boolean representing grounded status
     /// </returns>
     public bool IsGrounded( ) {
-        return Physics.Raycast( transform.position, -transform.up, distToGround + 0.1f );
+        return Physics.Raycast(transform.position, -transform.up, distToGround + 0.1f); ;
     }
 
     /// <summary>

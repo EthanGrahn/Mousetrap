@@ -28,6 +28,8 @@ public class Chewable : MonoBehaviour {
     {
         if (other.CompareTag("Player"))
         {
+
+
             if (Input.GetKeyDown("e"))
             {
                 StartCoroutine("ChewSound");

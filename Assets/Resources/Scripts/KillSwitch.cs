@@ -6,6 +6,7 @@ public class KillSwitch : MonoBehaviour {
 	void Update () {
 		if (Input.GetKeyDown(KeyCode.Escape))
         {
+            Time.timeScale = 1;
             GameManager.Instance.SceneSwitch.ChangeLevel("Menu");
         }
 	}
