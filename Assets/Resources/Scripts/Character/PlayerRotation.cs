@@ -60,7 +60,7 @@ public class PlayerRotation : CharacterStates {
             player.transform.rotation = Quaternion.Lerp( player.transform.rotation, targetRotation, t );
             yield return new WaitForFixedUpdate( );
         }
-        player.GetConstraints( );
+        PositionStates.GetConstraints( player.gameObject, player.currentRotation );
 
         // Move player to outside of trigger area
         Vector3 targetPosition = player.transform.position;

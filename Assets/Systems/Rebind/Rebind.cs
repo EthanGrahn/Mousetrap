@@ -15,7 +15,7 @@ public class Rebind : MonoBehaviour
     {
         SetupSerializers();
         defaultKeys.Dictionary = defaultBindsSerializer.Read();
-        keys.Dictionary = keyBindsSerializer.Read();       
+        keys.Dictionary = keyBindsSerializer.Read();
     }
 
     #region Dictionary Methods

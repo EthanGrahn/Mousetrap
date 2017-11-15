@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent( typeof( Gravity ) )]
+[RequireComponent( typeof( PlayerCollision ) )]
 public class CharacterMovement : MonoBehaviour {
     #region Variables
     // Variables for movement
@@ -50,6 +51,8 @@ public class CharacterMovement : MonoBehaviour {
     public PositionStates.Rotation currentRotation;
     [HideInInspector]
     public Gravity grav;
+    [HideInInspector]
+    public PlayerCollision coll;
 
     // Character States ##################################
     [HideInInspector]
@@ -78,9 +81,10 @@ public class CharacterMovement : MonoBehaviour {
 
     void Start( ) {
         currentRotation = PositionStates.Rotation.zero;
-        GetConstraints( );
+        PositionStates.GetConstraints( gameObject, currentRotation );
 
         grav = GetComponent<Gravity>( );
+        coll = GetComponent<PlayerCollision>( );
 
         turnAround = false;
 
@@ -127,9 +131,9 @@ public class CharacterMovement : MonoBehaviour {
     /// </summary>
     public void GetDirection( ) {
         // Get integer value for direction character is moving
-        if ( Rebind.GetInput( "Right" ) && !grav.RightGrounded( ) ) {
+        if ( Input.GetKey( KeyCode.D ) && !coll.RightCollided( ) ) {
             currDirection = PositionStates.Direction.right;
-        } else if ( Rebind.GetInput( "Left" ) && !grav.LeftGrounded( ) ) {
+        } else if ( Input.GetKey( KeyCode.A ) && !coll.LeftCollided( ) ) {
             currDirection = PositionStates.Direction.left;
         } else {
             currDirection = PositionStates.Direction.idle;
@@ -235,7 +239,7 @@ public class CharacterMovement : MonoBehaviour {
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
-        if ( Rebind.GetInputDown( "Up" ) && grav.IsGrounded( ) ) {
+        if ( Input.GetKeyDown( KeyCode.Space ) && grav.IsGrounded( ) ) {
             GetComponent<Rigidbody>( ).velocity = new Vector3( GetComponent<Rigidbody>( ).velocity.x,
                 jumpSpeed, GetComponent<Rigidbody>( ).velocity.z );
         }

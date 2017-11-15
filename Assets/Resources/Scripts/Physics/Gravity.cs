@@ -16,21 +16,19 @@ public class Gravity : MonoBehaviour {
 
     // Falling object variables
     private float distToGround;
-    private float distToSide;
 
     float termVel;
 
     // Use this for initialization
     void Start( ) {
         // Calculate terminal velocity
-        pArea = Mathf.Pow( GetComponent<RectTransform>().sizeDelta.x, 2.0f );
+        pArea = Mathf.Pow( GetComponent<RectTransform>( ).sizeDelta.x, 2.0f );
         density = 0.084f;
 
-        termVel = Mathf.Sqrt( (2 * GetComponent<Rigidbody>().mass * Physics.gravity.y) / (density * pArea * dCoeff) );
+        termVel = Mathf.Sqrt( (2 * GetComponent<Rigidbody>( ).mass * Physics.gravity.y) / (density * pArea * dCoeff) );
 
         // Distance from object to ground
-        distToGround = GetComponent<Collider>().bounds.extents.y;
-        distToSide = GetComponent<Collider>().bounds.extents.x;
+        distToGround = GetComponent<Collider>( ).bounds.extents.y;
     }
 
     /// <summary>
@@ -40,19 +38,7 @@ public class Gravity : MonoBehaviour {
     /// Boolean representing grounded status
     /// </returns>
     public bool IsGrounded( ) {
-        return Physics.Raycast( transform.position, -transform.up, distToGround + 0.1f );
-    }
-
-    public bool RightGrounded( ) {
-        return Physics.Raycast( transform.position, transform.right, distToSide + .1f ) ||
-            Physics.Raycast( transform.position + new Vector3( 0, distToGround, 0 ), transform.right, distToSide + .1f ) ||
-            Physics.Raycast( transform.position + new Vector3( 0, (-distToGround + .01f), 0 ), transform.right, distToSide + .1f );
-    }
-
-    public bool LeftGrounded( ) {
-        return Physics.Raycast( transform.position, -transform.right, distToSide + .1f ) ||
-            Physics.Raycast( transform.position + new Vector3( 0, distToGround, 0 ), -transform.right, distToSide + .1f ) ||
-            Physics.Raycast( transform.position + new Vector3( 0, (-distToGround + .01f), 0 ), -transform.right, distToSide + .1f );
+        return Physics.Raycast(transform.position, -transform.up, distToGround + 0.1f); ;
     }
 
     /// <summary>
@@ -67,10 +53,10 @@ public class Gravity : MonoBehaviour {
     /// </summary>
     /// <returns></returns>
     public IEnumerator GravityOperate( ) {
-        Vector3 vel = GetComponent<Rigidbody>().velocity;
+        Vector3 vel = GetComponent<Rigidbody>( ).velocity;
         vel.y -= 9.81f * Time.deltaTime;
         Mathf.Clamp( vel.y, termVel, -termVel );
-        GetComponent<Rigidbody>().velocity = vel;
+        GetComponent<Rigidbody>( ).velocity = vel;
         yield return null;
     }
 }
