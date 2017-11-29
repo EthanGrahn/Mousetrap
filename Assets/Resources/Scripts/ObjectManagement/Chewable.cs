@@ -9,6 +9,7 @@ public class Chewable : MonoBehaviour {
     public int maxMashes = 16;
     public AudioClip chewSound;
     public GameObject chewUI;
+    public Vector3 uiOffset = Vector3.zero;
 
     int mashes;
     int mashCount = 0;
@@ -33,7 +34,7 @@ public class Chewable : MonoBehaviour {
         if (displayUI)
         {
             chewUI.SetActive(true);
-            chewUI.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - 1);
+            chewUI.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - 1) + uiOffset;
         }
     }
 
