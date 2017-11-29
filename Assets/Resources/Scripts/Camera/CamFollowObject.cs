@@ -42,32 +42,6 @@ public class CamFollowObject : MonoBehaviour {
     [SerializeField]
     [Tooltip( "Distance camera is from object." )]
     private float distFromObj;
-    // Close to object
-    [SerializeField]
-    [Tooltip( "Max distance camera can be from player in horizontal direction." )]
-    private float maxObjDistHor;
-    [SerializeField]
-    [Tooltip( "Max distance camera can be from player in vertical direction." )]
-    private float maxObjDistVer;
-    [SerializeField]
-    // Within world bounds
-    [Tooltip( "Max distance camera can be travel in scene in x direction." )]
-    private float maxWorldDistX;
-    [SerializeField]
-    [Tooltip( "Min distance camera can be travel in scene in x direction." )]
-    private float minWorldDistX;
-    [SerializeField]
-    [Tooltip( "Max distance camera can be travel in scene in y direction." )]
-    private float maxWorldDistY;
-    [SerializeField]
-    [Tooltip( "Min distance camera can be travel in scene in y direction." )]
-    private float minWorldDistY;
-    [SerializeField]
-    [Tooltip( "Max distance camera can be travel in scene in z direction." )]
-    private float maxWorldDistZ;
-    [SerializeField]
-    [Tooltip( "Min distance camera can be travel in scene in z direction." )]
-    private float minWorldDistZ;
 
     // Check if the object is player character
     // Use current rotation of character
@@ -140,14 +114,6 @@ public class CamFollowObject : MonoBehaviour {
             Mathf.Abs( origin.z - targetPos.z ) >= minMoveDistHor && !updateCam ) {
             updateCam = true;
         }
-
-
-        // Set final camera position
-        if ( script != null ) {
-            GetComponent<Transform>().position = ClampCameraPosition( targetPos, script.currentRotation );
-        } else {
-            GetComponent<Transform>().position = ClampCameraPosition( targetPos, currentRotation );
-        }
     }
 
     private void FixedUpdate( ) {
@@ -158,40 +124,6 @@ public class CamFollowObject : MonoBehaviour {
                 updateCam = false;
             }
         }
-    }
-
-    /// <summary>
-    /// Keeps the camera within a specified distance close to object, but not outside of determined world size.
-    /// </summary>
-    /// <param name="target">
-    /// Position of object to clamp camera to
-    /// </param>
-    /// <returns>
-    /// Vector 3 position for camera
-    /// </returns>
-    Vector3 ClampCameraPosition( Vector3 target, PositionStates.Rotation rot ) {
-        Vector3 cameraPos = GetComponent<Transform>().position;
-
-        // Check rotation of object
-        // Clamp to character
-
-        if ( rot == PositionStates.Rotation.zero ) {
-            cameraPos.x = Mathf.Clamp( cameraPos.x, target.x - maxObjDistHor, target.x + maxObjDistHor );
-        } else if ( rot == PositionStates.Rotation.one ) {
-            cameraPos.z = Mathf.Clamp( cameraPos.z, target.z - maxObjDistHor, target.z + maxObjDistHor );
-        } else if ( rot == PositionStates.Rotation.two ) {
-            cameraPos.x = Mathf.Clamp( cameraPos.x, target.x - maxObjDistHor, target.x + maxObjDistHor );
-        } else if ( rot == PositionStates.Rotation.three ) {
-            cameraPos.z = Mathf.Clamp( cameraPos.z, target.z - maxObjDistHor, target.z + maxObjDistHor );
-        }
-        cameraPos.y = Mathf.Clamp( cameraPos.y, target.y - maxObjDistVer, target.y + maxObjDistVer );
-
-        // Clamp to world
-        cameraPos.x = Mathf.Clamp( cameraPos.x, minWorldDistX, maxWorldDistX );
-        cameraPos.y = Mathf.Clamp( cameraPos.y, minWorldDistY, maxWorldDistY );
-        cameraPos.z = Mathf.Clamp( cameraPos.z, minWorldDistZ, maxWorldDistZ );
-
-        return cameraPos;
     }
 
     /// <summary>

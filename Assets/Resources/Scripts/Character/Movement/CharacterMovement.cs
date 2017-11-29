@@ -53,6 +53,8 @@ public class CharacterMovement : MonoBehaviour {
     public Gravity grav;
     [HideInInspector]
     public PlayerCollision coll;
+    [HideInInspector]
+    public Transform groundCheck;
 
     // Character States ##################################
     [HideInInspector]
@@ -77,6 +79,8 @@ public class CharacterMovement : MonoBehaviour {
         playerInput = new PlayerInput( this );
         playerRotation = new PlayerRotation( this );
         climbing = new Climbing( this );
+
+        groundCheck = transform.Find( "GroundCheck" );
     }
 
     void Start( ) {
@@ -230,7 +234,7 @@ public class CharacterMovement : MonoBehaviour {
     /// Squares Unity's gravity constant
     /// </summary>
     public void Falling( ) {
-        if ( !grav.IsGrounded( ) ) {
+        if ( !grav.IsGrounded( groundCheck ) ) {
             grav.StartGravity( );
         }
     }
@@ -239,7 +243,7 @@ public class CharacterMovement : MonoBehaviour {
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
-        if ( Input.GetKeyDown( KeyCode.Space ) && grav.IsGrounded( ) ) {
+        if ( Input.GetKeyDown( KeyCode.Space ) && grav.IsGrounded( groundCheck ) ) {
             GetComponent<Rigidbody>( ).velocity = new Vector3( GetComponent<Rigidbody>( ).velocity.x,
                 jumpSpeed, GetComponent<Rigidbody>( ).velocity.z );
         }

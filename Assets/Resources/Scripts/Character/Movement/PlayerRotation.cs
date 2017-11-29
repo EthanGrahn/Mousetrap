@@ -16,7 +16,7 @@ public class PlayerRotation : CharacterStates {
     IEnumerator MoveToPoint( ) {
         rotating = true;
         // Make sure rotation is kept on ground
-        while ( !player.grav.IsGrounded( ) ) {
+        while ( !player.grav.IsGrounded( player.groundCheck ) ) {
             yield return new WaitForFixedUpdate( );
         }
 
