@@ -50,7 +50,7 @@ public class Gravity : MonoBehaviour {
     }
 
     public bool IsGrounded( Transform groundPos, LayerMask lMask ) {
-        Collider[] colliders = Physics.OverlapSphere( groundPos.position, .01f, lMask );
+        Collider[] colliders = Physics.OverlapSphere( groundPos.position, .02f, lMask );
 
         for ( int i = 0; i < colliders.Length; ++i ) {
             if ( colliders[i].gameObject != gameObject )

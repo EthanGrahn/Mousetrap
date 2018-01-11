@@ -9,8 +9,6 @@ public class CharacterMovement : MonoBehaviour {
     // Variables for movement
     [Tooltip( "Multiplier for how fast character may travel." )]
     public float speedUpFactor = 5;
-    [Tooltip( "The curve of character speed from start to top speed. (End at 1,1)" )]
-    public AnimationCurve speedUpRatio;
     [Tooltip( "How many seconds it takes to reach top speed." )]
     public float timeToSpeedUp = 2.0f;
     [HideInInspector]
@@ -175,7 +173,7 @@ public class CharacterMovement : MonoBehaviour {
                 if ( timerSpeedUp > timeToSpeedUp )
                     timerSpeedUp = timeToSpeedUp;
 
-                horSpeed = (int)currDirection * speedUpRatio.Evaluate( timerSpeedUp / timeToSpeedUp ) * speedUpFactor;
+                horSpeed = (int)currDirection * speedUpFactor;
             }
             if ( !turnAround )
                 lastDirection = currDirection;  // Used for slowing down

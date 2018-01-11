@@ -30,6 +30,7 @@ public class PlayerInput : CharacterStates {
 
     public void OnTriggerEnter( Collider other ) {
         if ( other.CompareTag( "TriggerRotationSwitch" ) ) {
+            // add button press (up)
             player.SetRotationVars( other );
             SwitchToRotation();
         } else if ( other.CompareTag( "Climbable" ) ) {
