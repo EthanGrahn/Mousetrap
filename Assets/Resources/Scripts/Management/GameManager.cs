@@ -9,7 +9,11 @@ public class GameManager : MonoBehaviour {
     public SceneSwitch SceneSwitch;
     public CharacterMovement CharMovement;
     public CpManager cpManager;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> ekgrahn-working
     private void Awake( ) {
         if ( Instance ) {
             DestroyImmediate( gameObject );
@@ -23,11 +27,28 @@ public class GameManager : MonoBehaviour {
     private void OnLevelWasLoaded( int level ) {
         if ( level == 1 ) // Menu
         {
+            Cursor.visible = true;
             // Set the scenes for each button
+<<<<<<< HEAD
             GameObject.Find( "StartButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Level1" ); } );
             GameObject.Find( "OptionsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Options" ); } );
             GameObject.Find( "CreditsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Credits" ); } );
             GameObject.Find( "ExitButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ExitGame( ); } );
+=======
+            GameObject.Find( "StartButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Level1-Backup" ); } );
+            GameObject.Find( "OptionsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Options" ); } );
+            //GameObject.Find( "CreditsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Credits" ); } );
+            GameObject.Find( "ExitButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ExitGame( ); } );
+        }
+        else if (level == 4)
+        {
+            Cursor.visible = false;
+            CharMovement = GameObject.FindGameObjectWithTag("Player").GetComponent<CharacterMovement>();
+        }
+        else
+        {
+            Cursor.visible = true;
+>>>>>>> ekgrahn-working
         }
     }
 }

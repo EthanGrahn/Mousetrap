@@ -16,8 +16,11 @@ public class Rebind : MonoBehaviour
         SetupSerializers();
         defaultKeys.Dictionary = defaultBindsSerializer.Read();
         keys.Dictionary = keyBindsSerializer.Read();
+<<<<<<< HEAD
         Debug.Log( keys.Dictionary.Keys.Count );
         Debug.Log( defaultKeys.Dictionary.Keys.Count );
+=======
+>>>>>>> ekgrahn-working
     }
 
     #region Dictionary Methods
