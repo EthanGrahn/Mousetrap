@@ -25,28 +25,30 @@ public class ClimbIndicator : MonoBehaviour {
     private Vector3 spriteSize;
     private Vector3 right;
     private Vector3 up;
-    private List<SpriteLocation> spriteLocs;
+    private List<SpriteLocation> spriteLocs = new List<SpriteLocation>();
+    private List<BoxCollider> colsB = new List<BoxCollider>();
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         spriteSize = initialSprite.GetComponent<RectTransform>().sizeDelta / 2;
         spriteSize.z = 0.1f;
         right = initialSprite.transform.right;
         up = initialSprite.transform.up;
 
         BoxCollider[] cols = GetComponents<BoxCollider>();
-        List<BoxCollider> c = new List<BoxCollider>();
-        c.AddRange(cols);
+        colsB.AddRange(cols);
         
-        for (int i = 0; i < c.Count; ++i)
+        for (int i = 0; i < colsB.Count; ++i)
         {
-            if (!c[i].isTrigger)
-                c.Remove(c[i]);
+            if (!colsB[i].isTrigger)
+                colsB.Remove(colsB[i]);
         }
-	}
-	
-	// Update is called once per frame
-	void Update () {
+
+        StartCoroutine(InitPlacement());
+    }
+
+    // Update is called once per frame
+    void Update () {
 		
 	}
 
@@ -55,21 +57,39 @@ public class ClimbIndicator : MonoBehaviour {
         bool flipped = false;
         spriteLocs.Add(new SpriteLocation(initialSprite.transform.position, flipped));
 
-        Vector3 offsetR = (right * hSpacing) + (up * vSpacing);
-        Vector3 offsetL = (-right * hSpacing) + (up * vSpacing);
+        Vector3 offsetR = (right * (spriteSize.x + hSpacing)) + (up * (spriteSize.y + vSpacing));
+        Vector3 offsetL = (-right * (spriteSize.x + hSpacing)) + (up * (spriteSize.y + vSpacing));
+
         Vector3 curCheck = initialSprite.transform.position + offsetR;
         while (PlacementCheck(curCheck))
         {
             flipped = !flipped;
             spriteLocs.Add(new SpriteLocation(curCheck, flipped));
+            Instantiate(initialSprite, curCheck, initialSprite.transform.rotation);
+
+            if (flipped)
+                curCheck += offsetL;
+            else
+                curCheck += offsetR;
+
             yield return null;
         }
+        Debug.Log(spriteLocs.Count);
 
     }
 
     private bool PlacementCheck(Vector3 position)
     {
-        Collider[] cols = Physics.OverlapBox(position, spriteSize);
-        return true;
+        Bounds bound = new Bounds(position, spriteSize);
+        foreach (BoxCollider b in colsB)
+        {
+            if (b.bounds.Contains(bound.min) && b.bounds.Contains(bound.max))
+            {
+                Debug.Log("true");
+                return true;
+            }
+        }
+
+        return false;
     }
 }
