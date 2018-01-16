@@ -16,6 +16,14 @@ public class Rebind : MonoBehaviour
         SetupSerializers();
         defaultKeys.Dictionary = defaultBindsSerializer.Read();
         keys.Dictionary = keyBindsSerializer.Read();
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        Debug.Log( keys.Dictionary.Keys.Count );
+        Debug.Log( defaultKeys.Dictionary.Keys.Count );
+=======
+>>>>>>> ekgrahn-working
+>>>>>>> ndcregut-working
     }
 
     #region Dictionary Methods

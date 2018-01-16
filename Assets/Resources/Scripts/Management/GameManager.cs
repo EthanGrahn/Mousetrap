@@ -9,7 +9,15 @@ public class GameManager : MonoBehaviour {
     public SceneSwitch SceneSwitch;
     public CharacterMovement CharMovement;
     public CpManager cpManager;
+<<<<<<< HEAD
     
+=======
+<<<<<<< HEAD
+
+=======
+    
+>>>>>>> ekgrahn-working
+>>>>>>> ndcregut-working
     private void Awake( ) {
         if ( Instance ) {
             DestroyImmediate( gameObject );
@@ -25,6 +33,15 @@ public class GameManager : MonoBehaviour {
         {
             Cursor.visible = true;
             // Set the scenes for each button
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+            GameObject.Find( "StartButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Level1" ); } );
+            GameObject.Find( "OptionsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Options" ); } );
+            GameObject.Find( "CreditsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Credits" ); } );
+            GameObject.Find( "ExitButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ExitGame( ); } );
+=======
+>>>>>>> ndcregut-working
             GameObject.Find( "StartButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Level1-Backup" ); } );
             GameObject.Find( "OptionsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Options" ); } );
             //GameObject.Find( "CreditsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Credits" ); } );
@@ -38,6 +55,10 @@ public class GameManager : MonoBehaviour {
         else
         {
             Cursor.visible = true;
+<<<<<<< HEAD
+=======
+>>>>>>> ekgrahn-working
+>>>>>>> ndcregut-working
         }
     }
 }
