@@ -29,6 +29,10 @@ public class CharacterMovement : MonoBehaviour {
     public PositionStates.Rotation endingRotation;
     [HideInInspector]
     public PositionStates.Direction endingDirection;
+    [HideInInspector]
+    public bool rotation = false;
+    float inTime = 1.2f;
+    
 
     // Direction character is moving in and for slowdown
     [HideInInspector]
@@ -110,6 +114,9 @@ public class CharacterMovement : MonoBehaviour {
 
     void FixedUpdate( ) {
         currentState.FixedUpdate( );
+
+        if ( rotation )
+            RotateCharacters( );
     }
 
     void OnTriggerEnter( Collider other ) {
@@ -270,5 +277,35 @@ public class CharacterMovement : MonoBehaviour {
         endingDirection = other.GetComponent<RotationVars>( ).endingDirection;
         Vector3 point = other.transform.parent.transform.position;
         rotationPoint = new Vector3( point.x, transform.position.y, point.z );
+    }
+
+    private void RotateCharacters() {
+        // Rotate the camera
+        float cameraAngle = mainCam.transform.eulerAngles.y;
+        cameraAngle += rotationAdd % 360;
+        Quaternion cameraRotation = Quaternion.identity;
+        cameraRotation = Quaternion.Euler( 0.0f, cameraAngle, 0.0f );
+
+        currentRotation = endingRotation;
+
+        for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
+            mainCam.transform.rotation = Quaternion.Lerp( mainCam.transform.rotation, cameraRotation, t );
+        }
+
+        mainCam.transform.rotation = cameraRotation;
+
+        // Rotate the player
+        GetComponent<Rigidbody>( ).constraints =
+            RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        float targetAngle = transform.eulerAngles.y;
+        targetAngle += rotationAdd % 360;
+        Quaternion targetRotation = Quaternion.identity;
+        targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
+
+        for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
+            transform.rotation = Quaternion.Lerp( transform.rotation, targetRotation, t );
+        }
+        PositionStates.GetConstraints( gameObject, currentRotation );
+        rotation = false;
     }
 }
