@@ -5,18 +5,25 @@ using UnityEngine;
 public class EnemyPatrol : MonoBehaviour {
 
     public float patrolDist = 5;
-    public float patrolSpeed = 4;
+    public float patrolSpeed = 3;
+    public float playerCheckDist = 10;
+    public float chaseSpeed = 5;
+    public float chaseDist = 10;
     public bool xPlane = true;
+    public float wDropStart = 2;
+    public float wDropEnd = 8;
+    public GameObject webPrefab;
 
     Vector3 startPos;
     Vector3 right, left;
     Vector3 rCast, lCast;
     bool travRight = true;
     int layermask;
+    float wDropTime;
 
 	// Use this for initialization
 	void Start () {
-        layermask = ~(1 << LayerMask.NameToLayer("EnemyTrap"));
+        layermask = ~(1 << LayerMask.NameToLayer("EnemyTrap") | 1 << LayerMask.NameToLayer("Player"));
         startPos = transform.position;
         if (xPlane)
         {
@@ -32,8 +39,69 @@ public class EnemyPatrol : MonoBehaviour {
             rCast = new Vector3(0, 0, 1);
             lCast = -rCast;
         }
+        wDropTime = Random.Range(wDropStart, wDropEnd);
         StartCoroutine("Patrol");
+        StartCoroutine("PlayerChecking");
+        StartCoroutine("WebDrop");
 	}
+
+    IEnumerator WebDrop()
+    {
+        bool dropped = false;
+        float startTime = Time.time;
+        while (!dropped)
+        {
+            yield return new WaitForFixedUpdate();
+            if (Time.time - startTime >= wDropTime)
+            {
+                dropped = true;
+                GameObject tmp = Instantiate(webPrefab);
+                tmp.transform.localPosition = transform.position;
+                tmp.transform.localRotation = transform.rotation;
+                //Debug.Log("Dropped -- " + tmp.transform.position);
+            }
+        }
+    }
+
+    IEnumerator PlayerChecking()
+    {
+        yield return new WaitForFixedUpdate();
+        float initSpeed = patrolSpeed;
+        Vector3 initRightPos = right;
+        Vector3 initLeftPos = left;
+        Vector3 chaseRightPos;
+        Vector3 chaseLeftPos;
+
+        if (xPlane)
+        {
+            chaseRightPos = new Vector3(right.x + chaseDist, right.y, right.z);
+            chaseLeftPos = new Vector3(left.x - chaseDist, left.y, left.z);
+        }
+        else // (zPlane)
+        {
+            chaseRightPos = new Vector3(right.x, right.y, right.z + chaseDist);
+            chaseLeftPos = new Vector3(left.x, left.y, left.z - chaseDist);
+        }
+
+        while (gameObject.activeInHierarchy)
+        {
+            if (CheckForPlayer(playerCheckDist))
+            {
+                right = chaseRightPos;
+                left = chaseLeftPos;
+                patrolSpeed = chaseSpeed;
+            }
+            else
+            {
+                right = initRightPos;
+                left = initLeftPos;
+                patrolSpeed = initSpeed;
+            }
+                
+            yield return new WaitForSeconds(1);
+        }
+        patrolSpeed = initSpeed;
+    }
 
     IEnumerator Patrol()
     {
@@ -42,13 +110,15 @@ public class EnemyPatrol : MonoBehaviour {
         {
             if (xPlane)
             {
-                while (transform.position.x < right.x && !CheckCollision(true))
+                travRight = true;
+                while (transform.position.x < right.x && !CheckCollision(2))
                 {
                     GetComponent<Rigidbody>().velocity = new Vector3(patrolSpeed, GetComponent<Rigidbody>().velocity.y, 0);
                     yield return new WaitForFixedUpdate();
                 }
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
-                while (transform.position.x > left.x && !CheckCollision(false))
+                travRight = false;
+                while (transform.position.x > left.x && !CheckCollision(2))
                 {
                     GetComponent<Rigidbody>().velocity = new Vector3(-patrolSpeed, GetComponent<Rigidbody>().velocity.y, 0);
                     yield return new WaitForFixedUpdate();
@@ -56,13 +126,15 @@ public class EnemyPatrol : MonoBehaviour {
             }
             else // (zPlane)
             {
-                while (transform.position.z < right.z && !CheckCollision(true))
+                travRight = true;
+                while (transform.position.z < right.z && !CheckCollision(2))
                 {
                     GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, patrolSpeed);
                     yield return new WaitForFixedUpdate();
                 }
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
-                while (transform.position.z > left.z && !CheckCollision(false))
+                travRight = false;
+                while (transform.position.z > left.z && !CheckCollision(2))
                 {
                     GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, -patrolSpeed);
                     yield return new WaitForFixedUpdate();
@@ -73,11 +145,16 @@ public class EnemyPatrol : MonoBehaviour {
         //Debug.Log("Patrol end");
     }
 
-    bool CheckCollision(bool movingRight)
+    bool CheckCollision(float distance) // raycast left or right
     {
-        if (movingRight)
-            return Physics.Raycast(transform.position, rCast, 2, layermask);
+        if (travRight)
+            return Physics.Raycast(transform.position, rCast, distance, layermask);
         else
-            return Physics.Raycast(transform.position, lCast, 2, layermask);
+            return Physics.Raycast(transform.position, lCast, distance, layermask);
+    }
+
+    bool CheckForPlayer(float distance) // check distance to player
+    {
+        return Vector3.Distance(GameManager.Instance.CharMovement.transform.position, transform.position) <= distance;
     }
 }
