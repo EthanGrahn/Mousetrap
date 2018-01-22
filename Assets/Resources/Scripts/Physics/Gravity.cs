@@ -45,12 +45,6 @@ public class Gravity : MonoBehaviour {
             if ( colliders[i].gameObject != gameObject )
                 return true;
         }
-
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> ndcregut-working
         return false;
     }
 
@@ -64,11 +58,6 @@ public class Gravity : MonoBehaviour {
 
         return false;
     }
-
-<<<<<<< HEAD
-=======
->>>>>>> ekgrahn-working
->>>>>>> ndcregut-working
     /// <summary>
     /// 
     /// </summary>
