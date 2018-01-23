@@ -17,6 +17,7 @@ public class EnemyPatrol : MonoBehaviour {
     Vector3 startPos;
     Vector3 right, left;
     Vector3 rCast, lCast;
+    Vector3 castPosTop, castPosBot;
     bool travRight = true;
     int layermask;
     float wDropTime;
@@ -39,7 +40,9 @@ public class EnemyPatrol : MonoBehaviour {
             rCast = new Vector3(0, 0, 1);
             lCast = -rCast;
         }
+
         wDropTime = Random.Range(wDropStart, wDropEnd);
+
         StartCoroutine("Patrol");
         StartCoroutine("PlayerChecking");
         StartCoroutine("WebDrop");
@@ -147,10 +150,19 @@ public class EnemyPatrol : MonoBehaviour {
 
     bool CheckCollision(float distance) // raycast left or right
     {
+        castPosTop = new Vector3(transform.position.x, transform.position.y + (0.5f * GetComponent<CapsuleCollider>().height), transform.position.z);
+        castPosBot = new Vector3(transform.position.x, transform.position.y - (0.5f * GetComponent<CapsuleCollider>().height) + GetComponent<CapsuleCollider>().radius, transform.position.z);
+        
         if (travRight)
-            return Physics.Raycast(transform.position, rCast, distance, layermask);
+        {
+            Debug.DrawRay(castPosTop, rCast * distance, Color.red, Time.deltaTime);
+            Debug.DrawRay(castPosBot, rCast * distance, Color.red, Time.deltaTime);
+            return Physics.Raycast(castPosTop, rCast, distance, layermask) || Physics.Raycast(castPosBot, rCast, distance, layermask);
+        }
         else
-            return Physics.Raycast(transform.position, lCast, distance, layermask);
+        {
+            return Physics.Raycast(castPosTop, lCast, distance, layermask) || Physics.Raycast(castPosBot, lCast, distance, layermask);
+        }
     }
 
     bool CheckForPlayer(float distance) // check distance to player

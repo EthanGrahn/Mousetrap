@@ -6,7 +6,8 @@ public class EnemyDestructor : MonoBehaviour {
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            Destroy(collision.gameObject);
+            if (GetComponent<Rigidbody>().velocity.magnitude > 0.1f)
+                Destroy(collision.gameObject);
         }
     }
 }
