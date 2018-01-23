@@ -4,21 +4,12 @@ using UnityEngine;
 
 [RequireComponent( typeof( Gravity ) )]
 [RequireComponent( typeof( PlayerCollision ) )]
+[RequireComponent( typeof( CharacterDirections ) )]
 public class CharacterMovement : MonoBehaviour {
     #region Variables
     // Variables for movement
     [Tooltip( "Multiplier for how fast character may travel." )]
-    public float speedUpFactor = 5;
-    [Tooltip( "How many seconds it takes to reach top speed." )]
-    public float timeToSpeedUp = 2.0f;
-    [HideInInspector]
-    public float timerSpeedUp = 0.0f;
-
-    [HideInInspector]
-    public float horSpeed = 0.0f;
-
-    [HideInInspector]
-    public bool turnAround;
+    public float speedFactor = 5;
 
     // Variables for turning points
     [HideInInspector]
@@ -32,17 +23,14 @@ public class CharacterMovement : MonoBehaviour {
     [HideInInspector]
     public bool rotation = false;
     float inTime = 1.2f;
-    
 
-    // Direction character is moving in and for slowdown
+    // Script to determine current moving direction of player
     [HideInInspector]
-    public PositionStates.Direction currDirection = PositionStates.Direction.right;
-    [HideInInspector]
-    public PositionStates.Direction lastDirection = PositionStates.Direction.right;
+    public CharacterDirections directions;
 
     // Used for Jumping
     [Tooltip( "How fast the character jumps in the air." )]
-    public float jumpSpeed = 50.0f;
+    public float jumpSpeed = 100f;
 
     // Used for Climbing
     [Tooltip( "How fast the character climbs on walls." )]
@@ -82,6 +70,8 @@ public class CharacterMovement : MonoBehaviour {
         playerRotation = new PlayerRotation( this );
         climbing = new Climbing( this );
 
+        directions = GetComponent<CharacterDirections>( );
+
         groundCheck = transform.Find( "GroundCheck" );
     }
 
@@ -92,8 +82,6 @@ public class CharacterMovement : MonoBehaviour {
         grav = GetComponent<Gravity>( );
         coll = GetComponent<PlayerCollision>( );
 
-        turnAround = false;
-
         currentState = playerInput;
     }
 
@@ -103,13 +91,6 @@ public class CharacterMovement : MonoBehaviour {
     //--------------------------------------------------------------------------------------------------//
     void Update( ) {
         currentState.Update( );
-        if ( currDirection != PositionStates.Direction.idle ) {
-            if ( currDirection == PositionStates.Direction.right ) {
-                transform.localScale = new Vector3( Mathf.Abs( transform.localScale.x ), transform.localScale.y, transform.localScale.z );
-            } else {
-                transform.localScale = new Vector3( Mathf.Abs( transform.localScale.x ) * -1, transform.localScale.y, transform.localScale.z );
-            }
-        }
     }
 
     void FixedUpdate( ) {
@@ -117,6 +98,8 @@ public class CharacterMovement : MonoBehaviour {
 
         if ( rotation )
             RotateCharacters( );
+
+        //Falling( );
     }
 
     void OnTriggerEnter( Collider other ) {
@@ -135,96 +118,13 @@ public class CharacterMovement : MonoBehaviour {
     //--------------------------------------------------------------------------------------------------//
     //-----------------------------------------HELPER FUNCTIONS-----------------------------------------//
     //--------------------------------------------------------------------------------------------------//
-    /// <summary>
-    /// Gets the current direction the player is moving in
-    /// </summary>
-    public void GetDirection( ) {
-        // Get integer value for direction character is moving
-        if ( Input.GetKey( KeyCode.D ) && !coll.RightCollided( ) ) {
-            currDirection = PositionStates.Direction.right;
-        } else if ( Input.GetKey( KeyCode.A ) && !coll.LeftCollided( ) ) {
-            currDirection = PositionStates.Direction.left;
-        } else {
-            currDirection = PositionStates.Direction.idle;
-        }
-    }
-
-    /// <summary>
-    /// Determines the horizontal velocity for the player
-    /// </summary>
-    /// <returns>Float value to be used in setting velocity</returns>
-    private float GetHorizontalVelocity( ) {
-        // Character is moving
-        if ( currDirection != PositionStates.Direction.idle ) {
-            if ( currDirection != lastDirection && timerSpeedUp > (timeToSpeedUp * (.5f)) ) {
-                // Slowing down when turning around
-                turnAround = true;
-            }
-
-            if ( turnAround ) {
-                if ( currDirection == PositionStates.Direction.right ) {
-                    horSpeed += .5f;
-                    if ( horSpeed > 0 ) {
-                        turnAround = false;
-                    }
-                } else {
-                    horSpeed -= .5f;
-                    if ( horSpeed < 0 ) {
-                        turnAround = false;
-                    }
-                }
-            } else {
-                timerSpeedUp += Time.deltaTime;
-
-                // Make sure timer doesn't go above or below max and min time
-                if ( timerSpeedUp > timeToSpeedUp )
-                    timerSpeedUp = timeToSpeedUp;
-
-                horSpeed = (int)currDirection * speedUpFactor;
-            }
-            if ( !turnAround )
-                lastDirection = currDirection;  // Used for slowing down
-        } else { // slow character down
-            turnAround = false;
-            if ( lastDirection == PositionStates.Direction.right && horSpeed > 0 ) {
-                horSpeed -= 0.45f;
-                if ( horSpeed <= 0 ) {
-                    horSpeed = 0;
-                    timerSpeedUp = 0;
-                }
-            } else if ( lastDirection == PositionStates.Direction.left && horSpeed < 0 ) {
-                horSpeed += 0.45f;
-                if ( horSpeed >= 0 ) {
-                    horSpeed = 0;
-                    timerSpeedUp = 0;
-                }
-            }
-        }
-
-        return horSpeed;
-    }
-
-    /// <summary>
-    /// Sets the current velocity of the character
-    /// </summary>
-    public void SetHorizontalMovement( ) {
-        float horVel = GetHorizontalVelocity( );
-        if ( currentRotation == PositionStates.Rotation.zero )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, GetComponent<Rigidbody>( ).velocity.y, 0 );
-        else if ( currentRotation == PositionStates.Rotation.one )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0, GetComponent<Rigidbody>( ).velocity.y, horVel );
-        else if ( currentRotation == PositionStates.Rotation.two )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, GetComponent<Rigidbody>( ).velocity.y, 0 );
-        else if ( currentRotation == PositionStates.Rotation.three )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0, GetComponent<Rigidbody>( ).velocity.y, -horVel );
-    }
 
     /// <summary>
     /// Automatically moves player based on direction
     /// </summary>
     /// <param name="dir">Direction of horizontal movement</param>
     public void SetHorizontalMovement( PositionStates.Direction dir ) {
-        float horVel = (int)dir * speedUpFactor;
+        float horVel = (int)dir * speedFactor;
         if ( currentRotation == PositionStates.Rotation.zero )
             GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, 0.0f, 0.0f );
         else if ( currentRotation == PositionStates.Rotation.one )
@@ -249,8 +149,7 @@ public class CharacterMovement : MonoBehaviour {
     /// </summary>
     public void Jumping( ) {
         if ( Input.GetKeyDown( KeyCode.Space ) && grav.IsGrounded( groundCheck ) ) {
-            GetComponent<Rigidbody>( ).velocity = new Vector3( GetComponent<Rigidbody>( ).velocity.x,
-                jumpSpeed, GetComponent<Rigidbody>( ).velocity.z );
+            GetComponent<Rigidbody>( ).AddForce( 0f, jumpSpeed, 0f );
         }
     }
 
@@ -279,7 +178,7 @@ public class CharacterMovement : MonoBehaviour {
         rotationPoint = new Vector3( point.x, transform.position.y, point.z );
     }
 
-    private void RotateCharacters() {
+    private void RotateCharacters( ) {
         // Rotate the camera
         float cameraAngle = mainCam.transform.eulerAngles.y;
         cameraAngle += rotationAdd % 360;

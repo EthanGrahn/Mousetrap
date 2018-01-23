@@ -11,10 +11,10 @@ public class Climbing : CharacterStates {
     public Climbing( CharacterMovement cMovement ) {
         player = cMovement;
     }
-    
+
     public void Update( ) {
         // Get integer value for direction character is moving
-        player.GetDirection( );
+        player.directions.GetDirection( );
 
         // Get input for climbing up or down the wall
         if ( Input.GetKey( KeyCode.W ) ) {
@@ -46,25 +46,25 @@ public class Climbing : CharacterStates {
     public void FixedUpdate( ) {
         // Ascending
         if ( climbing == ClimbingDir.up ) {
-            player.GetComponent<Rigidbody>().velocity = new Vector3( 0, player.climbSpeed, 0 );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, player.climbSpeed, 0 );
         }
         // Descending
         else if ( climbing == ClimbingDir.down ) {
-            player.GetComponent<Rigidbody>().velocity = new Vector3( 0, -player.climbSpeed, 0 );
+            player.GetComponent<Rigidbody>( ).velocity = new Vector3( 0, -player.climbSpeed, 0 );
         }
 
         // Horizontal movement
-        player.SetHorizontalMovement();
+        player.SetHorizontalMovement( player.directions.currDirection );
     }
 
     public void OnTriggerExit( Collider other ) {
-        SwitchToPlayerMovement();
+        SwitchToPlayerMovement( );
     }
 
     private void GetConstraints( ) {
-        player.GetConstraints();
+        player.GetConstraints( );
         if ( climbing == ClimbingDir.idle ) {
-            player.GetComponent<Rigidbody>().constraints |= RigidbodyConstraints.FreezePositionY;
+            player.GetComponent<Rigidbody>( ).constraints |= RigidbodyConstraints.FreezePositionY;
 
         }
     }

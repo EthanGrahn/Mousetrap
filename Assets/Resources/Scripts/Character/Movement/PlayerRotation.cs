@@ -76,25 +76,25 @@ public class PlayerRotation : CharacterStates {
 
     private Vector3 GetEndingPosition( Vector3 targetPosition ) {
         if ( player.currentRotation == PositionStates.Rotation.zero ) {
-            if ( player.lastDirection == PositionStates.Direction.left ) {
+            if ( player.directions.lastDirection == PositionStates.Direction.left ) {
                 targetPosition.x -= endingDist;
             } else {
                 targetPosition.x += endingDist;
             }
         } else if ( player.currentRotation == PositionStates.Rotation.one ) {
-            if ( player.lastDirection == PositionStates.Direction.left ) {
+            if ( player.directions.lastDirection == PositionStates.Direction.left ) {
                 targetPosition.z -= endingDist;
             } else {
                 targetPosition.z += endingDist;
             }
         } else if ( player.currentRotation == PositionStates.Rotation.two ) {
-            if ( player.lastDirection == PositionStates.Direction.left ) {
+            if ( player.directions.lastDirection == PositionStates.Direction.left ) {
                 targetPosition.x += endingDist;
             } else {
                 targetPosition.x -= endingDist;
             }
         } else if ( player.currentRotation == PositionStates.Rotation.three ) {
-            if ( player.lastDirection == PositionStates.Direction.left ) {
+            if ( player.directions.lastDirection == PositionStates.Direction.left ) {
                 targetPosition.z += endingDist;
             } else {
                 targetPosition.z -= endingDist;
