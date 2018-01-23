@@ -14,33 +14,34 @@ public class PlayerInput : CharacterStates {
 
     public void Update( ) {
         // Get integer value for direction character is moving
-        player.GetDirection();
+        player.directions.GetDirection( );
     }
 
     public void FixedUpdate( ) {
         // Horizontal movement
-        player.SetHorizontalMovement();
+        player.SetHorizontalMovement( player.directions.currDirection );
 
         // Jumping
-        player.Jumping();
+        player.Jumping( );
 
         // Falling
-        player.Falling();
+        
     }
 
     public void OnTriggerEnter( Collider other ) {
         if ( other.CompareTag( "TriggerRotationSwitch" ) ) {
+            // add button press (up)
             player.SetRotationVars( other );
-            SwitchToRotation();
+            SwitchToRotation( );
         } else if ( other.CompareTag( "Climbable" ) ) {
-            SwitchToPlayerClimb();
+            SwitchToPlayerClimb( );
         }
     }
 
     //-----------------------------------------SWITCHING STATE-----------------------------------------//
     public void SwitchToRotation( ) {
-        Vector3 vel = new Vector3( 0, player.GetComponent<Rigidbody>().velocity.y, 0 );
-        player.GetComponent<Rigidbody>().velocity = vel;
+        Vector3 vel = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
+        player.GetComponent<Rigidbody>( ).velocity = vel;
         player.currentState = player.playerRotation;
     }
 
@@ -49,7 +50,7 @@ public class PlayerInput : CharacterStates {
     }
 
     public void SwitchToPlayerClimb( ) {
-        player.gameObject.GetComponent<Rigidbody>().useGravity = false;
+        player.gameObject.GetComponent<Rigidbody>( ).useGravity = false;
         player.currentState = player.climbing;
     }
 

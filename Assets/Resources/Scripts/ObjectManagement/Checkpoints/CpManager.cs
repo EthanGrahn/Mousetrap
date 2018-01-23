@@ -15,7 +15,6 @@ public class CpManager : MonoBehaviour {
     public void ResetPlayer( ) {
         if (!player)
             player = GameManager.Instance.CharMovement;
-
         Debug.Log( "Got into reset player" + currCheckpoint + player.transform.position + player.name );
         player.transform.position = currCheckpoint;
         Debug.Log( "Got into reset player" + currCheckpoint + player.transform.position + player.name );
