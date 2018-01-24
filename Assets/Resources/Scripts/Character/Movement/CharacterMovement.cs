@@ -30,7 +30,7 @@ public class CharacterMovement : MonoBehaviour {
 
     // Used for Jumping
     [Tooltip( "How fast the character jumps in the air." )]
-    public float jumpSpeed = 100f;
+    public float jumpSpeed = 10f;
 
     // Used for Climbing
     [Tooltip( "How fast the character climbs on walls." )]
@@ -124,15 +124,16 @@ public class CharacterMovement : MonoBehaviour {
     /// </summary>
     /// <param name="dir">Direction of horizontal movement</param>
     public void SetHorizontalMovement( PositionStates.Direction dir ) {
+        float yvel = GetComponent<Rigidbody>( ).velocity.y;
         float horVel = (int)dir * speedFactor;
         if ( currentRotation == PositionStates.Rotation.zero )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, 0.0f, 0.0f );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, yvel, 0.0f );
         else if ( currentRotation == PositionStates.Rotation.one )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, 0.0f, horVel );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, horVel );
         else if ( currentRotation == PositionStates.Rotation.two )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, 0.0f, 0.0f );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, yvel, 0.0f );
         else if ( currentRotation == PositionStates.Rotation.three )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, 0.0f, -horVel );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, -horVel );
     }
 
     /// <summary>
@@ -149,7 +150,7 @@ public class CharacterMovement : MonoBehaviour {
     /// </summary>
     public void Jumping( ) {
         if ( Input.GetKeyDown( KeyCode.Space ) && grav.IsGrounded( groundCheck ) ) {
-            GetComponent<Rigidbody>( ).AddForce( 0f, jumpSpeed, 0f );
+            GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
         }
     }
 
