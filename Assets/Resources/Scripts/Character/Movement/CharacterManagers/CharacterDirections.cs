@@ -32,9 +32,9 @@ public class CharacterDirections : MonoBehaviour {
     /// </summary>
     public void GetDirection( ) {
         // Get integer value for direction character is moving
-        if ( Input.GetKey( KeyCode.D ) && !coll.RightCollided( ) ) {
+        if ( Input.GetKey( KeyCode.D ) ) {
             currDirection = PositionStates.Direction.right;
-        } else if ( Input.GetKey( KeyCode.A ) && !coll.LeftCollided( ) ) {
+        } else if ( Input.GetKey( KeyCode.A ) ) {
             currDirection = PositionStates.Direction.left;
         } else {
             currDirection = PositionStates.Direction.idle;
