@@ -7,8 +7,11 @@ public class GameManager : MonoBehaviour {
 
     public static GameManager Instance;
     public SceneSwitch SceneSwitch;
+    public GameObject Player;
     public CharacterMovement CharMovement;
     public CpManager cpManager;
+
+
     private void Awake( ) {
         if ( Instance ) {
             DestroyImmediate( gameObject );

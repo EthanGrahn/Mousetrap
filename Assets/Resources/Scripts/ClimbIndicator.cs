@@ -74,7 +74,7 @@ public class ClimbIndicator : MonoBehaviour {
 
             yield return null;
         }
-        Debug.Log(spriteLocs.Count);
+        //Debug.Log(spriteLocs.Count);
 
     }
 
