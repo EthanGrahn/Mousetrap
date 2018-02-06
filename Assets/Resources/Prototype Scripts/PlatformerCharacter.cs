@@ -121,11 +121,11 @@ namespace CharacterController
             Vector3 tmpVel = m_Rigidbody.velocity;
             m_Rigidbody.velocity = Vector3.zero;
 
-            if (invertAxis)
+            if (invertAxis && isInvert == 1)
                 isInvert = -1;
-            else
+            else if (invertAxis && isInvert == -1)
                 isInvert = 1;
-
+                
             transform.position = new Vector3(rPosition.x, transform.position.y, rPosition.z);
             rotAlignment = new Vector2(rPosition.x, rPosition.z);
             m_xPlane = xPlane;

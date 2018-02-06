@@ -12,17 +12,24 @@ public class RotationObject : MonoBehaviour {
 		zNeg = -2
 	}
 
-	[SerializeField] private float triggerWidth = 0.15f;
+	private static bool controlsInverted = false;
+
 	[SerializeField] private plane fromPlane = plane.xPos;
 	[SerializeField] private plane toPlane = plane.zPos;
 
+	private float triggerWidth = 0.3f;
 	private plane currPlane;
-	private bool switched = false;
-	private bool rotating = false;
+	private bool pastCenter = false;
+	private bool inBoundary = false;
+	private bool posTravel = true;
+	private bool xPlane = false;
+	private bool invert = false;
 
 	// Use this for initialization
 	void Start () {
 		currPlane = fromPlane;
+		
+		invert = (fromPlane > 0 && toPlane < 0) || (fromPlane < 0 && toPlane > 0); // should this checkpoint invert horizontal controls?
 
 		// align object with the nearest floor
 		RaycastHit rHit = Physics.RaycastAll(transform.position, -transform.up)[0];
@@ -39,31 +46,65 @@ public class RotationObject : MonoBehaviour {
 		
 	}
 
-	private void OnTriggerStay(Collider other) {
-		if (!rotating && other.CompareTag("Player") && 
-		    Vector2.Distance(new Vector2(transform.position.x, transform.position.z), 
-							 new Vector2(other.transform.position.x, other.transform.position.z)) <= 0.5f)
+	private void OnTriggerEnter(Collider other) {
+		if (CompareTag("Player"))
 		{
-			if (currPlane == fromPlane)
-				currPlane = toPlane;
-			else
-				currPlane = fromPlane;
-				
-			rotating = true;
-			switched = !switched;
+			inBoundary = true;
 			Vector3 heading = transform.position - other.transform.position;
 			Vector3 direction = heading / heading.magnitude;
-			bool xPlane = direction.x == 0;
-			bool invert = (fromPlane < 0 && fromPlane == currPlane) || (toPlane < 0 && toPlane == currPlane);
-			//Debug.Log(direction.normalized);
-			other.GetComponent<CharacterController.PlatformerCharacter>().RotatePlane(xPlane, transform.position, invert);
+			xPlane = direction.x == 0; // switch to x-plane?
+			posTravel = ((Mathf.Round(direction.x * 100) / 100) > 0) || ((Mathf.Round(direction.z * 100) / 100) > 0);
+
+			StartCoroutine("PositionMonitor", other);
 		}
+	}
+
+	/// <summary>
+	/// Keeps track of the character position within the checkpoint and rotates when appropriate.
+	/// </summary>
+	/// <param name="other">Character Collider.</param>
+	/// <returns>null</returns>
+	private IEnumerator PositionMonitor(Collider other) {
+		bool beginSwitch = false;
+        Vector3 heading;
+        Vector3 direction;
+        bool currTravel;
+
+        while (inBoundary)
+        {
+            while (!beginSwitch)
+            {
+                yield return new WaitForFixedUpdate(); // wait a frame to allow from movement from previous position
+
+                // calculate direction
+                heading = transform.position - other.transform.position;
+                direction = heading / heading.magnitude;
+
+                // check for positive travel direction in the x or z plane
+                currTravel = ((Mathf.Round(direction.x * 100) / 100) > 0) || ((Mathf.Round(direction.z * 100) / 100) > 0);
+
+                beginSwitch = currTravel != posTravel; // is the player still moving towards the center of checkpoint
+            }
+
+            // call rotation from character controller
+            other.GetComponent<CharacterController.PlatformerCharacter>().RotatePlane(xPlane, transform.position, invert);
+
+			yield return new WaitForFixedUpdate();
+
+            // set new variables for rotated plane
+            heading = transform.position - other.transform.position;
+            direction = heading / heading.magnitude;
+            xPlane = !xPlane;
+            posTravel = ((Mathf.Round(direction.x * 100) / 100) > 0) || ((Mathf.Round(direction.z * 100) / 100) > 0);
+			beginSwitch = false;
+        }
 	}
 
 	private void OnTriggerExit(Collider other) {
 		if (other.CompareTag("Player"))
 		{
-			rotating = false;
+			StopCoroutine("PositionMonitor");
+			inBoundary = false;
 		}
 	}
 }
