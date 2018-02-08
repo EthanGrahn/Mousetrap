@@ -7,9 +7,12 @@ public class SplitTransparency : MonoBehaviour {
     public float transitionSpeed = 1;
 
     private bool transparent = false;
+    private Color newColor;
 
 	// Use this for initialization
 	void Start () {
+        GetComponent<Renderer>().sortingOrder = 5; // render ahead of he player sprite and most other objects
+        newColor = GetComponent<Renderer>().material.color;
     }
 	
 	// Update is called once per frame
@@ -17,7 +20,9 @@ public class SplitTransparency : MonoBehaviour {
         bool found = false;        
         RaycastHit[] hits;
 
-        hits = Physics.RaycastAll(Camera.main.transform.position, GameManager.Instance.CharMovement.transform.position - Camera.main.transform.position, (Camera.main.transform.position - GameManager.Instance.CharMovement.transform.position).magnitude);
+        hits = Physics.RaycastAll(Camera.main.transform.position, 
+                                  GameManager.Instance.Player.transform.position - Camera.main.transform.position, 
+                                  (Camera.main.transform.position - GameManager.Instance.Player.transform.position).magnitude);
 
         foreach (RaycastHit hit in hits)
         {
@@ -40,7 +45,7 @@ public class SplitTransparency : MonoBehaviour {
 
     private IEnumerator FadeOut()
     {
-        Color newColor = GetComponent<Renderer>().material.color;
+        newColor = GetComponent<Renderer>().material.color;
         while (newColor.a - Time.deltaTime / transitionSpeed > 0)
         {
             newColor.a -= Time.deltaTime / transitionSpeed;
@@ -54,7 +59,7 @@ public class SplitTransparency : MonoBehaviour {
 
     private IEnumerator FadeIn()
     {
-        Color newColor = GetComponent<Renderer>().material.color;
+        newColor = GetComponent<Renderer>().material.color;
         while(newColor.a + Time.deltaTime / transitionSpeed < 1)
         {
             newColor.a += Time.deltaTime / transitionSpeed;

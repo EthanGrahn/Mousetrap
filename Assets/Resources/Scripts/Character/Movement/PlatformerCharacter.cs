@@ -23,6 +23,7 @@ namespace CharacterController
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
         private Vector2 rotAlignment;
         private int isInvert = 1;
+        private float speedModifier = 1;
 
         private void Awake()
         {
@@ -74,7 +75,7 @@ namespace CharacterController
             // If next to climbable object and attempting to climb
             if (m_isClimbable && vertical != 0)
             {                  
-                m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, vertical*m_ClimbSpeed, m_Rigidbody.velocity.z);
+                m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, vertical*m_ClimbSpeed*speedModifier, m_Rigidbody.velocity.z);
             }
 
             //only control the player if grounded or airControl is turned on
@@ -85,9 +86,9 @@ namespace CharacterController
 
                 // Move the character
                 if (m_xPlane)
-                    m_Rigidbody.velocity = new Vector3(move*m_MaxSpeed*isInvert, m_Rigidbody.velocity.y, m_Rigidbody.velocity.z);
+                    m_Rigidbody.velocity = new Vector3(move*m_MaxSpeed*isInvert*speedModifier, m_Rigidbody.velocity.y, m_Rigidbody.velocity.z);
                 else
-                    m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, m_Rigidbody.velocity.y, move*m_MaxSpeed*isInvert);
+                    m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, m_Rigidbody.velocity.y, move*m_MaxSpeed*isInvert*speedModifier);
 
                 // If the input is moving the player right and the player is facing left...
                 if (move > 0 && !m_FacingRight)
@@ -144,6 +145,11 @@ namespace CharacterController
             Vector3 theScale = transform.localScale;
             theScale.x *= -1;
             transform.localScale = theScale;
+        }
+
+        public void SetSpeedModifier(float newMod)
+        {
+            speedModifier = newMod;
         }
 
         private void OnTriggerEnter(Collider other)
