@@ -4,33 +4,19 @@ using UnityEngine;
 
 public class RotationObject : MonoBehaviour {
 
-	public enum plane
-	{
-		xPos =  1,
-		xNeg = -1,
-		zPos =  2,
-		zNeg = -2
-	}
-
-	private static bool controlsInverted = false;
-
-	[SerializeField] private plane fromPlane = plane.xPos;
-	[SerializeField] private plane toPlane = plane.zPos;
+	[SerializeField] private PositionStates.Rotation fromPlane = PositionStates.Rotation.xPos;
+	[SerializeField] private PositionStates.Rotation toPlane = PositionStates.Rotation.zPos;
 
 	private float triggerWidth = 0.3f;
-	private plane currPlane;
-	private bool pastCenter = false;
 	private bool inBoundary = false;
-	private bool posTravel = true;
-	private bool xPlane = false;
 	private bool invert = false;
 
-	// Use this for initialization
-	void Start () {
-		currPlane = fromPlane;
-		
-		invert = (fromPlane > 0 && toPlane < 0) || (fromPlane < 0 && toPlane > 0); // should this checkpoint invert horizontal controls?
+	private float initTravel;
 
+	// Use this for initialization
+	void Start () {		
+		invert = (fromPlane > 0 && toPlane < 0) || (fromPlane < 0 && toPlane > 0); // should this checkpoint invert horizontal controls?
+		
 		// align object with the nearest floor
 		RaycastHit rHit = Physics.RaycastAll(transform.position, -transform.up)[0];
 		transform.position = new Vector3(rHit.point.x, 1, rHit.point.z); // offset up on the y-axis to account for box collider
@@ -40,21 +26,27 @@ public class RotationObject : MonoBehaviour {
 		box.isTrigger = true;
 		box.size = new Vector3(triggerWidth, 5f, triggerWidth);
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 	private void OnTriggerEnter(Collider other) {
 		if (CompareTag("Player"))
 		{
+			// calculate direction player is from center of rotation point
+			if (other.GetComponent<CharacterController.PlatformerCharacter>().currentRotation == fromPlane)
+			{
+				if (Mathf.Abs((int)fromPlane) == 1)
+					initTravel = other.transform.position.x - transform.position.x;
+				else
+					initTravel = other.transform.position.z - transform.position.z;
+			}
+			else
+			{
+				if (Mathf.Abs((int)toPlane) == 1)
+					initTravel = other.transform.position.x - transform.position.x;
+				else
+					initTravel = other.transform.position.z - transform.position.z;
+			}
+				
 			inBoundary = true;
-			Vector3 heading = transform.position - other.transform.position;
-			Vector3 direction = heading / heading.magnitude;
-			xPlane = direction.x == 0; // switch to x-plane?
-			posTravel = ((Mathf.Round(direction.x * 100) / 100) > 0) || ((Mathf.Round(direction.z * 100) / 100) > 0);
-
 			StartCoroutine("PositionMonitor", other);
 		}
 	}
@@ -66,36 +58,70 @@ public class RotationObject : MonoBehaviour {
 	/// <returns>null</returns>
 	private IEnumerator PositionMonitor(Collider other) {
 		bool beginSwitch = false;
-        Vector3 heading;
-        Vector3 direction;
-        bool currTravel;
+		float newTravel;
+		PositionStates.Rotation newDir;
+		CharacterController.PlatformerCharacter pController = other.GetComponent<CharacterController.PlatformerCharacter>();
 
-        while (inBoundary)
+		// set the rotation that the character will rotate to
+		if (pController.currentRotation == fromPlane)
+			newDir = toPlane;
+		else
+			newDir = fromPlane;
+
+        while (inBoundary) // continous checking while player stays in boundary
         {
-            while (!beginSwitch)
+            while (!beginSwitch) // check player position until they pass the center of the rotation point
             {
                 yield return new WaitForFixedUpdate(); // wait a frame to allow from movement from previous position
 
-                // calculate direction
-                heading = transform.position - other.transform.position;
-                direction = heading / heading.magnitude;
+				// calculate new direction player is from the center of the rotation point
+                if (pController.currentRotation == fromPlane)
+                {
+                    if (Mathf.Abs((int)fromPlane) == 1)
+                        newTravel = other.transform.position.x - transform.position.x;
+                    else
+                        newTravel = other.transform.position.z - transform.position.z;
+                }
+                else
+                {
+                    if (Mathf.Abs((int)toPlane) == 1)
+                        newTravel = other.transform.position.x - transform.position.x;
+                    else
+                        newTravel = other.transform.position.z - transform.position.z;
+                }
 
-                // check for positive travel direction in the x or z plane
-                currTravel = ((Mathf.Round(direction.x * 100) / 100) > 0) || ((Mathf.Round(direction.z * 100) / 100) > 0);
-
-                beginSwitch = currTravel != posTravel; // is the player still moving towards the center of checkpoint
+                // has the direction swapped from + to - or - to +?
+				// indicates player passing center position
+                beginSwitch = (initTravel < 0 && newTravel > 0) || (initTravel > 0 && newTravel < 0);
             }
 
             // call rotation from character controller
-            other.GetComponent<CharacterController.PlatformerCharacter>().RotatePlane(xPlane, transform.position, invert);
+            pController.RotatePlane(newDir, transform.position, invert);
 
 			yield return new WaitForFixedUpdate();
 
-            // set new variables for rotated plane
-            heading = transform.position - other.transform.position;
-            direction = heading / heading.magnitude;
-            xPlane = !xPlane;
-            posTravel = ((Mathf.Round(direction.x * 100) / 100) > 0) || ((Mathf.Round(direction.z * 100) / 100) > 0);
+			// swap new rotation to it's inverse
+			if (newDir == fromPlane)
+				newDir = toPlane;
+			else
+				newDir = fromPlane;
+
+			// calculate new initTravel 
+			if (pController.currentRotation == fromPlane)
+			{
+				if (Mathf.Abs((int)fromPlane) == 1)
+					initTravel = other.transform.position.x - transform.position.x;
+				else
+					initTravel = other.transform.position.z - transform.position.z;
+			}
+			else
+			{
+				if (Mathf.Abs((int)toPlane) == 1)
+					initTravel = other.transform.position.x - transform.position.x;
+				else
+					initTravel = other.transform.position.z - transform.position.z;
+			}
+			
 			beginSwitch = false;
         }
 	}

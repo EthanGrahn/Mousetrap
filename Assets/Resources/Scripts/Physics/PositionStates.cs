@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class PositionStates {
-    public enum Rotation { zero = 0, one = 90, two = 180, three = 270 };
+    public enum Rotation { xPos = 1, zPos = 2, xNeg = -1, zNeg = -2 };
     public enum Direction { left = -1, right = 1, idle = 0 };
 
     /// <summary>
@@ -12,8 +12,8 @@ public static class PositionStates {
     /// <param name="obj">Object to constrain movement on</param>
     /// <param name="currentRotation">Current Rotation of the object</param>
     public static void GetConstraints( GameObject obj, Rotation currentRotation ) {
-        if ( currentRotation == Rotation.zero ||
-            currentRotation == Rotation.two )
+        if ( currentRotation == Rotation.xPos ||
+            currentRotation == Rotation.xNeg )
             obj.GetComponent<Rigidbody>( ).constraints =
                 RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
         else
@@ -27,8 +27,8 @@ public static class PositionStates {
     /// <param name="obj">Object to constrain movement on</param>
     /// <param name="currentRotation">Current Rotation of the object</param>
     public static void GetConstraintsRot(GameObject obj, Rotation currentRotation) {
-        if ( currentRotation == Rotation.zero ||
-            currentRotation == Rotation.two )
+        if ( currentRotation == Rotation.xPos ||
+            currentRotation == Rotation.xNeg )
             obj.GetComponent<Rigidbody>( ).constraints =
                 RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezePositionZ;
         else

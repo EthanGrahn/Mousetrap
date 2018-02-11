@@ -24,6 +24,7 @@ namespace CharacterController
         private Vector2 rotAlignment;
         private int isInvert = 1;
         private float speedModifier = 1;
+        public PositionStates.Rotation currentRotation;
 
         private void Awake()
         {
@@ -32,6 +33,7 @@ namespace CharacterController
             m_CeilingCheck = transform.Find("CeilingCheck");
             m_Rigidbody = GetComponent<Rigidbody>();
             rotAlignment = new Vector2(transform.position.x, transform.position.z);
+            currentRotation = PositionStates.Rotation.xPos;
         }
 
 
@@ -50,14 +52,11 @@ namespace CharacterController
                 }
             }
 
-            if (m_xPlane)
-            {
+            // Constrains movement onto the axis of the last rotation point
+            if (onXPlane())
                 transform.position = new Vector3(transform.position.x, transform.position.y, rotAlignment.y);
-            }
             else
-            {
                 transform.position = new Vector3(rotAlignment.x, transform.position.y, transform.position.z);
-            }
         }
 
         public void Move(float move, float vertical, bool crouch, bool jump)
@@ -85,7 +84,7 @@ namespace CharacterController
                 move = (crouch ? move*m_CrouchSpeed : move);
 
                 // Move the character
-                if (m_xPlane)
+                if (onXPlane())
                     m_Rigidbody.velocity = new Vector3(move*m_MaxSpeed*isInvert*speedModifier, m_Rigidbody.velocity.y, m_Rigidbody.velocity.z);
                 else
                     m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, m_Rigidbody.velocity.y, move*m_MaxSpeed*isInvert*speedModifier);
@@ -115,9 +114,9 @@ namespace CharacterController
         /// <summary>
         /// Sets the new plane of rotation and movement for the character.
         /// </summary>
-        /// <param name="xPlane">Is the new plane on the x axis of the world?</param>
+        /// <param name="newRot">New rotation of character movement.</param>
         /// <param name="rPosition">Position of the rotation point.</param>
-        public void RotatePlane(bool xPlane, Vector3 rPosition, bool invertAxis)
+        public void RotatePlane(PositionStates.Rotation newRot, Vector3 rPosition, bool invertAxis)
         {
             Vector3 tmpVel = m_Rigidbody.velocity;
             m_Rigidbody.velocity = Vector3.zero;
@@ -127,9 +126,9 @@ namespace CharacterController
             else if (invertAxis && isInvert == -1)
                 isInvert = 1;
                 
+            currentRotation = newRot;
             transform.position = new Vector3(rPosition.x, transform.position.y, rPosition.z);
             rotAlignment = new Vector2(rPosition.x, rPosition.z);
-            m_xPlane = xPlane;
             m_Rigidbody.velocity = new Vector3(tmpVel.z, tmpVel.y, tmpVel.x); // swap x and z velocities
         }
 
@@ -145,6 +144,11 @@ namespace CharacterController
             Vector3 theScale = transform.localScale;
             theScale.x *= -1;
             transform.localScale = theScale;
+        }
+
+        private bool onXPlane()
+        {
+            return currentRotation == PositionStates.Rotation.xPos || currentRotation == PositionStates.Rotation.xNeg;
         }
 
         public void SetSpeedModifier(float newMod)
