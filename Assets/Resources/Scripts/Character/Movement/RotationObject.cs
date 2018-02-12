@@ -7,6 +7,8 @@ public class RotationObject : MonoBehaviour {
 	[SerializeField] private PositionStates.Rotation fromPlane = PositionStates.Rotation.xPos;
 	[SerializeField] private PositionStates.Rotation toPlane = PositionStates.Rotation.zPos;
 
+	public static UnityStringEvent onRotate = new UnityStringEvent();
+
 	private float triggerWidth = 0.3f;
 	private bool inBoundary = false;
 	private bool invert = false;
@@ -94,6 +96,12 @@ public class RotationObject : MonoBehaviour {
 				// indicates player passing center position
                 beginSwitch = (initTravel < 0 && newTravel > 0) || (initTravel > 0 && newTravel < 0);
             }
+
+			// Invoke rotation event
+			if (PositionStates.IsClockwise(pController.currentRotation, newDir))
+				onRotate.Invoke("CW"); //clockwise
+			else
+				onRotate.Invoke("CC"); //counter-clockwise
 
             // call rotation from character controller
             pController.RotatePlane(newDir, transform.position, invert);

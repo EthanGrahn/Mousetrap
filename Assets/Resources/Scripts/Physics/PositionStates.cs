@@ -35,4 +35,18 @@ public static class PositionStates {
             obj.GetComponent<Rigidbody>( ).constraints =
                 RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionX;
     }
+
+    /// <summary>
+    /// Is moving from "fromRotation" to "toRotation" rotating clockwise?
+    /// </summary>
+    /// <param name="fromRotation">Starting rotation</param>
+    /// <param name="toRotation"Ending rotation></param>
+    /// <returns>True if clockwise, false if counter-clockwise.</returns>
+    public static bool IsClockwise(Rotation fromRotation, Rotation toRotation)
+    {
+        return (fromRotation == Rotation.xPos && toRotation == Rotation.zNeg) ||
+               (fromRotation == Rotation.zNeg && toRotation == Rotation.xNeg) ||
+               (fromRotation == Rotation.xNeg && toRotation == Rotation.zPos) ||
+               (fromRotation == Rotation.zPos && toRotation == Rotation.xPos);
+    }
 }
