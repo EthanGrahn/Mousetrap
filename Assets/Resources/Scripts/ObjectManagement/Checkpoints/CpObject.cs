@@ -8,10 +8,8 @@ public class CpObject : MonoBehaviour {
         if (other.CompareTag("Player")) {
             if ( enemy ) {
                 GameManager.Instance.cpManager.ResetPlayer( );
-                Debug.Log( "Got here" );
             } else {
                 GameManager.Instance.cpManager.currCheckpoint = gameObject.transform.position;
-                Debug.Log( "Got inside changing checkpoint position" );
             }
         }
     }

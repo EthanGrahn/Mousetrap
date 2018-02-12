@@ -1,6 +1,10 @@
 fileFormatVersion: 2
 guid: 490c69df924456e45a82405607aebc91
+<<<<<<< HEAD
+timeCreated: 1510180114
+=======
 timeCreated: 1510247352
+>>>>>>> ekgrahn-working
 licenseType: Free
 DefaultImporter:
   userData: 
