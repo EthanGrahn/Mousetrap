@@ -7,8 +7,11 @@ public class GameManager : MonoBehaviour {
 
     public static GameManager Instance;
     public SceneSwitch SceneSwitch;
-    public CharacterMovement CharMovement;
+    public GameObject Player;
+    public CharacterController.PlatformerCharacter pMovement;
     public CpManager cpManager;
+
+
     private void Awake( ) {
         if ( Instance ) {
             DestroyImmediate( gameObject );
@@ -17,6 +20,8 @@ public class GameManager : MonoBehaviour {
 
         DontDestroyOnLoad( gameObject );
         Instance = this;
+
+        pMovement = Player.GetComponent<CharacterController.PlatformerCharacter>();
     }
 
     private void OnLevelWasLoaded( int level ) {
@@ -32,7 +37,6 @@ public class GameManager : MonoBehaviour {
         else if (level == 4)
         {
             Cursor.visible = false;
-            CharMovement = GameObject.FindGameObjectWithTag("Player").GetComponent<CharacterMovement>();
         }
         else
         {

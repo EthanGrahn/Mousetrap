@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class WebTrap : MonoBehaviour {
 
+	[Range(0, 1)]
+	[SerializeField] private float speedModifier = 0.5f;
+
 	void OnTriggerEnter(Collider other)
 	{
 		if (other.CompareTag("Player"))
 		{
-			// limit velocity
+			GameManager.Instance.pMovement.SetSpeedModifier(speedModifier);
 		}
 	}
 
@@ -16,7 +19,7 @@ public class WebTrap : MonoBehaviour {
 	{
 		if (other.CompareTag("Player"))
 		{
-			// Reset velocity limit
+			GameManager.Instance.pMovement.SetSpeedModifier(1);
 		}
 	}
 }

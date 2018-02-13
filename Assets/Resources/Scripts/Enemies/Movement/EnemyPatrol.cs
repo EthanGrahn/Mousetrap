@@ -167,6 +167,6 @@ public class EnemyPatrol : MonoBehaviour {
 
     bool CheckForPlayer(float distance) // check distance to player
     {
-        return Vector3.Distance(GameManager.Instance.CharMovement.transform.position, transform.position) <= distance;
+        return Vector3.Distance(GameManager.Instance.Player.transform.position, transform.position) <= distance;
     }
 }
