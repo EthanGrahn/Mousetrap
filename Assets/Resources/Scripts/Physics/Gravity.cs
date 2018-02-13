@@ -14,9 +14,6 @@ public class Gravity : MonoBehaviour {
     [Tooltip( "Volume of the object." )]
     private float volume;
 
-    // Falling object variables
-    private float distToGround;
-
     float termVel;
 
     // Use this for initialization
@@ -26,9 +23,6 @@ public class Gravity : MonoBehaviour {
         density = 0.084f;
 
         termVel = Mathf.Sqrt( (2 * GetComponent<Rigidbody>( ).mass * Physics.gravity.y) / (density * pArea * dCoeff) );
-
-        // Distance from object to ground
-        distToGround = GetComponent<Collider>( ).bounds.extents.y;
     }
 
     /// <summary>
