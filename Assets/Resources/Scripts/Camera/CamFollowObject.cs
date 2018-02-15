@@ -144,7 +144,7 @@ public class CamFollowObject : MonoBehaviour {
             } else if ( objPos.x > oldObjPos.x + 0.01f ) {
                 newDir = PositionStates.Direction.right;
             }
-        } else if ( rot == PositionStates.Rotation.zNeg ) {
+        } else if ( rot == PositionStates.Rotation.zPos ) {
             // Check where object is moving
             if ( objPos.z < oldObjPos.z - 0.02f ) {
                 newDir = PositionStates.Direction.right;
@@ -158,7 +158,7 @@ public class CamFollowObject : MonoBehaviour {
             } else if ( objPos.x > oldObjPos.x + 0.02f ) {
                 newDir = PositionStates.Direction.left;
             }
-        } else if ( rot == PositionStates.Rotation.zPos ) {
+        } else if ( rot == PositionStates.Rotation.zNeg ) {
             // Check where object is moving
             if ( objPos.z < oldObjPos.z - 0.02f ) {
                 newDir = PositionStates.Direction.right;
@@ -197,7 +197,7 @@ public class CamFollowObject : MonoBehaviour {
             } else {
                 target.x -= camViewInFront;
             }
-        } else if ( rot == PositionStates.Rotation.zNeg ) {
+        } else if ( rot == PositionStates.Rotation.zPos ) {
             // Camera position away from object
             target.x += distFromObj;
 
@@ -217,7 +217,7 @@ public class CamFollowObject : MonoBehaviour {
             } else {
                 target.x += camViewInFront;
             }
-        } else if ( rot == PositionStates.Rotation.zPos ) {
+        } else if ( rot == PositionStates.Rotation.zNeg ) {
             // Camera position away from object
             target.x -= distFromObj;
 

@@ -144,11 +144,11 @@ public class CharacterMovement : MonoBehaviour {
         float horVel = (int)dir * speedFactor * speedCoeff;
         if ( currentRotation == PositionStates.Rotation.xPos )
             GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, yvel, 0.0f );
-        else if ( currentRotation == PositionStates.Rotation.zNeg )
+        else if ( currentRotation == PositionStates.Rotation.zPos )
             GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, horVel );
         else if ( currentRotation == PositionStates.Rotation.xNeg )
             GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, yvel, 0.0f );
-        else if ( currentRotation == PositionStates.Rotation.zPos )
+        else if ( currentRotation == PositionStates.Rotation.zNeg )
             GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, -horVel );
     }
 
@@ -237,7 +237,26 @@ public class CharacterMovement : MonoBehaviour {
         GetComponent<Rigidbody>( ).velocity = Vector3.zero;
 
         currentRotation = newRot;
-        transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z );
+        if ( newRot == PositionStates.Rotation.xPos )
+            if ( directions.currDirection == PositionStates.Direction.right )
+                transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
+            else
+                transform.position = new Vector3( rPosition.x - 0.01f, transform.position.y, rPosition.z );
+        else if ( newRot == PositionStates.Rotation.xNeg )
+            if ( directions.currDirection == PositionStates.Direction.right )
+                transform.position = new Vector3( rPosition.x - 0.01f, transform.position.y, rPosition.z );
+            else
+                transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
+        else if ( newRot == PositionStates.Rotation.zPos )
+            if ( directions.currDirection == PositionStates.Direction.right )
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.01f );
+            else
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.01f );
+        else if ( newRot == PositionStates.Rotation.zNeg )
+            if ( directions.currDirection == PositionStates.Direction.right )
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.01f );
+            else
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.01f );
         //rotAlignment = new Vector2(rPosition.x, rPosition.z);
         GetComponent<Rigidbody>( ).velocity = new Vector3( tmpVel.z, tmpVel.y, tmpVel.x ); // swap x and z velocities
         GetConstraints( );

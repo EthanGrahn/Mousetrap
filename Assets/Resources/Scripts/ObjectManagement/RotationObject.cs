@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class RotationObject : MonoBehaviour {
-
     [SerializeField] private PositionStates.Rotation fromPlane = PositionStates.Rotation.xPos;
-    [SerializeField] private PositionStates.Rotation toPlane = PositionStates.Rotation.zPos;
+    [SerializeField] private PositionStates.Rotation toPlane = PositionStates.Rotation.zNeg;
 
     public static UnityStringEvent onRotate = new UnityStringEvent( );
 
@@ -28,21 +27,12 @@ public class RotationObject : MonoBehaviour {
     }
 
     private void OnTriggerEnter( Collider other ) {
-        if ( other.CompareTag( "Player" ) ) {
-            // calculate direction player is from center of rotation point
-            if ( other.GetComponent<CharacterMovement>( ).currentRotation == fromPlane ) {
-                if ( fromPlane == PositionStates.Rotation.xPos || fromPlane == PositionStates.Rotation.xNeg )
-                    initTravel = other.transform.position.x - transform.position.x;
-                else
-                    initTravel = other.transform.position.z - transform.position.z;
-            } else {
-                if ( fromPlane == PositionStates.Rotation.xPos || fromPlane == PositionStates.Rotation.xNeg )
-                    initTravel = other.transform.position.x - transform.position.x;
-                else
-                    initTravel = other.transform.position.z - transform.position.z;
-            }
-
+        if ( other.CompareTag( "Player" ) && !inBoundary ) {
+            Debug.Log( "From: " + fromPlane + " to: " + toPlane );
             inBoundary = true;
+            // calculate direction player is from center of rotation point
+            initTravel = UpdateTravel( other.GetComponent<CharacterMovement>( ).currentRotation, other );
+
             StartCoroutine( "PositionMonitor", other );
         }
     }
@@ -67,29 +57,19 @@ public class RotationObject : MonoBehaviour {
 
         while ( inBoundary ) // continous checking while player stays in boundary
         {
-            Debug.Log( "Entering inBoundary." );
             while ( !beginSwitch ) // check player position until they pass the center of the rotation point
             {
                 Debug.Log( "Entering beginSwitch." );
                 yield return new WaitForFixedUpdate( ); // wait a frame to allow from movement from previous position
 
-                // calculate new direction player is from the center of the rotation point
-                if ( pController.currentRotation == fromPlane ) {
-                    if ( fromPlane == PositionStates.Rotation.xPos || fromPlane == PositionStates.Rotation.xNeg )
-                        newTravel = other.transform.position.x - transform.position.x;
-                    else
-                        newTravel = other.transform.position.z - transform.position.z;
-                } else {
-                    if ( fromPlane == PositionStates.Rotation.xPos || fromPlane == PositionStates.Rotation.xNeg )
-                        newTravel = other.transform.position.x - transform.position.x;
-                    else
-                        newTravel = other.transform.position.z - transform.position.z;
-                }
+                newTravel = UpdateTravel( pController.currentRotation, other );
 
                 // has the direction swapped from + to - or - to +?
                 // indicates player passing center position
                 beginSwitch = (initTravel < 0 && newTravel > 0) || (initTravel > 0 && newTravel < 0);
+                Debug.Log( "initTravel: " + initTravel + " newTravel: " + newTravel + " " + (initTravel < 0 && newTravel > 0) + " " + (initTravel > 0 && newTravel < 0) );
             }
+            Debug.Log( "Entering inBoundary." );
 
             // Invoke rotation event
             if ( PositionStates.IsClockwise( pController.currentRotation, newDir ) )
@@ -109,17 +89,7 @@ public class RotationObject : MonoBehaviour {
                 newDir = fromPlane;
 
             // calculate new initTravel 
-            if ( pController.currentRotation == fromPlane ) {
-                if ( fromPlane == PositionStates.Rotation.xPos || fromPlane == PositionStates.Rotation.xNeg )
-                    initTravel = other.transform.position.x - transform.position.x;
-                else
-                    initTravel = other.transform.position.z - transform.position.z;
-            } else {
-                if ( fromPlane == PositionStates.Rotation.xPos || fromPlane == PositionStates.Rotation.xNeg )
-                    initTravel = other.transform.position.x - transform.position.x;
-                else
-                    initTravel = other.transform.position.z - transform.position.z;
-            }
+            initTravel = UpdateTravel( pController.currentRotation, other );
 
             beginSwitch = false;
         }
@@ -130,5 +100,31 @@ public class RotationObject : MonoBehaviour {
             StopCoroutine( "PositionMonitor" );
             inBoundary = false;
         }
+    }
+
+    /// <summary>
+    /// Gets a new distance from player to rotation point.
+    /// </summary>
+    /// <param name="playerRot">Current rotation of the player</param>
+    /// <param name="other">Collider of the player</param>
+    /// <returns>Floating point distance between player and rotation point.</returns>
+    private float UpdateTravel( PositionStates.Rotation playerRot, Collider other ) {
+        float travel = 0f;
+
+        if ( playerRot == fromPlane ) {
+            if ( fromPlane == PositionStates.Rotation.xPos || fromPlane == PositionStates.Rotation.xNeg )
+                travel = other.transform.position.x - transform.position.x;
+            else
+                travel = other.transform.position.z - transform.position.z;
+        } else {
+            if ( toPlane == PositionStates.Rotation.xPos || toPlane == PositionStates.Rotation.xNeg )
+                travel = other.transform.position.x - transform.position.x;
+            else
+                travel = other.transform.position.z - transform.position.z;
+        }
+
+        Debug.Log( "Travel: " + travel + " playerRot: " + playerRot );
+
+        return travel;
     }
 }

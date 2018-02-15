@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class PositionStates {
-    public enum Rotation { xPos = 1, zPos = 2, xNeg = -1, zNeg = -2 };
+    public enum Rotation { xPos = 1, zNeg = 2, xNeg = -1, zPos = -2 };
     public enum Direction { left = -1, right = 1, idle = 0 };
 
     /// <summary>
@@ -44,9 +44,9 @@ public static class PositionStates {
     /// <returns>True if clockwise, false if counter-clockwise.</returns>
     public static bool IsClockwise(Rotation fromRotation, Rotation toRotation)
     {
-        return (fromRotation == Rotation.xPos && toRotation == Rotation.zNeg) ||
-               (fromRotation == Rotation.zNeg && toRotation == Rotation.xNeg) ||
-               (fromRotation == Rotation.xNeg && toRotation == Rotation.zPos) ||
-               (fromRotation == Rotation.zPos && toRotation == Rotation.xPos);
+        return (fromRotation == Rotation.xPos && toRotation == Rotation.zPos) ||
+               (fromRotation == Rotation.zPos && toRotation == Rotation.xNeg) ||
+               (fromRotation == Rotation.xNeg && toRotation == Rotation.zNeg) ||
+               (fromRotation == Rotation.zNeg && toRotation == Rotation.xPos);
     }
 }
