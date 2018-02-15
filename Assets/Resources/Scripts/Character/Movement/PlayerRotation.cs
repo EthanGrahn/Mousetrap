@@ -13,10 +13,6 @@ public class PlayerRotation : CharacterStates {
     }
 
     void MoveToPoint( ) {
-        // Set new point to grounded position
-        Vector3 groundedPos = player.rotationPoint;
-        groundedPos.y = player.transform.position.y;
-        player.rotationPoint = groundedPos;
 
         // Move character to point of rotation
         player.transform.position = player.rotationPoint;
