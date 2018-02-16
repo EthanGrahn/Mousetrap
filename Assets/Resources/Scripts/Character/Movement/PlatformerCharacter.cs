@@ -116,19 +116,19 @@ namespace CharacterController
         /// </summary>
         /// <param name="newRot">New rotation of character movement.</param>
         /// <param name="rPosition">Position of the rotation point.</param>
-        public void RotatePlane(PositionStates.Rotation newRot, Vector3 rPosition, bool invertAxis)
+        public void RotatePlane(PositionStates.Rotation newRot, Vector3 rPosition)
         {
             Vector3 tmpVel = m_Rigidbody.velocity;
             m_Rigidbody.velocity = Vector3.zero;
 
-            if (invertAxis && isInvert == 1)
-                isInvert = -1;
-            else if (invertAxis && isInvert == -1)
-                isInvert = 1;
+            //if (invertAxis && isInvert == 1)
+            //    isInvert = -1;
+            //else if (invertAxis && isInvert == -1)
+            //    isInvert = 1;
                 
             currentRotation = newRot;
             transform.position = new Vector3(rPosition.x, transform.position.y, rPosition.z);
-            rotAlignment = new Vector2(rPosition.x, rPosition.z);
+            //rotAlignment = new Vector2(rPosition.x, rPosition.z);
             m_Rigidbody.velocity = new Vector3(tmpVel.z, tmpVel.y, tmpVel.x); // swap x and z velocities
         }
 

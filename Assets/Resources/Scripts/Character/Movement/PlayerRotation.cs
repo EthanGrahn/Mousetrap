@@ -13,10 +13,6 @@ public class PlayerRotation : CharacterStates {
     }
 
     void MoveToPoint( ) {
-        // Set new point to grounded position
-        Vector3 groundedPos = player.rotationPoint;
-        groundedPos.y = player.transform.position.y;
-        player.rotationPoint = groundedPos;
 
         // Move character to point of rotation
         player.transform.position = player.rotationPoint;
@@ -51,7 +47,7 @@ public class PlayerRotation : CharacterStates {
             } else {
                 dir = PositionStates.Direction.left;
             }
-        } else if ( player.currentRotation == PositionStates.Rotation.zNeg ) {
+        } else if ( player.currentRotation == PositionStates.Rotation.zPos ) {
             if ( targetPosition.z > player.transform.position.z ) {
                 dir = PositionStates.Direction.right;
             } else {
@@ -81,7 +77,7 @@ public class PlayerRotation : CharacterStates {
             } else {
                 targetPosition.x += endingDist;
             }
-        } else if ( player.currentRotation == PositionStates.Rotation.zNeg ) {
+        } else if ( player.currentRotation == PositionStates.Rotation.zPos ) {
             if ( player.directions.lastDirection == PositionStates.Direction.left ) {
                 targetPosition.z -= endingDist;
             } else {
@@ -93,7 +89,7 @@ public class PlayerRotation : CharacterStates {
             } else {
                 targetPosition.x -= endingDist;
             }
-        } else if ( player.currentRotation == PositionStates.Rotation.zPos ) {
+        } else if ( player.currentRotation == PositionStates.Rotation.zNeg ) {
             if ( player.directions.lastDirection == PositionStates.Direction.left ) {
                 targetPosition.z += endingDist;
             } else {
