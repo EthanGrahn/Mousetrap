@@ -28,7 +28,6 @@ public class RotationObject : MonoBehaviour {
 
     private void OnTriggerEnter( Collider other ) {
         if ( other.CompareTag( "Player" ) && !inBoundary ) {
-            Debug.Log( "From: " + fromPlane + " to: " + toPlane );
             inBoundary = true;
             // calculate direction player is from center of rotation point
             initTravel = UpdateTravel( other.GetComponent<CharacterMovement>( ).currentRotation, other );
@@ -43,7 +42,6 @@ public class RotationObject : MonoBehaviour {
     /// <param name="other">Character Collider.</param>
     /// <returns>null</returns>
     private IEnumerator PositionMonitor( Collider other ) {
-        Debug.Log( "Entering IEnumerator." );
         bool beginSwitch = false;
         float newTravel;
         PositionStates.Rotation newDir;
@@ -59,7 +57,6 @@ public class RotationObject : MonoBehaviour {
         {
             while ( !beginSwitch ) // check player position until they pass the center of the rotation point
             {
-                Debug.Log( "Entering beginSwitch." );
                 yield return new WaitForFixedUpdate( ); // wait a frame to allow from movement from previous position
 
                 newTravel = UpdateTravel( pController.currentRotation, other );
@@ -67,9 +64,7 @@ public class RotationObject : MonoBehaviour {
                 // has the direction swapped from + to - or - to +?
                 // indicates player passing center position
                 beginSwitch = (initTravel < 0 && newTravel > 0) || (initTravel > 0 && newTravel < 0);
-                Debug.Log( "initTravel: " + initTravel + " newTravel: " + newTravel + " " + (initTravel < 0 && newTravel > 0) + " " + (initTravel > 0 && newTravel < 0) );
             }
-            Debug.Log( "Entering inBoundary." );
 
             // Invoke rotation event
             if ( PositionStates.IsClockwise( pController.currentRotation, newDir ) )
@@ -122,8 +117,6 @@ public class RotationObject : MonoBehaviour {
             else
                 travel = other.transform.position.z - transform.position.z;
         }
-
-        Debug.Log( "Travel: " + travel + " playerRot: " + playerRot );
 
         return travel;
     }

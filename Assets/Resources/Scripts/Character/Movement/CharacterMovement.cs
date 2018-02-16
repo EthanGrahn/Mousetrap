@@ -165,7 +165,7 @@ public class CharacterMovement : MonoBehaviour {
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
-        if ( controller.Jump && grav.IsGrounded( groundCheck ) ) {
+        if ( controller.Jump && grav.IsGrounded( groundCheck, 13 ) ) {
             GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
         }
     }
@@ -237,6 +237,13 @@ public class CharacterMovement : MonoBehaviour {
         GetComponent<Rigidbody>( ).velocity = Vector3.zero;
 
         currentRotation = newRot;
+        MoveFromRot( newRot, rPosition );
+        //rotAlignment = new Vector2(rPosition.x, rPosition.z);
+        GetComponent<Rigidbody>( ).velocity = new Vector3( tmpVel.z, tmpVel.y, tmpVel.x ); // swap x and z velocities
+        GetConstraints( );
+    }
+
+    private void MoveFromRot(PositionStates.Rotation newRot, Vector3 rPosition) {
         if ( newRot == PositionStates.Rotation.xPos )
             if ( directions.currDirection == PositionStates.Direction.right )
                 transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
@@ -257,8 +264,5 @@ public class CharacterMovement : MonoBehaviour {
                 transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.01f );
             else
                 transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.01f );
-        //rotAlignment = new Vector2(rPosition.x, rPosition.z);
-        GetComponent<Rigidbody>( ).velocity = new Vector3( tmpVel.z, tmpVel.y, tmpVel.x ); // swap x and z velocities
-        GetConstraints( );
     }
 }
