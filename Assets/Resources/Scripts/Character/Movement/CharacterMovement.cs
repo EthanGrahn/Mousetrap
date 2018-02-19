@@ -189,48 +189,40 @@ public class CharacterMovement : MonoBehaviour {
     /// </summary>
     /// <param name="newRot">New rotation of character movement.</param>
     /// <param name="rPosition">Position of the rotation point.</param>
-    public void RotatePlane( PositionStates.Rotation newRot, Vector3 rPosition ) {
-        // Rotate the camera
-        float cameraAngle = mainCam.transform.eulerAngles.y;
-        cameraAngle += rotationAdd % 360;
-        Quaternion cameraRotation = Quaternion.identity;
-        cameraRotation = Quaternion.Euler( 0.0f, cameraAngle, 0.0f );
-
-        currentRotation = endingRotation;
-
-        for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
-            mainCam.transform.rotation = Quaternion.Lerp( mainCam.transform.rotation, cameraRotation, t );
-            Debug.Log( "Rotating camera." );
-        }
-
-        mainCam.transform.rotation = cameraRotation;
-
+    public void RotatePlane( PositionStates.Rotation newRot, Vector3 rPosition, float degrees ) {
         Vector3 tmpVel = GetComponent<Rigidbody>( ).velocity;
         GetComponent<Rigidbody>( ).velocity = Vector3.zero;
 
         currentRotation = newRot;
-        RotateCharacters( );
+        RotateCharacters( degrees );
         MoveFromRot( newRot, rPosition );
         GetComponent<Rigidbody>( ).velocity = new Vector3( tmpVel.z, tmpVel.y, tmpVel.x ); // swap x and z velocities
         GetConstraints( );
     }
 
-    private void RotateCharacters( ) {
-        float degrees = -90.0f;
+    private void RotateCharacters( float degrees ) {
         float totalTime = 0.5f;
+        float playerRotation = transform.rotation.y;
+        float camRotation = mainCam.transform.rotation.y;
         GetComponent<Rigidbody>( ).constraints =
             RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
-        float rate = degrees / totalTime;
+        float rate = Mathf.Abs( degrees ) / totalTime;
         float mult = rate;
         if ( degrees < 0 )
             mult *= -1;
+        Debug.Log( "Player First: " + playerRotation + " " + transform.rotation.eulerAngles + " " + degrees + " " + (playerRotation + degrees) + " " + ((playerRotation + degrees) % 360) );
 
         for ( float i = 0.0f; i < Mathf.Abs( degrees ); i += Time.deltaTime * rate ) {
 
             transform.Rotate( 0, mult * Time.deltaTime, 0, Space.Self );
             mainCam.transform.Rotate( 0, mult * Time.deltaTime, 0, Space.Self );
         }
+        Debug.Log( "Player Before: " + playerRotation + " " + transform.rotation.eulerAngles + " " + degrees + " " + (playerRotation + degrees) + " " + ((playerRotation + degrees) % 360) );
+        transform.rotation = Quaternion.Euler( 0.0f, Mathf.Round( (playerRotation + degrees) % 360 ), 0.0f );
+        mainCam.transform.rotation = Quaternion.Euler( 0.0f, (camRotation + degrees) % 360, 0.0f );
+        Debug.Log( "Player After: " + playerRotation + " " + transform.rotation.eulerAngles + " " + degrees + " " +  (playerRotation + degrees) + " " + ((playerRotation + degrees) % 360) );
+
     }
 
     private void MoveFromRot( PositionStates.Rotation newRot, Vector3 rPosition ) {

@@ -44,14 +44,18 @@ public class RotationObject : MonoBehaviour {
     private IEnumerator PositionMonitor( Collider other ) {
         bool beginSwitch = false;
         float newTravel;
+        float degrees;
         PositionStates.Rotation newDir;
         CharacterMovement pController = other.GetComponent<CharacterMovement>( );
 
         // set the rotation that the character will rotate to
-        if ( pController.currentRotation == fromPlane )
+        if ( pController.currentRotation == fromPlane ) {
             newDir = toPlane;
-        else
+            degrees = GetDegrees( fromPlane, newDir );
+        } else {
             newDir = fromPlane;
+            degrees = GetDegrees( toPlane, newDir );
+        }
 
         while ( inBoundary ) // continous checking while player stays in boundary
         {
@@ -73,7 +77,7 @@ public class RotationObject : MonoBehaviour {
                 onRotate.Invoke( "CC" ); //counter-clockwise
 
             // call rotation from character controller
-            pController.RotatePlane( newDir, transform.position );
+            pController.RotatePlane( newDir, transform.position, degrees );
 
             yield return new WaitForFixedUpdate( );
 
@@ -119,5 +123,20 @@ public class RotationObject : MonoBehaviour {
         }
 
         return travel;
+    }
+
+    float GetDegrees( PositionStates.Rotation from, PositionStates.Rotation to ) {
+        float degrees;
+
+        if ( (from == PositionStates.Rotation.xPos && to == PositionStates.Rotation.zPos) ||
+            (from == PositionStates.Rotation.zPos && to == PositionStates.Rotation.xNeg) ||
+            (from == PositionStates.Rotation.xNeg && to == PositionStates.Rotation.zNeg) ||
+            (from == PositionStates.Rotation.zNeg && to == PositionStates.Rotation.xPos) ) {
+            degrees = -90.0f;
+        } else {
+            degrees = 90.0f;
+        }
+
+            return degrees;
     }
 }
