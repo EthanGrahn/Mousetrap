@@ -72,6 +72,8 @@ public class CharacterMovement : MonoBehaviour {
     //------------------------------------------INITIALIZATION------------------------------------------//
     //--------------------------------------------------------------------------------------------------//
     void Awake( ) {
+        currentRotation = PositionStates.Rotation.xPos;
+
         playerInput = new PlayerInput( this );
         playerRotation = new PlayerRotation( this );
         climbing = new Climbing( this );
@@ -83,7 +85,6 @@ public class CharacterMovement : MonoBehaviour {
     }
 
     void Start( ) {
-        currentRotation = PositionStates.Rotation.xPos;
         PositionStates.GetConstraints( gameObject, currentRotation );
 
         grav = GetComponent<Gravity>( );
@@ -184,35 +185,6 @@ public class CharacterMovement : MonoBehaviour {
     }
 
     /// <summary>
-    /// Set rotation point, direction of rotation, and ending direction to leave rotation point from for the character.
-    /// </summary>
-    /// <param name="other">Collider that triggers the rotation to occur</param>
-    //public void SetRotationVars( Collider other ) {
-    //    rotationAdd = (int)other.GetComponent<RotationVars>( ).rotationDir;
-    //    endingRotation = other.GetComponent<RotationVars>( ).endingRotation;
-    //    endingDirection = other.GetComponent<RotationVars>( ).endingDirection;
-    //    Vector3 point = other.transform.parent.transform.position;
-    //    rotationPoint = new Vector3( point.x, transform.position.y, point.z );
-    //}
-
-    //private void RotateCharacters( ) {
-
-    //    // Rotate the player
-    //    GetComponent<Rigidbody>( ).constraints =
-    //        RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-    //    float targetAngle = transform.eulerAngles.y;
-    //    targetAngle += rotationAdd % 360;
-    //    Quaternion targetRotation = Quaternion.identity;
-    //    targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
-
-    //    for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
-    //        transform.rotation = Quaternion.Lerp( transform.rotation, targetRotation, t );
-    //    }
-    //    PositionStates.GetConstraints( gameObject, currentRotation );
-    //    rotation = false;
-    //}
-
-    /// <summary>
     /// Sets the new plane of rotation and movement for the character.
     /// </summary>
     /// <param name="newRot">New rotation of character movement.</param>
@@ -237,13 +209,31 @@ public class CharacterMovement : MonoBehaviour {
         GetComponent<Rigidbody>( ).velocity = Vector3.zero;
 
         currentRotation = newRot;
+        RotateCharacters( );
         MoveFromRot( newRot, rPosition );
-        //rotAlignment = new Vector2(rPosition.x, rPosition.z);
         GetComponent<Rigidbody>( ).velocity = new Vector3( tmpVel.z, tmpVel.y, tmpVel.x ); // swap x and z velocities
         GetConstraints( );
     }
 
-    private void MoveFromRot(PositionStates.Rotation newRot, Vector3 rPosition) {
+    private void RotateCharacters( ) {
+        float degrees = -90.0f;
+        float totalTime = 0.5f;
+        GetComponent<Rigidbody>( ).constraints =
+            RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+        float rate = degrees / totalTime;
+        float mult = rate;
+        if ( degrees < 0 )
+            mult *= -1;
+
+        for ( float i = 0.0f; i < Mathf.Abs( degrees ); i += Time.deltaTime * rate ) {
+
+            transform.Rotate( 0, mult * Time.deltaTime, 0, Space.Self );
+            mainCam.transform.Rotate( 0, mult * Time.deltaTime, 0, Space.Self );
+        }
+    }
+
+    private void MoveFromRot( PositionStates.Rotation newRot, Vector3 rPosition ) {
         if ( newRot == PositionStates.Rotation.xPos )
             if ( directions.currDirection == PositionStates.Direction.right )
                 transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
