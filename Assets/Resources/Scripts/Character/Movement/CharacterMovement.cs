@@ -202,8 +202,8 @@ public class CharacterMovement : MonoBehaviour {
 
     private void RotateCharacters( float degrees ) {
         float totalTime = 0.5f;
-        float playerRotation = transform.rotation.y;
-        float camRotation = mainCam.transform.rotation.y;
+        float playerRotation = transform.rotation.eulerAngles.y;
+        float camRotation = mainCam.transform.rotation.eulerAngles.y;
         GetComponent<Rigidbody>( ).constraints =
             RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
