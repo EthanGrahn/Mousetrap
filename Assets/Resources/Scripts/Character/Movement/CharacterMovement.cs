@@ -37,6 +37,8 @@ public class CharacterMovement : MonoBehaviour {
     // Used for Jumping
     [Tooltip( "How fast the character jumps in the air." )]
     public float jumpSpeed = 10f;
+    [SerializeField]
+    private LayerMask m_whatIsGround;
 
     // Used for Climbing
     [Tooltip( "How fast the character climbs on walls." )]
@@ -166,7 +168,7 @@ public class CharacterMovement : MonoBehaviour {
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
-        if ( controller.Jump && grav.IsGrounded( groundCheck, 13 ) ) {
+        if ( controller.Jump && grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
             GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
         }
     }
@@ -208,10 +210,10 @@ public class CharacterMovement : MonoBehaviour {
     /// <param name="degrees">How many degrees to rotate object</param>
     /// <param name="totalTime">Total time it should take to rotate object</param>
     /// <param name="isPlayer">If the object is the player and needs new constraints</param>
-    private void RotateObject( Transform obj, float degrees, float totalTime,  bool isPlayer ) {
+    private void RotateObject( Transform obj, float degrees, float totalTime, bool isPlayer ) {
         float objRotation = obj.rotation.eulerAngles.y;
 
-        if (isPlayer)
+        if ( isPlayer )
             GetComponent<Rigidbody>( ).constraints =
                 RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
