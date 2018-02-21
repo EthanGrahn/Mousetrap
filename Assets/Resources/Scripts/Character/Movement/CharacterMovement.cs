@@ -72,6 +72,8 @@ public class CharacterMovement : MonoBehaviour {
     //------------------------------------------INITIALIZATION------------------------------------------//
     //--------------------------------------------------------------------------------------------------//
     void Awake( ) {
+        currentRotation = PositionStates.Rotation.xPos;
+
         playerInput = new PlayerInput( this );
         playerRotation = new PlayerRotation( this );
         climbing = new Climbing( this );
@@ -83,7 +85,6 @@ public class CharacterMovement : MonoBehaviour {
     }
 
     void Start( ) {
-        currentRotation = PositionStates.Rotation.xPos;
         PositionStates.GetConstraints( gameObject, currentRotation );
 
         grav = GetComponent<Gravity>( );
@@ -165,7 +166,7 @@ public class CharacterMovement : MonoBehaviour {
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
-        if ( controller.Jump && grav.IsGrounded( groundCheck ) ) {
+        if ( controller.Jump && grav.IsGrounded( groundCheck, 13 ) ) {
             GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
         }
     }
@@ -184,59 +185,54 @@ public class CharacterMovement : MonoBehaviour {
     }
 
     /// <summary>
-    /// Set rotation point, direction of rotation, and ending direction to leave rotation point from for the character.
-    /// </summary>
-    /// <param name="other">Collider that triggers the rotation to occur</param>
-    //public void SetRotationVars( Collider other ) {
-    //    rotationAdd = (int)other.GetComponent<RotationVars>( ).rotationDir;
-    //    endingRotation = other.GetComponent<RotationVars>( ).endingRotation;
-    //    endingDirection = other.GetComponent<RotationVars>( ).endingDirection;
-    //    Vector3 point = other.transform.parent.transform.position;
-    //    rotationPoint = new Vector3( point.x, transform.position.y, point.z );
-    //}
-
-    //private void RotateCharacters( ) {
-
-    //    // Rotate the player
-    //    GetComponent<Rigidbody>( ).constraints =
-    //        RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-    //    float targetAngle = transform.eulerAngles.y;
-    //    targetAngle += rotationAdd % 360;
-    //    Quaternion targetRotation = Quaternion.identity;
-    //    targetRotation = Quaternion.Euler( 0.0f, targetAngle, 0.0f );
-
-    //    for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
-    //        transform.rotation = Quaternion.Lerp( transform.rotation, targetRotation, t );
-    //    }
-    //    PositionStates.GetConstraints( gameObject, currentRotation );
-    //    rotation = false;
-    //}
-
-    /// <summary>
     /// Sets the new plane of rotation and movement for the character.
     /// </summary>
     /// <param name="newRot">New rotation of character movement.</param>
     /// <param name="rPosition">Position of the rotation point.</param>
-    public void RotatePlane( PositionStates.Rotation newRot, Vector3 rPosition ) {
-        // Rotate the camera
-        float cameraAngle = mainCam.transform.eulerAngles.y;
-        cameraAngle += rotationAdd % 360;
-        Quaternion cameraRotation = Quaternion.identity;
-        cameraRotation = Quaternion.Euler( 0.0f, cameraAngle, 0.0f );
-
-        currentRotation = endingRotation;
-
-        for ( float t = 0f; t < 1; t += Time.deltaTime / inTime ) {
-            mainCam.transform.rotation = Quaternion.Lerp( mainCam.transform.rotation, cameraRotation, t );
-            Debug.Log( "Rotating camera." );
-        }
-
-        mainCam.transform.rotation = cameraRotation;
-
+    public void RotatePlane( PositionStates.Rotation newRot, Vector3 rPosition, float degrees ) {
         Vector3 tmpVel = GetComponent<Rigidbody>( ).velocity;
         GetComponent<Rigidbody>( ).velocity = Vector3.zero;
 
         currentRotation = newRot;
+        RotateObject( gameObject.transform, degrees, 100.0f, true );
+        RotateObject( mainCam.transform, degrees, 200.0f, false );
+        MoveFromRot( newRot, rPosition );
+        GetComponent<Rigidbody>( ).velocity = new Vector3( tmpVel.z, tmpVel.y, tmpVel.x ); // swap x and z velocities
+        GetConstraints( );
+    }
+
+    /// <summary>
+    /// Rotate object around its y axis
+    /// </summary>
+    /// <param name="obj">Object to rotate's transform</param>
+    /// <param name="degrees">How many degrees to rotate object</param>
+    /// <param name="totalTime">Total time it should take to rotate object</param>
+    /// <param name="isPlayer">If the object is the player and needs new constraints</param>
+    private void RotateObject( Transform obj, float degrees, float totalTime,  bool isPlayer ) {
+        float objRotation = obj.rotation.eulerAngles.y;
+
+        if (isPlayer)
+            GetComponent<Rigidbody>( ).constraints =
+                RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+        float rate = Mathf.Abs( degrees ) / totalTime;
+        float mult = rate;
+        if ( degrees < 0 )
+            mult *= -1;
+
+        for ( float i = 0.0f; i < Mathf.Abs( degrees ); i += Time.deltaTime * rate ) {
+            obj.Rotate( 0, mult * Time.deltaTime, 0, Space.Self );
+        }
+
+        obj.rotation = Quaternion.Euler( 0.0f, Mathf.Round( (objRotation + degrees) % 360 ), 0.0f );
+    }
+
+    /// <summary>
+    /// Move the player from the point of rotation
+    /// </summary>
+    /// <param name="newRot">Ending rotation of the character</param>
+    /// <param name="rPosition">Position of the rotation point</param>
+    private void MoveFromRot( PositionStates.Rotation newRot, Vector3 rPosition ) {
         if ( newRot == PositionStates.Rotation.xPos )
             if ( directions.currDirection == PositionStates.Direction.right )
                 transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
@@ -257,8 +253,5 @@ public class CharacterMovement : MonoBehaviour {
                 transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.01f );
             else
                 transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.01f );
-        //rotAlignment = new Vector2(rPosition.x, rPosition.z);
-        GetComponent<Rigidbody>( ).velocity = new Vector3( tmpVel.z, tmpVel.y, tmpVel.x ); // swap x and z velocities
-        GetConstraints( );
     }
 }

@@ -28,7 +28,6 @@ public class RotationObject : MonoBehaviour {
 
     private void OnTriggerEnter( Collider other ) {
         if ( other.CompareTag( "Player" ) && !inBoundary ) {
-            Debug.Log( "From: " + fromPlane + " to: " + toPlane );
             inBoundary = true;
             // calculate direction player is from center of rotation point
             initTravel = UpdateTravel( other.GetComponent<CharacterMovement>( ).currentRotation, other );
@@ -43,23 +42,25 @@ public class RotationObject : MonoBehaviour {
     /// <param name="other">Character Collider.</param>
     /// <returns>null</returns>
     private IEnumerator PositionMonitor( Collider other ) {
-        Debug.Log( "Entering IEnumerator." );
         bool beginSwitch = false;
         float newTravel;
+        float degrees;
         PositionStates.Rotation newDir;
         CharacterMovement pController = other.GetComponent<CharacterMovement>( );
 
         // set the rotation that the character will rotate to
-        if ( pController.currentRotation == fromPlane )
+        if ( pController.currentRotation == fromPlane ) {
             newDir = toPlane;
-        else
+            degrees = GetDegrees( fromPlane, newDir );
+        } else {
             newDir = fromPlane;
+            degrees = GetDegrees( toPlane, newDir );
+        }
 
         while ( inBoundary ) // continous checking while player stays in boundary
         {
             while ( !beginSwitch ) // check player position until they pass the center of the rotation point
             {
-                Debug.Log( "Entering beginSwitch." );
                 yield return new WaitForFixedUpdate( ); // wait a frame to allow from movement from previous position
 
                 newTravel = UpdateTravel( pController.currentRotation, other );
@@ -67,9 +68,7 @@ public class RotationObject : MonoBehaviour {
                 // has the direction swapped from + to - or - to +?
                 // indicates player passing center position
                 beginSwitch = (initTravel < 0 && newTravel > 0) || (initTravel > 0 && newTravel < 0);
-                Debug.Log( "initTravel: " + initTravel + " newTravel: " + newTravel + " " + (initTravel < 0 && newTravel > 0) + " " + (initTravel > 0 && newTravel < 0) );
             }
-            Debug.Log( "Entering inBoundary." );
 
             // Invoke rotation event
             if ( PositionStates.IsClockwise( pController.currentRotation, newDir ) )
@@ -78,7 +77,7 @@ public class RotationObject : MonoBehaviour {
                 onRotate.Invoke( "CC" ); //counter-clockwise
 
             // call rotation from character controller
-            pController.RotatePlane( newDir, transform.position );
+            pController.RotatePlane( newDir, transform.position, degrees );
 
             yield return new WaitForFixedUpdate( );
 
@@ -123,8 +122,21 @@ public class RotationObject : MonoBehaviour {
                 travel = other.transform.position.z - transform.position.z;
         }
 
-        Debug.Log( "Travel: " + travel + " playerRot: " + playerRot );
-
         return travel;
+    }
+
+    float GetDegrees( PositionStates.Rotation from, PositionStates.Rotation to ) {
+        float degrees;
+
+        if ( (from == PositionStates.Rotation.xPos && to == PositionStates.Rotation.zPos) ||
+            (from == PositionStates.Rotation.zPos && to == PositionStates.Rotation.xNeg) ||
+            (from == PositionStates.Rotation.xNeg && to == PositionStates.Rotation.zNeg) ||
+            (from == PositionStates.Rotation.zNeg && to == PositionStates.Rotation.xPos) ) {
+            degrees = -90.0f;
+        } else {
+            degrees = 90.0f;
+        }
+
+            return degrees;
     }
 }
