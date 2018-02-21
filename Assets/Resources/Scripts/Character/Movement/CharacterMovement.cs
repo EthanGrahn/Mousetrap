@@ -194,37 +194,44 @@ public class CharacterMovement : MonoBehaviour {
         GetComponent<Rigidbody>( ).velocity = Vector3.zero;
 
         currentRotation = newRot;
-        RotateCharacters( degrees );
+        RotateObject( gameObject.transform, degrees, 100.0f, true );
+        RotateObject( mainCam.transform, degrees, 200.0f, false );
         MoveFromRot( newRot, rPosition );
         GetComponent<Rigidbody>( ).velocity = new Vector3( tmpVel.z, tmpVel.y, tmpVel.x ); // swap x and z velocities
         GetConstraints( );
     }
 
-    private void RotateCharacters( float degrees ) {
-        float totalTime = 0.5f;
-        float playerRotation = transform.rotation.eulerAngles.y;
-        float camRotation = mainCam.transform.rotation.eulerAngles.y;
-        GetComponent<Rigidbody>( ).constraints =
-            RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+    /// <summary>
+    /// Rotate object around its y axis
+    /// </summary>
+    /// <param name="obj">Object to rotate's transform</param>
+    /// <param name="degrees">How many degrees to rotate object</param>
+    /// <param name="totalTime">Total time it should take to rotate object</param>
+    /// <param name="isPlayer">If the object is the player and needs new constraints</param>
+    private void RotateObject( Transform obj, float degrees, float totalTime,  bool isPlayer ) {
+        float objRotation = obj.rotation.eulerAngles.y;
+
+        if (isPlayer)
+            GetComponent<Rigidbody>( ).constraints =
+                RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
         float rate = Mathf.Abs( degrees ) / totalTime;
         float mult = rate;
         if ( degrees < 0 )
             mult *= -1;
-        Debug.Log( "Player First: " + playerRotation + " " + transform.rotation.eulerAngles + " " + degrees + " " + (playerRotation + degrees) + " " + ((playerRotation + degrees) % 360) );
 
         for ( float i = 0.0f; i < Mathf.Abs( degrees ); i += Time.deltaTime * rate ) {
-
-            transform.Rotate( 0, mult * Time.deltaTime, 0, Space.Self );
-            mainCam.transform.Rotate( 0, mult * Time.deltaTime, 0, Space.Self );
+            obj.Rotate( 0, mult * Time.deltaTime, 0, Space.Self );
         }
-        Debug.Log( "Player Before: " + playerRotation + " " + transform.rotation.eulerAngles + " " + degrees + " " + (playerRotation + degrees) + " " + ((playerRotation + degrees) % 360) );
-        transform.rotation = Quaternion.Euler( 0.0f, Mathf.Round( (playerRotation + degrees) % 360 ), 0.0f );
-        mainCam.transform.rotation = Quaternion.Euler( 0.0f, (camRotation + degrees) % 360, 0.0f );
-        Debug.Log( "Player After: " + playerRotation + " " + transform.rotation.eulerAngles + " " + degrees + " " +  (playerRotation + degrees) + " " + ((playerRotation + degrees) % 360) );
 
+        obj.rotation = Quaternion.Euler( 0.0f, Mathf.Round( (objRotation + degrees) % 360 ), 0.0f );
     }
 
+    /// <summary>
+    /// Move the player from the point of rotation
+    /// </summary>
+    /// <param name="newRot">Ending rotation of the character</param>
+    /// <param name="rPosition">Position of the rotation point</param>
     private void MoveFromRot( PositionStates.Rotation newRot, Vector3 rPosition ) {
         if ( newRot == PositionStates.Rotation.xPos )
             if ( directions.currDirection == PositionStates.Direction.right )
