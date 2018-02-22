@@ -204,8 +204,8 @@ public class CharacterMovement : MonoBehaviour {
         GetComponent<Rigidbody>( ).velocity = Vector3.zero;
 
         currentRotation = newRot;
-        RotateObject( gameObject.transform, degrees, 100.0f, true );
-        RotateObject( mainCam.transform, degrees, 200.0f, false );
+        StartCoroutine( RotateObject( gameObject.transform, degrees, .5f, true ) );
+        StartCoroutine( RotateObject( mainCam.transform, degrees, 1.0f, false ) );
         MoveFromRot( newRot, rPosition );
         GetComponent<Rigidbody>( ).velocity = new Vector3( tmpVel.z, tmpVel.y, tmpVel.x ); // swap x and z velocities
         GetConstraints( );
@@ -218,7 +218,7 @@ public class CharacterMovement : MonoBehaviour {
     /// <param name="degrees">How many degrees to rotate object</param>
     /// <param name="totalTime">Total time it should take to rotate object</param>
     /// <param name="isPlayer">If the object is the player and needs new constraints</param>
-    private void RotateObject( Transform obj, float degrees, float totalTime, bool isPlayer ) {
+    IEnumerator RotateObject( Transform obj, float degrees, float totalTime, bool isPlayer ) {
         float objRotation = obj.rotation.eulerAngles.y;
 
         if ( isPlayer )
@@ -232,6 +232,7 @@ public class CharacterMovement : MonoBehaviour {
 
         for ( float i = 0.0f; i < Mathf.Abs( degrees ); i += Time.deltaTime * rate ) {
             obj.Rotate( 0, mult * Time.deltaTime, 0, Space.Self );
+            yield return null;
         }
 
         obj.rotation = Quaternion.Euler( 0.0f, Mathf.Round( (objRotation + degrees) % 360 ), 0.0f );
