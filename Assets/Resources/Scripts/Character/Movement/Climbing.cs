@@ -70,9 +70,10 @@ public class Climbing : CharacterStates {
     }
 
     public void SwitchToPlayerMovement( ) {
-        if ( climbing == ClimbingDir.jump ) {
-            player.GetComponent<Rigidbody>( ).velocity = new Vector3( player.GetComponent<Rigidbody>( ).velocity.x,
-                player.jumpSpeed, player.GetComponent<Rigidbody>( ).velocity.z );
+        if ( climbing == ClimbingDir.jump && !player.grav.IsGrounded( player.groundCheck ) ) {
+            player.GetComponent<Rigidbody>( ).AddForce
+                 ( new Vector3( 0f, player.jumpSpeed, 0f ), ForceMode.VelocityChange );
+            Debug.Log( "Jumping from wall" );
         }
         PositionStates.GetConstraints( player.gameObject, player.currentRotation );
         player.gameObject.GetComponent<Rigidbody>( ).useGravity = true;

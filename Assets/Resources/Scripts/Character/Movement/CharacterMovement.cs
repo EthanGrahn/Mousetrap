@@ -120,6 +120,13 @@ public class CharacterMovement : MonoBehaviour {
         if ( other.tag == "Web" ) {
             speedCoeff = .5f;
         }
+        if ( other.CompareTag( "CamManip" ) ) {
+            mainCam.GetComponent<CamFollowObject>( ).updatedDist =
+                other.GetComponent<ChangeCamDist>( ).newDist;
+            mainCam.GetComponent<CamFollowObject>( ).timeToUpdate =
+                other.GetComponent<ChangeCamDist>( ).totalTime;
+            mainCam.GetComponent<CamFollowObject>( ).changeDist = true;
+        }
     }
 
     private void OnTriggerExit( Collider other ) {
@@ -170,6 +177,7 @@ public class CharacterMovement : MonoBehaviour {
     public void Jumping( ) {
         if ( controller.Jump && grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
             GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
+            Debug.Log( "JUumping" );
         }
     }
 
