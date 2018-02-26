@@ -23,28 +23,17 @@ public class PlayerInput : CharacterStates {
 
         // Jumping
         player.Jumping( );
-
-        // Falling
-        
     }
 
-    public void OnTriggerEnter( Collider other ) {
+    public void OnTriggerStay( Collider other ) {
         if ( other.CompareTag( "Climbable" ) ) {
-            SwitchToPlayerClimb( );
+            Debug.Log( "Hit climbable object" );
+            if ( player.controller.Up || player.controller.Down )
+                SwitchToPlayerClimb( );
         }
     }
 
     //-----------------------------------------SWITCHING STATE-----------------------------------------//
-    public void SwitchToRotation( ) {
-        Vector3 vel = new Vector3( 0, player.GetComponent<Rigidbody>( ).velocity.y, 0 );
-        player.GetComponent<Rigidbody>( ).velocity = vel;
-        player.currentState = player.playerRotation;
-    }
-
-    public void SwitchToPlayerCrawl( ) {
-        // Need to implement
-    }
-
     public void SwitchToPlayerClimb( ) {
         player.gameObject.GetComponent<Rigidbody>( ).useGravity = false;
         player.currentState = player.climbing;
@@ -53,4 +42,5 @@ public class PlayerInput : CharacterStates {
     //---------------------------------------------UNUSED----------------------------------------------//
     public void SwitchToPlayerMovement( ) { }
     public void OnTriggerExit( Collider other ) { }
+    public void OnTriggerEnter( Collider other ) { }
 }

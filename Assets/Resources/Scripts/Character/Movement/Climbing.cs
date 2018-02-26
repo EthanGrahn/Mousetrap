@@ -79,9 +79,8 @@ public class Climbing : CharacterStates {
         player.gameObject.GetComponent<Rigidbody>( ).useGravity = true;
         player.currentState = player.playerInput;
     }
-
-    public void SwitchToRotation( ) { }
+    
     public void OnTriggerEnter( Collider other ) { }
-    public void SwitchToPlayerCrawl( ) { }
     public void SwitchToPlayerClimb( ) { }
+    public void OnTriggerStay( Collider other ) { }
 }

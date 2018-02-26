@@ -61,8 +61,6 @@ public class CharacterMovement : MonoBehaviour {
     [HideInInspector]
     public PlayerInput playerInput;
     [HideInInspector]
-    public PlayerRotation playerRotation;
-    [HideInInspector]
     public Climbing climbing;
     // ###################################################
 
@@ -77,7 +75,6 @@ public class CharacterMovement : MonoBehaviour {
         currentRotation = PositionStates.Rotation.xPos;
 
         playerInput = new PlayerInput( this );
-        playerRotation = new PlayerRotation( this );
         climbing = new Climbing( this );
 
         directions = GetComponent<CharacterDirections>( );
@@ -134,6 +131,10 @@ public class CharacterMovement : MonoBehaviour {
         if ( other.tag == "Web" ) {
             speedCoeff = 1.0f;
         }
+    }
+
+    private void OnTriggerStay( Collider other ) {
+        currentState.OnTriggerStay( other );
     }
 
     public void StartStateCoroutine( IEnumerator routine ) {
