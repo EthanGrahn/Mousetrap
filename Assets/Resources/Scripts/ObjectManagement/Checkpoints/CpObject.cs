@@ -3,10 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CpObject : MonoBehaviour {
-    public bool enemy;
+
+    public enum cpType{
+        enemy,
+        checkpoint
+    }
+
+    public cpType objectType = cpType.checkpoint;
     void OnTriggerEnter( Collider other ) {
         if (other.CompareTag("Player")) {
-            if ( enemy ) {
+            if ( objectType == cpType.enemy ) {
                 GameManager.Instance.cpManager.ResetPlayer( );
             } else {
                 GameManager.Instance.cpManager.currCheckpoint = gameObject.transform.position;
