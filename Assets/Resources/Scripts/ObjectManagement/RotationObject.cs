@@ -16,8 +16,8 @@ public class RotationObject : MonoBehaviour {
     // Use this for initialization
     void Start( ) {
         // align object with the nearest floor
-        RaycastHit rHit = Physics.RaycastAll( transform.position, -transform.up )[0];
-        transform.position = new Vector3( rHit.point.x, 1, rHit.point.z ); // offset up on the y-axis to account for box collider
+       // RaycastHit rHit = Physics.RaycastAll( transform.position, -transform.up )[0];
+       // transform.position = new Vector3( rHit.point.x, 1, rHit.point.z ); // offset up on the y-axis to account for box collider
 
         // create trigger box
         BoxCollider box = gameObject.AddComponent<BoxCollider>( );
