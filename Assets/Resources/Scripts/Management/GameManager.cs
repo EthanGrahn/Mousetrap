@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour {
     public static GameManager Instance;
     public SceneSwitch SceneSwitch;
     public GameObject Player;
-    public CharacterController.PlatformerCharacter pMovement;
+    public CharacterMovement pMovement;
     public CpManager cpManager;
 
 
@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour {
         DontDestroyOnLoad( gameObject );
         Instance = this;
 
-        pMovement = Player.GetComponent<CharacterController.PlatformerCharacter>();
+        pMovement = Player.GetComponent<CharacterMovement>();
     }
 
     private void OnLevelWasLoaded( int level ) {
