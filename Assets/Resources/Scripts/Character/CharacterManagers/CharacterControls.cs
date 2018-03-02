@@ -29,7 +29,7 @@ public class CharacterControls : MonoBehaviour {
         Right = Input.GetKey( KeyCode.D );
         Left = Input.GetKey( KeyCode.A );
 
-        Jump = Input.GetKey( KeyCode.Space );
+        Jump = Input.GetKeyDown( KeyCode.Space );
 
         Up = Input.GetKey( KeyCode.W );
         Down = Input.GetKey( KeyCode.S );

@@ -37,6 +37,8 @@ public class CharacterMovement : MonoBehaviour {
     // Used for Jumping
     [Tooltip( "How fast the character jumps in the air." )]
     public float jumpSpeed = 10f;
+    [SerializeField]
+    private LayerMask m_whatIsGround;
 
     // Used for Climbing
     [Tooltip( "How fast the character climbs on walls." )]
@@ -59,8 +61,6 @@ public class CharacterMovement : MonoBehaviour {
     [HideInInspector]
     public PlayerInput playerInput;
     [HideInInspector]
-    public PlayerRotation playerRotation;
-    [HideInInspector]
     public Climbing climbing;
     // ###################################################
 
@@ -75,7 +75,6 @@ public class CharacterMovement : MonoBehaviour {
         currentRotation = PositionStates.Rotation.xPos;
 
         playerInput = new PlayerInput( this );
-        playerRotation = new PlayerRotation( this );
         climbing = new Climbing( this );
 
         directions = GetComponent<CharacterDirections>( );
@@ -118,6 +117,13 @@ public class CharacterMovement : MonoBehaviour {
         if ( other.tag == "Web" ) {
             speedCoeff = .5f;
         }
+        if ( other.CompareTag( "CamManip" ) ) {
+            mainCam.GetComponent<CamFollowObject>( ).updatedDist =
+                other.GetComponent<ChangeCamDist>( ).newDist;
+            mainCam.GetComponent<CamFollowObject>( ).timeToUpdate =
+                other.GetComponent<ChangeCamDist>( ).totalTime;
+            mainCam.GetComponent<CamFollowObject>( ).changeDist = true;
+        }
     }
 
     private void OnTriggerExit( Collider other ) {
@@ -125,6 +131,10 @@ public class CharacterMovement : MonoBehaviour {
         if ( other.tag == "Web" ) {
             speedCoeff = 1.0f;
         }
+    }
+
+    private void OnTriggerStay( Collider other ) {
+        currentState.OnTriggerStay( other );
     }
 
     public void StartStateCoroutine( IEnumerator routine ) {
@@ -166,8 +176,9 @@ public class CharacterMovement : MonoBehaviour {
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
-        if ( controller.Jump && grav.IsGrounded( groundCheck, 13 ) ) {
+        if ( controller.Jump && grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
             GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
+            Debug.Log( "JUumping" );
         }
     }
 
@@ -194,8 +205,8 @@ public class CharacterMovement : MonoBehaviour {
         GetComponent<Rigidbody>( ).velocity = Vector3.zero;
 
         currentRotation = newRot;
-        RotateObject( gameObject.transform, degrees, 100.0f, true );
-        RotateObject( mainCam.transform, degrees, 200.0f, false );
+        StartCoroutine( RotateObject( gameObject.transform, degrees, .5f, true ) );
+        StartCoroutine( RotateObject( mainCam.transform, degrees, 1.0f, false ) );
         MoveFromRot( newRot, rPosition );
         GetComponent<Rigidbody>( ).velocity = new Vector3( tmpVel.z, tmpVel.y, tmpVel.x ); // swap x and z velocities
         GetConstraints( );
@@ -208,10 +219,10 @@ public class CharacterMovement : MonoBehaviour {
     /// <param name="degrees">How many degrees to rotate object</param>
     /// <param name="totalTime">Total time it should take to rotate object</param>
     /// <param name="isPlayer">If the object is the player and needs new constraints</param>
-    private void RotateObject( Transform obj, float degrees, float totalTime,  bool isPlayer ) {
+    IEnumerator RotateObject( Transform obj, float degrees, float totalTime, bool isPlayer ) {
         float objRotation = obj.rotation.eulerAngles.y;
 
-        if (isPlayer)
+        if ( isPlayer )
             GetComponent<Rigidbody>( ).constraints =
                 RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
@@ -222,6 +233,7 @@ public class CharacterMovement : MonoBehaviour {
 
         for ( float i = 0.0f; i < Mathf.Abs( degrees ); i += Time.deltaTime * rate ) {
             obj.Rotate( 0, mult * Time.deltaTime, 0, Space.Self );
+            yield return null;
         }
 
         obj.rotation = Quaternion.Euler( 0.0f, Mathf.Round( (objRotation + degrees) % 360 ), 0.0f );
