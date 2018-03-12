@@ -42,32 +42,12 @@ public class CamFollowObject : MonoBehaviour {
     [SerializeField]
     [Tooltip( "Distance camera is from object." )]
     private float distFromObj;
-    // Close to object
-    [SerializeField]
-    [Tooltip( "Max distance camera can be from player in horizontal direction." )]
-    private float maxObjDistHor;
-    [SerializeField]
-    [Tooltip( "Max distance camera can be from player in vertical direction." )]
-    private float maxObjDistVer;
-    [SerializeField]
-    // Within world bounds
-    [Tooltip( "Max distance camera can be travel in scene in x direction." )]
-    private float maxWorldDistX;
-    [SerializeField]
-    [Tooltip( "Min distance camera can be travel in scene in x direction." )]
-    private float minWorldDistX;
-    [SerializeField]
-    [Tooltip( "Max distance camera can be travel in scene in y direction." )]
-    private float maxWorldDistY;
-    [SerializeField]
-    [Tooltip( "Min distance camera can be travel in scene in y direction." )]
-    private float minWorldDistY;
-    [SerializeField]
-    [Tooltip( "Max distance camera can be travel in scene in z direction." )]
-    private float maxWorldDistZ;
-    [SerializeField]
-    [Tooltip( "Min distance camera can be travel in scene in z direction." )]
-    private float minWorldDistZ;
+    [HideInInspector]
+    public bool changeDist = false;
+    [HideInInspector]
+    public float updatedDist;
+    [HideInInspector]
+    public float timeToUpdate;
 
     // Check if the object is player character
     // Use current rotation of character
@@ -91,12 +71,12 @@ public class CamFollowObject : MonoBehaviour {
     // Set starting position of camera
     void Start( ) {
         // Set initial position reference of object
-        oldObjPos = objToFollow.GetComponent<Transform>().position;
+        oldObjPos = objToFollow.GetComponent<Transform>( ).position;
 
         // Assume object is initially moving to the right
         currDirection = PositionStates.Direction.right;
         // Used to check if object is player character
-        script = objToFollow.GetComponent<CharacterMovement>();
+        script = objToFollow.GetComponent<CharacterMovement>( );
 
         // Set starting position of camera
         Vector3 startPos;
@@ -106,7 +86,7 @@ public class CamFollowObject : MonoBehaviour {
             startPos = GetTargetPosition( oldObjPos, currentRotation );
         }
 
-        GetComponent<Transform>().position = startPos;
+        GetComponent<Transform>( ).position = startPos;
 
         updateCam = false;
     }
@@ -114,7 +94,7 @@ public class CamFollowObject : MonoBehaviour {
     // Update is called once per frame
     void Update( ) {
         // Get most recent position of followed object
-        Vector3 currObjPos = objToFollow.GetComponent<Transform>().position;
+        Vector3 currObjPos = objToFollow.GetComponent<Transform>( ).position;
 
         // Get target position for camera
         if ( script != null ) {
@@ -132,21 +112,13 @@ public class CamFollowObject : MonoBehaviour {
         }
 
         // Current position of camera
-        origin = GetComponent<Transform>().position;
+        origin = GetComponent<Transform>( ).position;
 
         // Move the camera
         if ( (Mathf.Abs( origin.x - targetPos.x ) >= minMoveDistHor ||
             Mathf.Abs( origin.y - targetPos.y ) >= minMoveDistVer) ||
             Mathf.Abs( origin.z - targetPos.z ) >= minMoveDistHor && !updateCam ) {
             updateCam = true;
-        }
-
-
-        // Set final camera position
-        if ( script != null ) {
-            GetComponent<Transform>().position = ClampCameraPosition( targetPos, script.currentRotation );
-        } else {
-            GetComponent<Transform>().position = ClampCameraPosition( targetPos, currentRotation );
         }
     }
 
@@ -158,40 +130,12 @@ public class CamFollowObject : MonoBehaviour {
                 updateCam = false;
             }
         }
-    }
-
-    /// <summary>
-    /// Keeps the camera within a specified distance close to object, but not outside of determined world size.
-    /// </summary>
-    /// <param name="target">
-    /// Position of object to clamp camera to
-    /// </param>
-    /// <returns>
-    /// Vector 3 position for camera
-    /// </returns>
-    Vector3 ClampCameraPosition( Vector3 target, PositionStates.Rotation rot ) {
-        Vector3 cameraPos = GetComponent<Transform>().position;
-
-        // Check rotation of object
-        // Clamp to character
-
-        if ( rot == PositionStates.Rotation.zero ) {
-            cameraPos.x = Mathf.Clamp( cameraPos.x, target.x - maxObjDistHor, target.x + maxObjDistHor );
-        } else if ( rot == PositionStates.Rotation.one ) {
-            cameraPos.z = Mathf.Clamp( cameraPos.z, target.z - maxObjDistHor, target.z + maxObjDistHor );
-        } else if ( rot == PositionStates.Rotation.two ) {
-            cameraPos.x = Mathf.Clamp( cameraPos.x, target.x - maxObjDistHor, target.x + maxObjDistHor );
-        } else if ( rot == PositionStates.Rotation.three ) {
-            cameraPos.z = Mathf.Clamp( cameraPos.z, target.z - maxObjDistHor, target.z + maxObjDistHor );
+        
+        if (changeDist) {
+            ChangeViewDistance( updatedDist, timeToUpdate );
+            if ( distFromObj == updatedDist )
+                changeDist = false;
         }
-        cameraPos.y = Mathf.Clamp( cameraPos.y, target.y - maxObjDistVer, target.y + maxObjDistVer );
-
-        // Clamp to world
-        cameraPos.x = Mathf.Clamp( cameraPos.x, minWorldDistX, maxWorldDistX );
-        cameraPos.y = Mathf.Clamp( cameraPos.y, minWorldDistY, maxWorldDistY );
-        cameraPos.z = Mathf.Clamp( cameraPos.z, minWorldDistZ, maxWorldDistZ );
-
-        return cameraPos;
     }
 
     /// <summary>
@@ -205,28 +149,28 @@ public class CamFollowObject : MonoBehaviour {
         PositionStates.Direction newDir = currDirection;
 
         // Check for current rotation of object
-        if ( rot == PositionStates.Rotation.zero ) {
+        if ( rot == PositionStates.Rotation.xPos ) {
             // Check where object is moving
             if ( objPos.x < oldObjPos.x - 0.02f ) {
                 newDir = PositionStates.Direction.left;
             } else if ( objPos.x > oldObjPos.x + 0.01f ) {
                 newDir = PositionStates.Direction.right;
             }
-        } else if ( rot == PositionStates.Rotation.one ) {
+        } else if ( rot == PositionStates.Rotation.zPos ) {
             // Check where object is moving
             if ( objPos.z < oldObjPos.z - 0.02f ) {
                 newDir = PositionStates.Direction.right;
             } else if ( objPos.z > oldObjPos.z ) {
                 newDir = PositionStates.Direction.left;
             }
-        } else if ( rot == PositionStates.Rotation.two ) {
+        } else if ( rot == PositionStates.Rotation.xNeg ) {
             // Check where object is moving
             if ( objPos.x < oldObjPos.x - 0.02f ) {
                 newDir = PositionStates.Direction.right;
             } else if ( objPos.x > oldObjPos.x + 0.02f ) {
                 newDir = PositionStates.Direction.left;
             }
-        } else if ( rot == PositionStates.Rotation.three ) {
+        } else if ( rot == PositionStates.Rotation.zNeg ) {
             // Check where object is moving
             if ( objPos.z < oldObjPos.z - 0.02f ) {
                 newDir = PositionStates.Direction.right;
@@ -255,7 +199,7 @@ public class CamFollowObject : MonoBehaviour {
 
         // Check current rotation,
         // Set disance from player
-        if ( rot == PositionStates.Rotation.zero ) {
+        if ( rot == PositionStates.Rotation.xPos ) {
             // Camera position away from object
             target.z -= distFromObj;
 
@@ -265,7 +209,7 @@ public class CamFollowObject : MonoBehaviour {
             } else {
                 target.x -= camViewInFront;
             }
-        } else if ( rot == PositionStates.Rotation.one ) {
+        } else if ( rot == PositionStates.Rotation.zPos ) {
             // Camera position away from object
             target.x += distFromObj;
 
@@ -275,7 +219,7 @@ public class CamFollowObject : MonoBehaviour {
             } else {
                 target.z += camViewInFront;
             }
-        } else if ( rot == PositionStates.Rotation.two ) {
+        } else if ( rot == PositionStates.Rotation.xNeg ) {
             // Camera position away from object
             target.z += distFromObj;
 
@@ -285,7 +229,7 @@ public class CamFollowObject : MonoBehaviour {
             } else {
                 target.x += camViewInFront;
             }
-        } else if ( rot == PositionStates.Rotation.three ) {
+        } else if ( rot == PositionStates.Rotation.zNeg ) {
             // Camera position away from object
             target.x -= distFromObj;
 
@@ -299,5 +243,10 @@ public class CamFollowObject : MonoBehaviour {
         target.y += camViewAbove;
 
         return target;
+    }
+
+    private void ChangeViewDistance( float newDist, float totalTime ) {
+        float dist = distFromObj;
+        distFromObj = Mathf.Lerp( dist, newDist, totalTime );
     }
 }

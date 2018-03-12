@@ -14,9 +14,6 @@ public class Gravity : MonoBehaviour {
     [Tooltip( "Volume of the object." )]
     private float volume;
 
-    // Falling object variables
-    private float distToGround;
-
     float termVel;
 
     // Use this for initialization
@@ -26,9 +23,6 @@ public class Gravity : MonoBehaviour {
         density = 0.084f;
 
         termVel = Mathf.Sqrt( (2 * GetComponent<Rigidbody>( ).mass * Physics.gravity.y) / (density * pArea * dCoeff) );
-
-        // Distance from object to ground
-        distToGround = GetComponent<Collider>( ).bounds.extents.y;
     }
 
     /// <summary>
@@ -37,10 +31,27 @@ public class Gravity : MonoBehaviour {
     /// <returns>
     /// Boolean representing grounded status
     /// </returns>
-    public bool IsGrounded( ) {
-        return Physics.Raycast( transform.position, -transform.up, distToGround + 0.1f );
+    /// <param name="groundPos">Object's ground Position</param>
+    public bool IsGrounded( Transform groundPos ) {
+        Collider[] colliders = Physics.OverlapSphere( groundPos.position, .02f );
+
+        for ( int i = 0; i < colliders.Length; ++i ) {
+            if ( colliders[i].gameObject != gameObject )
+                return true;
+        }
+        return false;
     }
 
+    public bool IsGrounded( Transform groundPos, LayerMask lMask ) {
+        Collider[] colliders = Physics.OverlapSphere( groundPos.position, .02f, lMask );
+
+        for ( int i = 0; i < colliders.Length; ++i ) {
+            if ( colliders[i].gameObject != gameObject )
+                return true;
+        }
+
+        return false;
+    }
     /// <summary>
     /// 
     /// </summary>

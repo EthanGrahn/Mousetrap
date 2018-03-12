@@ -1,6 +1,0 @@
-Up=UpArrow
-Down=DownArrow
-Left=LeftArrow
-Right=RightArrow
-Interact=E
-Jump=Space
