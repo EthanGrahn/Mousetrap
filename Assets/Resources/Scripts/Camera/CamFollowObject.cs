@@ -110,7 +110,7 @@ public class CamFollowObject : MonoBehaviour {
         } else {
             currDirection = GetDirection( currObjPos, currentRotation );
         }
-
+        
         // Current position of camera
         origin = GetComponent<Transform>( ).position;
 

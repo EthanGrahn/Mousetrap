@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent( typeof( Gravity ) )]
+[RequireComponent( typeof( CharacterJump ) )]
 [RequireComponent( typeof( PlayerCollision ) )]
 [RequireComponent( typeof( CharacterDirections ) )]
 [RequireComponent( typeof( CharacterControls ) )]
@@ -48,7 +48,7 @@ public class CharacterMovement : MonoBehaviour {
     [HideInInspector]
     public PositionStates.Rotation currentRotation;
     [HideInInspector]
-    public Gravity grav;
+    public CharacterJump grav;
     [HideInInspector]
     public PlayerCollision coll;
     [HideInInspector]
@@ -86,7 +86,7 @@ public class CharacterMovement : MonoBehaviour {
     void Start( ) {
         PositionStates.GetConstraints( gameObject, currentRotation );
 
-        grav = GetComponent<Gravity>( );
+        grav = GetComponent<CharacterJump>( );
         coll = GetComponent<PlayerCollision>( );
 
         currentState = playerInput;
@@ -166,11 +166,11 @@ public class CharacterMovement : MonoBehaviour {
     /// <summary>
     /// Squares Unity's gravity constant
     /// </summary>
-    public void Falling( ) {
+/*     public void Falling( ) {
         if ( !grav.IsGrounded( groundCheck ) ) {
             grav.StartGravity( );
         }
-    }
+    } */
 
     /// <summary>
     /// Make the character jump
@@ -178,7 +178,6 @@ public class CharacterMovement : MonoBehaviour {
     public void Jumping( ) {
         if ( controller.Jump && grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
             GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
-            Debug.Log( "JUumping" );
         }
     }
 
