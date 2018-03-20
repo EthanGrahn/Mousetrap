@@ -102,27 +102,28 @@ public class CharacterMovement : MonoBehaviour {
 
     void FixedUpdate( ) {
         currentState.FixedUpdate( );
-
-        //// If crouching, check to see if the character can stand up
-        //if ( !Crouch ) {
-        //    // If the character has a ceiling preventing them from standing up, keep them crouching
-        //    if ( Physics2D.OverlapCircle( m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround ) ) {
-        //        Crouch = true;
-        //    }
-        //}
     }
 
     void OnTriggerEnter( Collider other ) {
         currentState.OnTriggerEnter( other );
+        // slow down character movement on entering spider web
         if ( other.tag == "Web" ) {
             speedCoeff = .5f;
         }
+
+        // change position of camera on entering trigger
         if ( other.CompareTag( "CamManip" ) ) {
             mainCam.GetComponent<CamFollowObject>( ).updatedDist =
                 other.GetComponent<ChangeCamDist>( ).newDist;
             mainCam.GetComponent<CamFollowObject>( ).timeToUpdate =
                 other.GetComponent<ChangeCamDist>( ).totalTime;
             mainCam.GetComponent<CamFollowObject>( ).changeDist = true;
+        }
+
+        // launch player on contact with catapult
+        if ( other.CompareTag( "Catapult" ) ) {
+            GetComponent<Rigidbody>( ).AddRelativeForce( new Vector3( 5f, 5f, 0f ),
+                ForceMode.Impulse );
         }
     }
 
@@ -153,14 +154,25 @@ public class CharacterMovement : MonoBehaviour {
     public void SetHorizontalMovement( PositionStates.Direction dir ) {
         float yvel = GetComponent<Rigidbody>( ).velocity.y;
         float horVel = (int)dir * speedFactor * speedCoeff;
+        Vector3 vel = new Vector3( );
+
+        // get new horizontal speed based on rotation
         if ( currentRotation == PositionStates.Rotation.xPos )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, yvel, 0.0f );
+            vel = new Vector3( horVel, yvel, 0.0f );
         else if ( currentRotation == PositionStates.Rotation.zPos )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, horVel );
+            vel = new Vector3( 0.0f, yvel, horVel );
         else if ( currentRotation == PositionStates.Rotation.xNeg )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, yvel, 0.0f );
+            vel = new Vector3( -horVel, yvel, 0.0f );
         else if ( currentRotation == PositionStates.Rotation.zNeg )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, -horVel );
+            vel = new Vector3( 0.0f, yvel, -horVel );
+        
+        GetComponent<Rigidbody>( ).AddForce( vel, ForceMode.Impulse );
+
+        // clamp velocity
+        vel = GetComponent<Rigidbody>( ).velocity;
+        vel.x = Mathf.Clamp( vel.x, -5, 5 );
+        vel.z = Mathf.Clamp( vel.x, -5, 5 );
+        GetComponent<Rigidbody>( ).velocity = vel;
     }
 
     /// <summary>
@@ -177,8 +189,8 @@ public class CharacterMovement : MonoBehaviour {
     /// </summary>
     public void Jumping( ) {
         if ( controller.Jump && grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
-            GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
-            Debug.Log( "JUumping" );
+            GetComponent<Rigidbody>( ).AddForce( new Vector3( GetComponent<Rigidbody>().velocity.x,
+                jumpSpeed, GetComponent<Rigidbody>().velocity.y ), ForceMode.Impulse );
         }
     }
 
@@ -247,23 +259,31 @@ public class CharacterMovement : MonoBehaviour {
     private void MoveFromRot( PositionStates.Rotation newRot, Vector3 rPosition ) {
         if ( newRot == PositionStates.Rotation.xPos )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3(
+                    rPosition.x + 0.01f, transform.position.y, rPosition.z );
             else
-                transform.position = new Vector3( rPosition.x - 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3(
+                    rPosition.x - 0.01f, transform.position.y, rPosition.z );
         else if ( newRot == PositionStates.Rotation.xNeg )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x - 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3(
+                    rPosition.x - 0.01f, transform.position.y, rPosition.z );
             else
-                transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3(
+                    rPosition.x + 0.01f, transform.position.y, rPosition.z );
         else if ( newRot == PositionStates.Rotation.zPos )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.01f );
+                transform.position = new Vector3(
+                    rPosition.x, transform.position.y, rPosition.z + 0.01f );
             else
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.01f );
+                transform.position = new Vector3(
+                    rPosition.x, transform.position.y, rPosition.z - 0.01f );
         else if ( newRot == PositionStates.Rotation.zNeg )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.01f );
+                transform.position = new Vector3(
+                    rPosition.x, transform.position.y, rPosition.z - 0.01f );
             else
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.01f );
+                transform.position = new Vector3(
+                    rPosition.x, transform.position.y, rPosition.z + 0.01f );
     }
 }
