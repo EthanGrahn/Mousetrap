@@ -39,7 +39,7 @@ public class CharacterJump : MonoBehaviour {
     /// </returns>
     /// <param name="groundPos">Object's ground Position</param>
     public bool IsGrounded( Transform groundPos ) {
-        Collider[] colliders = Physics.OverlapSphere( groundPos.position, .02f );
+        Collider[] colliders = Physics.OverlapSphere( groundPos.position, .04f );
 
         for ( int i = 0; i < colliders.Length; ++i ) {
             if ( colliders[i].gameObject != gameObject )
@@ -49,7 +49,7 @@ public class CharacterJump : MonoBehaviour {
     }
 
     public bool IsGrounded( Transform groundPos, LayerMask lMask ) {
-        Collider[] colliders = Physics.OverlapSphere( groundPos.position, .02f, lMask );
+        Collider[] colliders = Physics.OverlapSphere( groundPos.position, .04f, lMask );
 
         for ( int i = 0; i < colliders.Length; ++i ) {
             if ( colliders[i].gameObject != gameObject )
