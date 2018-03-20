@@ -27,7 +27,6 @@ public class PlayerInput : CharacterStates {
 
     public void OnTriggerStay( Collider other ) {
         if ( other.CompareTag( "Climbable" ) ) {
-            Debug.Log( "Hit climbable object" );
             if ( player.controller.Up || player.controller.Down )
                 SwitchToPlayerClimb( );
         }
