@@ -121,10 +121,10 @@ public class CamFollowObject : MonoBehaviour {
             updateCam = true;
         }
     }
-
+private Vector3 testVel;
     private void FixedUpdate( ) {
         if ( updateCam ) {
-            transform.position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
+            transform.position = Vector3.SmoothDamp(origin, targetPos, ref testVel, 0.3f, speed);
             // Stop updating camera position when close to target point
             if ( Vector3.Distance( origin, targetPos ) < .1f ) {
                 updateCam = false;
