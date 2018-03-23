@@ -109,38 +109,65 @@ public class EnemyPatrol : MonoBehaviour {
     IEnumerator Patrol()
     {
         //Debug.Log("Patrol start");
+        int invalid = 0;
+        float position;
         while (gameObject.activeInHierarchy)
         {
             if (xPlane)
             {
                 travRight = true;
-                while (transform.position.x < right.x && !CheckCollision(2))
+                invalid = 0;
+                position = transform.position.x;
+                while (transform.position.x < right.x && !CheckCollision(2) && invalid < 10)
                 {
                     GetComponent<Rigidbody>().velocity = new Vector3(patrolSpeed, GetComponent<Rigidbody>().velocity.y, 0);
                     yield return new WaitForFixedUpdate();
+                    if (transform.position.x == position)
+                        invalid++;
+                        
+                    position = transform.position.x;
                 }
+                invalid = 0;
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
                 travRight = false;
-                while (transform.position.x > left.x && !CheckCollision(2))
+                while (transform.position.x > left.x && !CheckCollision(2) && invalid < 10)
                 {
+                    position = transform.position.x;
                     GetComponent<Rigidbody>().velocity = new Vector3(-patrolSpeed, GetComponent<Rigidbody>().velocity.y, 0);
                     yield return new WaitForFixedUpdate();
+                    if (transform.position.x == position)
+                        invalid++;
+                        
+                    position = transform.position.x;
                 }
             }
             else // (zPlane)
             {
                 travRight = true;
-                while (transform.position.z < right.z && !CheckCollision(2))
+                invalid = 0;
+                position = transform.position.z;
+                while (transform.position.z < right.z && !CheckCollision(2) && invalid < 10)
                 {
+                    position = transform.position.z;
                     GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, patrolSpeed);
                     yield return new WaitForFixedUpdate();
+                    if (transform.position.z == position)
+                        invalid++;
+                        
+                    position = transform.position.z;
                 }
+                invalid = 0;
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
                 travRight = false;
-                while (transform.position.z > left.z && !CheckCollision(2))
+                while (transform.position.z > left.z && !CheckCollision(2) && invalid < 10)
                 {
+                    position = transform.position.z;
                     GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, -patrolSpeed);
                     yield return new WaitForFixedUpdate();
+                    if (transform.position.z == position)
+                        invalid++;
+                        
+                    position = transform.position.z;
                 }
             }
             yield return null;
