@@ -8,31 +8,30 @@ public class SplitTransparency : MonoBehaviour {
 
     private bool transparent = false;
     private Color newColor;
+    private Renderer _renderer;
 
 	// Use this for initialization
-	void Start () {
-        GetComponent<Renderer>().sortingOrder = 5; // render ahead of he player sprite and most other objects
-        newColor = GetComponent<Renderer>().material.color;
+	void Awake () {
+        _renderer = GetComponent<Renderer>();
+        _renderer.sortingOrder = 5; // render ahead of the player sprite and most other objects
     }
 	
 	// Update is called once per frame
 	void Update () {
-        bool found = false;        
-        RaycastHit[] hits;
+        bool found = false;
 
-        hits = Physics.RaycastAll(Camera.main.transform.position, 
-                                  GameManager.Instance.Player.transform.position - Camera.main.transform.position, 
-                                  (Camera.main.transform.position - GameManager.Instance.Player.transform.position).magnitude);
+        RaycastHit raycastHit;
+        Ray ray = new Ray(Camera.main.transform.position, GameManager.Instance.Player.transform.position - Camera.main.transform.position);
 
-        foreach (RaycastHit hit in hits)
+        if (Physics.Raycast(ray, out raycastHit))
         {
-            if (hit.collider.gameObject.GetComponent<SplitTransparency>() != null)
+            if (raycastHit.collider.gameObject.GetComponent<SplitTransparency>() != null 
+                && raycastHit.collider.gameObject == this.gameObject)
             {
                 if (!transparent)
                     StartCoroutine("FadeOut");
                 transparent = true;
                 found = true;
-                break;
             }
         }
 
@@ -45,30 +44,30 @@ public class SplitTransparency : MonoBehaviour {
 
     private IEnumerator FadeOut()
     {
-        newColor = GetComponent<Renderer>().material.color;
+        newColor = _renderer.material.color;
         while (newColor.a - Time.deltaTime / transitionSpeed > 0)
         {
             newColor.a -= Time.deltaTime / transitionSpeed;
-            GetComponent<Renderer>().material.color = newColor;
+            _renderer.material.color = newColor;
             yield return new WaitForEndOfFrame();
         }
         
         newColor.a = 0;
-        GetComponent<Renderer>().material.color = newColor;
+        _renderer.material.color = newColor;
     }
 
     private IEnumerator FadeIn()
     {
-        newColor = GetComponent<Renderer>().material.color;
+        newColor = _renderer.material.color;
         while(newColor.a + Time.deltaTime / transitionSpeed < 1)
         {
             newColor.a += Time.deltaTime / transitionSpeed;
-            GetComponent<Renderer>().material.color = newColor;
+            _renderer.material.color = newColor;
             yield return new WaitForEndOfFrame();
         }
 
         newColor.a = 1;
-        GetComponent<Renderer>().material.color = newColor;
+        _renderer.material.color = newColor;
         transparent = false;
     }
 }
