@@ -122,8 +122,9 @@ public class CharacterMovement : MonoBehaviour {
 
         // launch player on contact with catapult
         if ( other.CompareTag( "Catapult" ) ) {
-            GetComponent<Rigidbody>( ).AddRelativeForce( new Vector3( 5f, 5f, 0f ),
-                ForceMode.Impulse );
+            Debug.Log( "Hit catapult" );
+            GetComponent<Rigidbody>( ).AddRelativeForce( new Vector3( 3f, 3f, 0f ),
+                ForceMode.VelocityChange );
         }
     }
 
@@ -171,7 +172,7 @@ public class CharacterMovement : MonoBehaviour {
         // clamp velocity
         vel = GetComponent<Rigidbody>( ).velocity;
         vel.x = Mathf.Clamp( vel.x, -5, 5 );
-        vel.z = Mathf.Clamp( vel.x, -5, 5 );
+        vel.z = Mathf.Clamp( vel.z, -5, 5 );
         GetComponent<Rigidbody>( ).velocity = vel;
     }
 
@@ -190,7 +191,7 @@ public class CharacterMovement : MonoBehaviour {
     public void Jumping( ) {
         if ( controller.Jump && grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
             GetComponent<Rigidbody>( ).AddForce( new Vector3( GetComponent<Rigidbody>().velocity.x,
-                jumpSpeed, GetComponent<Rigidbody>().velocity.y ), ForceMode.Impulse );
+                jumpSpeed, GetComponent<Rigidbody>().velocity.y ), ForceMode.VelocityChange );
         }
     }
 
