@@ -249,4 +249,22 @@ private Vector3 testVel;
         float dist = distFromObj;
         distFromObj = Mathf.Lerp( dist, newDist, totalTime );
     }
+
+    public void UpdateCameraState(ChangeCameraValues newValues)
+    {
+        if (newValues.distFromObj != -1)
+        {
+            Debug.Log(newValues.distFromObj);
+            distFromObj = newValues.distFromObj;
+            updatedDist = newValues.distFromObj;
+            changeDist = true;
+        }
+        if (newValues.timeToUpdate != -1) timeToUpdate = newValues.timeToUpdate;
+        if (newValues.speed != -1) speed = newValues.speed;
+        if (newValues.objToFollow != null) objToFollow = newValues.objToFollow;
+        if (newValues.minMoveDistHor != -1) minMoveDistHor = newValues.minMoveDistHor;
+        if (newValues.minMoveDistVer != -1) minMoveDistVer = newValues.minMoveDistVer;
+        if (newValues.camViewAbove != -1) camViewAbove = newValues.camViewAbove;
+        if (newValues.camViewInFront != -1) camViewInFront = newValues.camViewInFront;
+    }
 }

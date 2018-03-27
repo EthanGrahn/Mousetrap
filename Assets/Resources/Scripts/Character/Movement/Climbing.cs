@@ -15,6 +15,7 @@ public class Climbing : CharacterStates {
     public void Update( ) {
         // Get integer value for direction character is moving
         player.directions.GetDirection( );
+        player.GetComponent<Animator>().SetBool("Climbing", true);
 
         // Get input for climbing up or down the wall
         if ( player.controller.Up ) {
@@ -70,6 +71,7 @@ public class Climbing : CharacterStates {
     }
 
     public void SwitchToPlayerMovement( ) {
+        player.GetComponent<Animator>().SetBool("Climbing", false);
         if ( climbing == ClimbingDir.jump && !player.grav.IsGrounded( player.groundCheck ) ) {
             player.GetComponent<Rigidbody>( ).AddForce
                  ( new Vector3( 0f, player.jumpSpeed, 0f ), ForceMode.VelocityChange );

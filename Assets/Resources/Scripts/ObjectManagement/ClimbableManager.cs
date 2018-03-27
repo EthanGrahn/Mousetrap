@@ -14,11 +14,14 @@ public class ClimbableManager : MonoBehaviour {
 	private MaterialPropertyBlock _propertyBlock;
 	private GameManager gameManager;
 	private Color newColor;
+	private Vector3 closestPoint1, closestPoint2;
 	private float distance;
 	private bool zero = true;
+	private Collider _collider;
 
 	// Use this for initialization
 	void Awake () {
+		_collider = GetComponent<Collider>();
 		_propertyBlock = new MaterialPropertyBlock();
 		_renderer = GetComponent<Renderer>();
 		gameManager = GameManager.Instance;
@@ -32,7 +35,9 @@ public class ClimbableManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		distance = Vector3.Distance(gameManager.Player.transform.position, transform.position);
+		closestPoint1 = _collider.ClosestPointOnBounds(gameManager.Player.transform.position);
+		closestPoint2 = gameManager.Player.GetComponent<Collider>().ClosestPointOnBounds(transform.position);
+		distance = Vector3.Distance(closestPoint1, closestPoint2);
 		if (distance <= outlineStartDistance)
 		{
 			_renderer.GetPropertyBlock(_propertyBlock);
