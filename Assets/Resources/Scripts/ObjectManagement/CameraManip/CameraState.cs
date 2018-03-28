@@ -54,4 +54,24 @@ public class CameraState {
                 obj1.distFromObj != obj2.distFromObj ||
                 obj1.timeToUpdate != obj2.timeToUpdate;
     }
+
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj))
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        return obj.GetType() == GetType() && Equals((CameraState)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return objToFollow.GetHashCode() ^ speed.GetHashCode() ^ camViewInFront.GetHashCode() ^ camViewAbove.GetHashCode()
+             ^ minMoveDistHor.GetHashCode() ^ minMoveDistVer.GetHashCode() ^ distFromObj.GetHashCode() ^ timeToUpdate.GetHashCode();
+    }
 }
