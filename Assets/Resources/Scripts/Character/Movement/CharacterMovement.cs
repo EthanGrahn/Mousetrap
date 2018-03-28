@@ -54,6 +54,8 @@ public class CharacterMovement : MonoBehaviour {
     [HideInInspector]
     public Transform groundCheck;
 
+    private CapsuleCollider _collider;
+
     // Character States ##################################
     [HideInInspector]
     public CharacterStates currentState;
@@ -66,6 +68,7 @@ public class CharacterMovement : MonoBehaviour {
 
     // Camera reference
     public Camera mainCam;
+    private CamFollowObject camFollow;
     #endregion
 
     //--------------------------------------------------------------------------------------------------//
@@ -73,6 +76,8 @@ public class CharacterMovement : MonoBehaviour {
     //--------------------------------------------------------------------------------------------------//
     void Awake( ) {
         currentRotation = PositionStates.Rotation.xPos;
+        _collider = GetComponent<CapsuleCollider>();
+        camFollow = mainCam.GetComponent<CamFollowObject>();
 
         playerInput = new PlayerInput( this );
         climbing = new Climbing( this );
@@ -111,9 +116,6 @@ public class CharacterMovement : MonoBehaviour {
         if ( other.tag == "Web" ) {
             speedCoeff = 0.5f;
         }
-        if ( other.CompareTag( "CamManip" ) ) {
-            mainCam.GetComponent<CamFollowObject>().UpdateCameraState(other.GetComponent<ChangeCameraValues>());
-        }
     }
 
     private void OnTriggerExit( Collider other ) {
@@ -125,6 +127,10 @@ public class CharacterMovement : MonoBehaviour {
 
     private void OnTriggerStay( Collider other ) {
         currentState.OnTriggerStay( other );
+        if ( other.CompareTag( "CamManip" ) && other.GetComponent<CameraZone>().cameraState != camFollow.cameraState
+          && other.GetComponent<CameraZone>().WithinBounds(_collider)) {
+            camFollow.UpdateCameraState(other.GetComponent<CameraZone>().cameraState);
+        }
     }
 
     public void StartStateCoroutine( IEnumerator routine ) {

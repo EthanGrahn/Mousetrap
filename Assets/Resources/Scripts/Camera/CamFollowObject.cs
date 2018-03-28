@@ -66,10 +66,13 @@ public class CamFollowObject : MonoBehaviour {
     private bool updateCam;
     private Vector3 origin;
     private Vector3 targetPos;
+    public CameraState cameraState;
     #endregion
 
     // Set starting position of camera
     void Start( ) {
+        cameraState = new CameraState(objToFollow, speed, camViewInFront, camViewAbove, minMoveDistHor, minMoveDistVer, distFromObj, timeToUpdate);
+
         // Set initial position reference of object
         oldObjPos = objToFollow.GetComponent<Transform>( ).position;
 
@@ -250,11 +253,10 @@ private Vector3 testVel;
         distFromObj = Mathf.Lerp( dist, newDist, totalTime );
     }
 
-    public void UpdateCameraState(ChangeCameraValues newValues)
+    public void UpdateCameraState(CameraState newValues)
     {
         if (newValues.distFromObj != -1)
         {
-            Debug.Log(newValues.distFromObj);
             distFromObj = newValues.distFromObj;
             updatedDist = newValues.distFromObj;
             changeDist = true;
@@ -266,5 +268,6 @@ private Vector3 testVel;
         if (newValues.minMoveDistVer != -1) minMoveDistVer = newValues.minMoveDistVer;
         if (newValues.camViewAbove != -1) camViewAbove = newValues.camViewAbove;
         if (newValues.camViewInFront != -1) camViewInFront = newValues.camViewInFront;
+        cameraState = newValues;
     }
 }
