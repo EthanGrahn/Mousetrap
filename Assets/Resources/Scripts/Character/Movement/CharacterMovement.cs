@@ -54,6 +54,8 @@ public class CharacterMovement : MonoBehaviour {
     [HideInInspector]
     public Transform groundCheck;
 
+    private CapsuleCollider _collider;
+
     // Character States ##################################
     [HideInInspector]
     public CharacterStates currentState;
@@ -66,6 +68,7 @@ public class CharacterMovement : MonoBehaviour {
 
     // Camera reference
     public Camera mainCam;
+    private CamFollowObject camFollow;
     #endregion
 
     //--------------------------------------------------------------------------------------------------//
@@ -73,6 +76,8 @@ public class CharacterMovement : MonoBehaviour {
     //--------------------------------------------------------------------------------------------------//
     void Awake( ) {
         currentRotation = PositionStates.Rotation.xPos;
+        _collider = GetComponent<CapsuleCollider>();
+        camFollow = mainCam.GetComponent<CamFollowObject>();
 
         playerInput = new PlayerInput( this );
         climbing = new Climbing( this );
@@ -98,31 +103,18 @@ public class CharacterMovement : MonoBehaviour {
     //--------------------------------------------------------------------------------------------------//
     void Update( ) {
         currentState.Update( );
+        if (grav.IsGrounded(groundCheck, m_whatIsGround))
+            GetComponent<Animator>().speed = GetComponent<Rigidbody>().velocity.magnitude / 10f;
     }
 
     void FixedUpdate( ) {
         currentState.FixedUpdate( );
-
-        //// If crouching, check to see if the character can stand up
-        //if ( !Crouch ) {
-        //    // If the character has a ceiling preventing them from standing up, keep them crouching
-        //    if ( Physics2D.OverlapCircle( m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround ) ) {
-        //        Crouch = true;
-        //    }
-        //}
     }
 
     void OnTriggerEnter( Collider other ) {
         currentState.OnTriggerEnter( other );
         if ( other.tag == "Web" ) {
-            speedCoeff = .5f;
-        }
-        if ( other.CompareTag( "CamManip" ) ) {
-            mainCam.GetComponent<CamFollowObject>( ).updatedDist =
-                other.GetComponent<ChangeCamDist>( ).newDist;
-            mainCam.GetComponent<CamFollowObject>( ).timeToUpdate =
-                other.GetComponent<ChangeCamDist>( ).totalTime;
-            mainCam.GetComponent<CamFollowObject>( ).changeDist = true;
+            speedCoeff = 0.5f;
         }
     }
 
@@ -135,6 +127,10 @@ public class CharacterMovement : MonoBehaviour {
 
     private void OnTriggerStay( Collider other ) {
         currentState.OnTriggerStay( other );
+        if ( other.CompareTag( "CamManip" ) && other.GetComponent<CameraZone>().cameraState != camFollow.cameraState
+          && other.GetComponent<CameraZone>().WithinBounds(_collider)) {
+            camFollow.UpdateCameraState(other.GetComponent<CameraZone>().cameraState);
+        }
     }
 
     public void StartStateCoroutine( IEnumerator routine ) {
@@ -162,15 +158,6 @@ public class CharacterMovement : MonoBehaviour {
         else if ( currentRotation == PositionStates.Rotation.zNeg )
             GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, -horVel );
     }
-
-    /// <summary>
-    /// Squares Unity's gravity constant
-    /// </summary>
-/*     public void Falling( ) {
-        if ( !grav.IsGrounded( groundCheck ) ) {
-            grav.StartGravity( );
-        }
-    } */
 
     /// <summary>
     /// Make the character jump
