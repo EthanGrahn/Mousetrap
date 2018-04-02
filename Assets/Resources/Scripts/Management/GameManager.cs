@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
@@ -21,22 +22,21 @@ public class GameManager : MonoBehaviour {
         DontDestroyOnLoad( gameObject );
         Instance = this;
 
-        pMovement = Player.GetComponent<CharacterMovement>();
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    private void OnLevelWasLoaded( int level ) {
-        if ( level == 1 ) // Menu
-        {
-            Cursor.visible = true;
-            // Set the scenes for each button
-            GameObject.Find( "StartButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Level1" ); } );
-            GameObject.Find( "OptionsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Options" ); } );
-            GameObject.Find( "CreditsButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ChangeLevel( "Credits" ); } );
-            GameObject.Find( "ExitButton" ).GetComponent<Button>( ).onClick.AddListener( delegate { SceneSwitch.ExitGame( ); } );
-        }
-        else if (level == 4)
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if ( scene.name == "Menu" ) // Menu
         {
             Cursor.visible = false;
+        }
+        else if ( scene.name == "Office Level" ) // Office Level
+        {
+            Cursor.visible = false;
+            Player = GameObject.FindGameObjectWithTag("Player");
+            pMovement = Player.GetComponent<CharacterMovement>();
+            cpManager.player = Player;
         }
         else
         {
