@@ -19,6 +19,8 @@ public class EnemyPatrol : MonoBehaviour {
     Vector3 rCast, lCast;
     Vector3 castPosTop, castPosBot;
     Vector3 ledgeCheckPosition, ledgeCheckNew;
+    Vector3 chaseRightPos;
+    Vector3 chaseLeftPos;
     bool travRight = true;
     bool prevTravel = true;
     int layermask;
@@ -51,6 +53,36 @@ public class EnemyPatrol : MonoBehaviour {
         StartCoroutine("WebDrop");
 	}
 
+    void OnDrawGizmosSelected() {
+        if (!Application.isPlaying)
+        {            
+            startPos = transform.position;
+            if (xPlane)
+            {
+                right = new Vector3(startPos.x + patrolDist, startPos.y, startPos.z);
+                left = new Vector3(startPos.x - patrolDist, startPos.y, startPos.z);
+                chaseRightPos = new Vector3(right.x + chaseDist, right.y, right.z);
+                chaseLeftPos = new Vector3(left.x - chaseDist, left.y, left.z);
+            }
+            else
+            {
+                right = new Vector3(startPos.x, startPos.y, startPos.z + patrolDist);
+                left = new Vector3(startPos.x, startPos.y, startPos.z - patrolDist);
+                chaseRightPos = new Vector3(right.x, right.y, right.z + chaseDist);
+                chaseLeftPos = new Vector3(left.x, left.y, left.z - chaseDist);
+            }
+        }
+        Gizmos.color = Color.white;
+        Gizmos.DrawLine(left, right);
+        Gizmos.DrawLine(new Vector3(left.x, left.y + 0.5f, left.z), new Vector3(left.x, left.y - 0.5f, left.z));
+        Gizmos.DrawLine(new Vector3(right.x, right.y + 0.5f, right.z), new Vector3(right.x, right.y - 0.5f, right.z));
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(chaseLeftPos, left);
+        Gizmos.DrawLine(chaseRightPos, right);
+        Gizmos.DrawLine(new Vector3(chaseLeftPos.x, chaseLeftPos.y + 0.5f, chaseLeftPos.z), new Vector3(chaseLeftPos.x, chaseLeftPos.y - 0.5f, chaseLeftPos.z));
+        Gizmos.DrawLine(new Vector3(chaseRightPos.x, chaseRightPos.y + 0.5f, chaseRightPos.z), new Vector3(chaseRightPos.x, chaseRightPos.y - 0.5f, chaseRightPos.z));        
+    }
+
     IEnumerator WebDrop()
     {
         bool dropped = false;
@@ -75,8 +107,6 @@ public class EnemyPatrol : MonoBehaviour {
         float initSpeed = patrolSpeed;
         Vector3 initRightPos = right;
         Vector3 initLeftPos = left;
-        Vector3 chaseRightPos;
-        Vector3 chaseLeftPos;
 
         if (xPlane)
         {
