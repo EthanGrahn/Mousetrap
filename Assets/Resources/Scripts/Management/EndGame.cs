@@ -10,7 +10,7 @@ public class EndGame : MonoBehaviour {
     private bool started = false;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         endGameCanvas.SetActive(false);
 	}
 
