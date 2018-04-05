@@ -13,12 +13,17 @@ public class EnemyPatrol : MonoBehaviour {
     public float wDropStart = 2;
     public float wDropEnd = 8;
     public GameObject webPrefab;
+    public SpriteRenderer spriteRenderer;
 
     Vector3 startPos;
     Vector3 right, left;
     Vector3 rCast, lCast;
     Vector3 castPosTop, castPosBot;
+    Vector3 ledgeCheckPosition, ledgeCheckNew;
+    Vector3 chaseRightPos;
+    Vector3 chaseLeftPos;
     bool travRight = true;
+    bool prevTravel = true;
     int layermask;
     float wDropTime;
 
@@ -42,11 +47,42 @@ public class EnemyPatrol : MonoBehaviour {
         }
 
         wDropTime = Random.Range(wDropStart, wDropEnd);
+        ledgeCheckPosition =  transform.GetChild(0).position;
 
         StartCoroutine("Patrol");
         StartCoroutine("PlayerChecking");
         StartCoroutine("WebDrop");
 	}
+
+    void OnDrawGizmosSelected() {
+        if (!Application.isPlaying)
+        {            
+            startPos = transform.position;
+            if (xPlane)
+            {
+                right = new Vector3(startPos.x + patrolDist, startPos.y, startPos.z);
+                left = new Vector3(startPos.x - patrolDist, startPos.y, startPos.z);
+                chaseRightPos = new Vector3(right.x + chaseDist, right.y, right.z);
+                chaseLeftPos = new Vector3(left.x - chaseDist, left.y, left.z);
+            }
+            else
+            {
+                right = new Vector3(startPos.x, startPos.y, startPos.z + patrolDist);
+                left = new Vector3(startPos.x, startPos.y, startPos.z - patrolDist);
+                chaseRightPos = new Vector3(right.x, right.y, right.z + chaseDist);
+                chaseLeftPos = new Vector3(left.x, left.y, left.z - chaseDist);
+            }
+        }
+        Gizmos.color = Color.white;
+        Gizmos.DrawLine(left, right);
+        Gizmos.DrawLine(new Vector3(left.x, left.y + 0.5f, left.z), new Vector3(left.x, left.y - 0.5f, left.z));
+        Gizmos.DrawLine(new Vector3(right.x, right.y + 0.5f, right.z), new Vector3(right.x, right.y - 0.5f, right.z));
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(chaseLeftPos, left);
+        Gizmos.DrawLine(chaseRightPos, right);
+        Gizmos.DrawLine(new Vector3(chaseLeftPos.x, chaseLeftPos.y + 0.5f, chaseLeftPos.z), new Vector3(chaseLeftPos.x, chaseLeftPos.y - 0.5f, chaseLeftPos.z));
+        Gizmos.DrawLine(new Vector3(chaseRightPos.x, chaseRightPos.y + 0.5f, chaseRightPos.z), new Vector3(chaseRightPos.x, chaseRightPos.y - 0.5f, chaseRightPos.z));        
+    }
 
     IEnumerator WebDrop()
     {
@@ -72,8 +108,6 @@ public class EnemyPatrol : MonoBehaviour {
         float initSpeed = patrolSpeed;
         Vector3 initRightPos = right;
         Vector3 initLeftPos = left;
-        Vector3 chaseRightPos;
-        Vector3 chaseLeftPos;
 
         if (xPlane)
         {
@@ -109,38 +143,69 @@ public class EnemyPatrol : MonoBehaviour {
     IEnumerator Patrol()
     {
         //Debug.Log("Patrol start");
+        int invalid = 0;
+        float position;
         while (gameObject.activeInHierarchy)
         {
             if (xPlane)
             {
                 travRight = true;
-                while (transform.position.x < right.x && !CheckCollision(2))
+                invalid = 0;
+                position = transform.position.x;
+                spriteRenderer.flipX = true;
+                while (transform.position.x < right.x && !CheckCollision(2) && invalid < 10)
                 {
                     GetComponent<Rigidbody>().velocity = new Vector3(patrolSpeed, GetComponent<Rigidbody>().velocity.y, 0);
                     yield return new WaitForFixedUpdate();
+                    if (transform.position.x == position)
+                        invalid++;
+                        
+                    position = transform.position.x;
                 }
+                invalid = 0;
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
                 travRight = false;
-                while (transform.position.x > left.x && !CheckCollision(2))
+                spriteRenderer.flipX = false;
+                while (transform.position.x > left.x && !CheckCollision(2) && invalid < 10)
                 {
+                    position = transform.position.x;
                     GetComponent<Rigidbody>().velocity = new Vector3(-patrolSpeed, GetComponent<Rigidbody>().velocity.y, 0);
                     yield return new WaitForFixedUpdate();
+                    if (transform.position.x == position)
+                        invalid++;
+                        
+                    position = transform.position.x;
                 }
             }
             else // (zPlane)
             {
                 travRight = true;
-                while (transform.position.z < right.z && !CheckCollision(2))
+                invalid = 0;
+                position = transform.position.z;
+                spriteRenderer.flipX = true;
+                while (transform.position.z < right.z && !CheckCollision(2) && invalid < 10)
                 {
+                    position = transform.position.z;
                     GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, patrolSpeed);
                     yield return new WaitForFixedUpdate();
+                    if (transform.position.z == position)
+                        invalid++;
+                        
+                    position = transform.position.z;
                 }
+                invalid = 0;
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
                 travRight = false;
-                while (transform.position.z > left.z && !CheckCollision(2))
+                spriteRenderer.flipX = false;
+                while (transform.position.z > left.z && !CheckCollision(2) && invalid < 10)
                 {
+                    position = transform.position.z;
                     GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, -patrolSpeed);
                     yield return new WaitForFixedUpdate();
+                    if (transform.position.z == position)
+                        invalid++;
+                        
+                    position = transform.position.z;
                 }
             }
             yield return null;
@@ -148,6 +213,11 @@ public class EnemyPatrol : MonoBehaviour {
         //Debug.Log("Patrol end");
     }
 
+    /// <summary>
+    /// Checks for collisions with walls or ledges ahead of movement direction.
+    /// </summary>
+    /// <param name="distance">Distance to raycast for walls</param>
+    /// <returns></returns>
     bool CheckCollision(float distance) // raycast left or right
     {
         castPosTop = new Vector3(transform.position.x, transform.position.y + (0.5f * GetComponent<CapsuleCollider>().height), transform.position.z);
@@ -155,17 +225,50 @@ public class EnemyPatrol : MonoBehaviour {
         
         if (travRight)
         {
-            Debug.DrawRay(castPosTop, rCast * distance, Color.red, Time.deltaTime);
-            Debug.DrawRay(castPosBot, rCast * distance, Color.red, Time.deltaTime);
-            return Physics.Raycast(castPosTop, rCast, distance, layermask) || Physics.Raycast(castPosBot, rCast, distance, layermask);
+            Transform child = transform.GetChild(0);
+            if (prevTravel == travRight)
+            {
+                prevTravel = !prevTravel;
+            if (xPlane)
+                child.localPosition = new Vector3(Mathf.Abs(child.localPosition.x), child.localPosition.y, child.localPosition.z);
+            else
+                child.localPosition = new Vector3(child.localPosition.x, child.localPosition.y, Mathf.Abs(child.localPosition.z));
+            }
+            ledgeCheckNew = child.position;
+            
+            float ledgeDistance = Vector3.Distance(this.transform.position, ledgeCheckNew);
+            Vector3 ledgeDirection = (this.transform.position - ledgeCheckNew) / (this.transform.position - ledgeCheckNew).magnitude;
+            //Debug.DrawLine(this.transform.position, ledgeCheckNew, Color.red, Time.deltaTime);
+            bool ledge = !Physics.Linecast(this.transform.position, ledgeCheckNew, layermask);//!Physics.Raycast(this.transform.position, ledgeDirection, ledgeDistance, layermask);
+            return Physics.Raycast(castPosTop, rCast, distance, layermask) || Physics.Raycast(castPosBot, rCast, distance, layermask) || ledge;
         }
         else
         {
-            return Physics.Raycast(castPosTop, lCast, distance, layermask) || Physics.Raycast(castPosBot, lCast, distance, layermask);
+            Transform child = transform.GetChild(0);
+            if (prevTravel == travRight)
+            {
+                prevTravel = !prevTravel;
+            if (xPlane)
+                child.localPosition = new Vector3(-child.localPosition.x, child.localPosition.y, child.localPosition.z);
+            else
+                child.localPosition = new Vector3(child.localPosition.x, child.localPosition.y, -child.localPosition.z);
+            }
+            ledgeCheckNew = child.position;
+            
+            float ledgeDistance = Vector3.Distance(this.transform.position, ledgeCheckNew);
+            Vector3 ledgeDirection = (this.transform.position - ledgeCheckNew) / (this.transform.position - ledgeCheckNew).magnitude;
+            //Debug.DrawLine(this.transform.position, ledgeCheckNew, Color.blue, Time.deltaTime);
+            bool ledge = !Physics.Linecast(this.transform.position, ledgeCheckNew, layermask);//!Physics.Raycast(this.transform.position, ledgeDirection, ledgeDistance, layermask);
+            return Physics.Raycast(castPosTop, lCast, distance, layermask) || Physics.Raycast(castPosBot, lCast, distance, layermask) || ledge;
         }
     }
 
-    bool CheckForPlayer(float distance) // check distance to player
+    /// <summary>
+    /// Check if the player is within the specified distance from this gameobject.
+    /// </summary>
+    /// <param name="distance">Minimum detection distance.</param>
+    /// <returns>Whether player is within specified distance.</returns>
+    bool CheckForPlayer(float distance)
     {
         return Vector3.Distance(GameManager.Instance.Player.transform.position, transform.position) <= distance;
     }

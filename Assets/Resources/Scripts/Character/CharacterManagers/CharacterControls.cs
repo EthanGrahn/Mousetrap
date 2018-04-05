@@ -14,6 +14,8 @@ public class CharacterControls : MonoBehaviour {
     // Jumping
     [HideInInspector]
     public bool Jump = false;
+    [HideInInspector]
+    public bool JumpHeld = false;
 
     // Climbing
     [HideInInspector]
@@ -30,6 +32,7 @@ public class CharacterControls : MonoBehaviour {
         Left = Input.GetKey( KeyCode.A );
 
         Jump = Input.GetKeyDown( KeyCode.Space );
+        JumpHeld = Input.GetKey( KeyCode.Space );
 
         Up = Input.GetKey( KeyCode.W );
         Down = Input.GetKey( KeyCode.S );

@@ -66,10 +66,14 @@ public class CamFollowObject : MonoBehaviour {
     private bool updateCam;
     private Vector3 origin;
     private Vector3 targetPos;
+    private Vector3 vel = Vector3.zero;
+    public CameraState cameraState;
     #endregion
 
     // Set starting position of camera
     void Start( ) {
+        cameraState = new CameraState(objToFollow, speed, camViewInFront, camViewAbove, minMoveDistHor, minMoveDistVer, distFromObj, timeToUpdate);
+
         // Set initial position reference of object
         oldObjPos = objToFollow.GetComponent<Transform>( ).position;
 
@@ -93,24 +97,19 @@ public class CamFollowObject : MonoBehaviour {
 
     // Update is called once per frame
     void Update( ) {
-        // Get most recent position of followed object
         Vector3 currObjPos = objToFollow.GetComponent<Transform>( ).position;
-
         // Get target position for camera
         if ( script != null ) {
             targetPos = GetTargetPosition( currObjPos, script.currentRotation );
         } else {
             targetPos = GetTargetPosition( currObjPos, currentRotation );
         }
-
-
         // Get which direction object is moving
         if ( script != null ) {
             currDirection = GetDirection( currObjPos, script.currentRotation );
         } else {
             currDirection = GetDirection( currObjPos, currentRotation );
         }
-
         // Current position of camera
         origin = GetComponent<Transform>( ).position;
 
@@ -120,22 +119,23 @@ public class CamFollowObject : MonoBehaviour {
             Mathf.Abs( origin.z - targetPos.z ) >= minMoveDistHor && !updateCam ) {
             updateCam = true;
         }
-    }
-
-    private void FixedUpdate( ) {
-        if ( updateCam ) {
-            transform.position = Vector3.Lerp( origin, targetPos, speed * Time.deltaTime );
-            // Stop updating camera position when close to target point
-            if ( Vector3.Distance( origin, targetPos ) < .1f ) {
-                updateCam = false;
-            }
-        }
-        
         if (changeDist) {
             ChangeViewDistance( updatedDist, timeToUpdate );
             if ( distFromObj == updatedDist )
                 changeDist = false;
         }
+
+        if ( updateCam ) {
+            transform.position = Vector3.SmoothDamp(origin, targetPos, ref vel, 0.3f, speed);
+            // Stop updating camera position when close to target point
+            if ( Vector3.Distance( origin, targetPos ) < .1f ) {
+                updateCam = false;
+            }
+        }       
+    }
+
+    private void FixedUpdate( ) {
+
     }
 
     /// <summary>
@@ -247,6 +247,25 @@ public class CamFollowObject : MonoBehaviour {
 
     private void ChangeViewDistance( float newDist, float totalTime ) {
         float dist = distFromObj;
-        distFromObj = Mathf.Lerp( dist, newDist, totalTime );
+        //float vel = testVel.magnitude;
+        distFromObj = newDist;//Mathf.SmoothDamp( dist, newDist, ref vel ,totalTime, speed );
+    }
+
+    public void UpdateCameraState(CameraState newValues)
+    {
+        if (newValues.distFromObj != -1)
+        {
+            distFromObj = newValues.distFromObj;
+            updatedDist = newValues.distFromObj;
+            changeDist = true;
+        }
+        if (newValues.timeToUpdate != -1) timeToUpdate = newValues.timeToUpdate;
+        if (newValues.speed != -1) speed = newValues.speed;
+        if (newValues.objToFollow != null) objToFollow = newValues.objToFollow;
+        if (newValues.minMoveDistHor != -1) minMoveDistHor = newValues.minMoveDistHor;
+        if (newValues.minMoveDistVer != -1) minMoveDistVer = newValues.minMoveDistVer;
+        if (newValues.camViewAbove != -1) camViewAbove = newValues.camViewAbove;
+        if (newValues.camViewInFront != -1) camViewInFront = newValues.camViewInFront;
+        cameraState = newValues;
     }
 }

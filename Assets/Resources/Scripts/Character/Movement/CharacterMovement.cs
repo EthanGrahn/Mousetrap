@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent( typeof( Gravity ) )]
+[RequireComponent( typeof( CharacterJump ) )]
 [RequireComponent( typeof( PlayerCollision ) )]
 [RequireComponent( typeof( CharacterDirections ) )]
 [RequireComponent( typeof( CharacterControls ) )]
@@ -37,8 +37,7 @@ public class CharacterMovement : MonoBehaviour {
     // Used for Jumping
     [Tooltip( "How fast the character jumps in the air." )]
     public float jumpSpeed = 10f;
-    [SerializeField]
-    private LayerMask m_whatIsGround;
+    public LayerMask m_whatIsGround;
 
     // Used for Climbing
     [Tooltip( "How fast the character climbs on walls." )]
@@ -48,11 +47,13 @@ public class CharacterMovement : MonoBehaviour {
     [HideInInspector]
     public PositionStates.Rotation currentRotation;
     [HideInInspector]
-    public Gravity grav;
+    public CharacterJump grav;
     [HideInInspector]
     public PlayerCollision coll;
     [HideInInspector]
     public Transform groundCheck;
+
+    private CapsuleCollider _collider;
 
     // Character States ##################################
     [HideInInspector]
@@ -66,6 +67,7 @@ public class CharacterMovement : MonoBehaviour {
 
     // Camera reference
     public Camera mainCam;
+    private CamFollowObject camFollow;
     #endregion
 
     //--------------------------------------------------------------------------------------------------//
@@ -73,6 +75,8 @@ public class CharacterMovement : MonoBehaviour {
     //--------------------------------------------------------------------------------------------------//
     void Awake( ) {
         currentRotation = PositionStates.Rotation.xPos;
+        _collider = GetComponent<CapsuleCollider>();
+        camFollow = mainCam.GetComponent<CamFollowObject>();
 
         playerInput = new PlayerInput( this );
         climbing = new Climbing( this );
@@ -86,7 +90,7 @@ public class CharacterMovement : MonoBehaviour {
     void Start( ) {
         PositionStates.GetConstraints( gameObject, currentRotation );
 
-        grav = GetComponent<Gravity>( );
+        grav = GetComponent<CharacterJump>( );
         coll = GetComponent<PlayerCollision>( );
 
         currentState = playerInput;
@@ -98,31 +102,18 @@ public class CharacterMovement : MonoBehaviour {
     //--------------------------------------------------------------------------------------------------//
     void Update( ) {
         currentState.Update( );
+        if (grav.IsGrounded(groundCheck, m_whatIsGround))
+            GetComponent<Animator>().speed = GetComponent<Rigidbody>().velocity.magnitude / 10f;
     }
 
     void FixedUpdate( ) {
         currentState.FixedUpdate( );
-
-        //// If crouching, check to see if the character can stand up
-        //if ( !Crouch ) {
-        //    // If the character has a ceiling preventing them from standing up, keep them crouching
-        //    if ( Physics2D.OverlapCircle( m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround ) ) {
-        //        Crouch = true;
-        //    }
-        //}
     }
 
     void OnTriggerEnter( Collider other ) {
         currentState.OnTriggerEnter( other );
         if ( other.tag == "Web" ) {
-            speedCoeff = .5f;
-        }
-        if ( other.CompareTag( "CamManip" ) ) {
-            mainCam.GetComponent<CamFollowObject>( ).updatedDist =
-                other.GetComponent<ChangeCamDist>( ).newDist;
-            mainCam.GetComponent<CamFollowObject>( ).timeToUpdate =
-                other.GetComponent<ChangeCamDist>( ).totalTime;
-            mainCam.GetComponent<CamFollowObject>( ).changeDist = true;
+            speedCoeff = 0.5f;
         }
     }
 
@@ -135,6 +126,10 @@ public class CharacterMovement : MonoBehaviour {
 
     private void OnTriggerStay( Collider other ) {
         currentState.OnTriggerStay( other );
+        if ( other.CompareTag( "CamManip" ) && other.GetComponent<CameraZone>().cameraState != camFollow.cameraState
+          && other.GetComponent<CameraZone>().WithinBounds(_collider)) {
+            camFollow.UpdateCameraState(other.GetComponent<CameraZone>().cameraState);
+        }
     }
 
     public void StartStateCoroutine( IEnumerator routine ) {
@@ -164,21 +159,11 @@ public class CharacterMovement : MonoBehaviour {
     }
 
     /// <summary>
-    /// Squares Unity's gravity constant
-    /// </summary>
-    public void Falling( ) {
-        if ( !grav.IsGrounded( groundCheck ) ) {
-            grav.StartGravity( );
-        }
-    }
-
-    /// <summary>
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
         if ( controller.Jump && grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
             GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
-            Debug.Log( "JUumping" );
         }
     }
 

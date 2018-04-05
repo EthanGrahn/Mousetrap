@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class Squeek : MonoBehaviour {
 
-    List<int> skipNum1 = new List<int>{ 65, 68, 69, 74, 75, 83, 85, 87 };
-    List<int> skipNum2 = new List<int>{ 79, 100, 101, 106, 107, 115, 117, 119 };
+    public List<string> keys = new List<string>();
 
     AudioSource aSource;
 
@@ -18,53 +17,15 @@ public class Squeek : MonoBehaviour {
 	void Update () {
 		if (Input.anyKeyDown && Input.inputString.Length > 0)
         {
-            //Debug.Log(">" + ((int)Input.inputString.ToCharArray()[0]) + "<");
-            int key = ((int)Input.inputString.ToCharArray()[0]);
-            float result = 0;
-            if (key >= 97 && key <= 122)
+            foreach (char c in Input.inputString)
             {
-                if (!skipNum2.Contains(key))
-                    result = ((float)key - 97) / 26 * 3;
-            }
-            else if (key >= 65 && key <= 90)
-            {
-                if (!skipNum1.Contains(key))
-                    result = ((float)key - 65) / 26 * 3;
-            }
-            else if (key >= 48 && key <= 57)
-            {
-                int tmp = (key - 48);
-
-                switch(tmp)
+                if (!keys.Contains(c.ToString().ToLower()))
                 {
-                    case 1:
-                        result = 0.001f;
-                        break;
-                    case 2:
-                        result = 0.3461539f;
-                        break;
-                    case 3:
-                        result = 0.4615385f;
-                        break;
-                    case 4:
-                        result = 1.038462f;
-                        break;
-                    case 5:
-                        result = 1.153846f;
-                        break;
-                    case 6:
-                        result = 2.076923f;
-                        break;
-                    case 7:
-                        result = 2.538461f;
-                        break;
-                    default:
-                        return;
+                    aSource.pitch = Random.Range(1f, 2f);
+                    aSource.Play();
+                    break;
                 }
             }
-            //Debug.Log(result);
-            aSource.pitch = result;
-            aSource.Play();
         }
 	}
 }
