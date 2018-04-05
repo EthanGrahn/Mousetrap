@@ -13,6 +13,7 @@ public class EnemyPatrol : MonoBehaviour {
     public float wDropStart = 2;
     public float wDropEnd = 8;
     public GameObject webPrefab;
+    public SpriteRenderer spriteRenderer;
 
     Vector3 startPos;
     Vector3 right, left;
@@ -151,6 +152,7 @@ public class EnemyPatrol : MonoBehaviour {
                 travRight = true;
                 invalid = 0;
                 position = transform.position.x;
+                spriteRenderer.flipX = true;
                 while (transform.position.x < right.x && !CheckCollision(2) && invalid < 10)
                 {
                     GetComponent<Rigidbody>().velocity = new Vector3(patrolSpeed, GetComponent<Rigidbody>().velocity.y, 0);
@@ -163,6 +165,7 @@ public class EnemyPatrol : MonoBehaviour {
                 invalid = 0;
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
                 travRight = false;
+                spriteRenderer.flipX = false;
                 while (transform.position.x > left.x && !CheckCollision(2) && invalid < 10)
                 {
                     position = transform.position.x;
@@ -179,6 +182,7 @@ public class EnemyPatrol : MonoBehaviour {
                 travRight = true;
                 invalid = 0;
                 position = transform.position.z;
+                spriteRenderer.flipX = true;
                 while (transform.position.z < right.z && !CheckCollision(2) && invalid < 10)
                 {
                     position = transform.position.z;
@@ -192,6 +196,7 @@ public class EnemyPatrol : MonoBehaviour {
                 invalid = 0;
                 GetComponent<Rigidbody>().velocity = Vector3.zero;
                 travRight = false;
+                spriteRenderer.flipX = false;
                 while (transform.position.z > left.z && !CheckCollision(2) && invalid < 10)
                 {
                     position = transform.position.z;

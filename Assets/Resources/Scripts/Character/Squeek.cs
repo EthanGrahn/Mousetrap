@@ -17,11 +17,14 @@ public class Squeek : MonoBehaviour {
 	void Update () {
 		if (Input.anyKeyDown && Input.inputString.Length > 0)
         {
-            if (!keys.Contains(Input.inputString.ToLower()))
+            foreach (char c in Input.inputString)
             {
-                Debug.Log(Input.inputString);
-                aSource.pitch = Random.Range(1f,2f);
-                aSource.Play();
+                if (!keys.Contains(c.ToString().ToLower()))
+                {
+                    aSource.pitch = Random.Range(1f, 2f);
+                    aSource.Play();
+                    break;
+                }
             }
         }
 	}
