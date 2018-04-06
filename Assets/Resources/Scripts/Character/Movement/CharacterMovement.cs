@@ -37,8 +37,7 @@ public class CharacterMovement : MonoBehaviour {
     // Used for Jumping
     [Tooltip( "How fast the character jumps in the air." )]
     public float jumpSpeed = 10f;
-    [SerializeField]
-    private LayerMask m_whatIsGround;
+    public LayerMask m_whatIsGround;
 
     // Used for Climbing
     [Tooltip( "How fast the character climbs on walls." )]
