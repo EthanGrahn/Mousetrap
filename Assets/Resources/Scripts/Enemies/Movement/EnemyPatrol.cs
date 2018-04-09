@@ -220,8 +220,8 @@ public class EnemyPatrol : MonoBehaviour {
     /// <returns></returns>
     bool CheckCollision(float distance) // raycast left or right
     {
-        castPosTop = new Vector3(transform.position.x, transform.position.y + (0.5f * GetComponent<CapsuleCollider>().height), transform.position.z);
-        castPosBot = new Vector3(transform.position.x, transform.position.y - (0.5f * GetComponent<CapsuleCollider>().height) + GetComponent<CapsuleCollider>().radius, transform.position.z);
+        castPosTop = new Vector3(transform.position.x, transform.position.y + (0.5f * GetComponent<SphereCollider>().radius), transform.position.z);
+        castPosBot = new Vector3(transform.position.x, transform.position.y - (0.5f * GetComponent<SphereCollider>().radius) + GetComponent<SphereCollider>().radius, transform.position.z);
         
         if (travRight)
         {
@@ -239,7 +239,7 @@ public class EnemyPatrol : MonoBehaviour {
             float ledgeDistance = Vector3.Distance(this.transform.position, ledgeCheckNew);
             Vector3 ledgeDirection = (this.transform.position - ledgeCheckNew) / (this.transform.position - ledgeCheckNew).magnitude;
             //Debug.DrawLine(this.transform.position, ledgeCheckNew, Color.red, Time.deltaTime);
-            bool ledge = !Physics.Linecast(this.transform.position, ledgeCheckNew, layermask);//!Physics.Raycast(this.transform.position, ledgeDirection, ledgeDistance, layermask);
+            bool ledge = !Physics.Linecast(this.transform.position, ledgeCheckNew, layermask);
             return Physics.Raycast(castPosTop, rCast, distance, layermask) || Physics.Raycast(castPosBot, rCast, distance, layermask) || ledge;
         }
         else

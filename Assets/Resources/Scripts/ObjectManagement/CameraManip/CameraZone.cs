@@ -4,52 +4,68 @@ using UnityEngine;
 
 public class CameraZone : MonoBehaviour {
 
+    [SerializeField]
+    private bool useObjToFollow = false;
     // Object camera will follow and its position
     [Tooltip( "Object that the camera will follow." )]
     public GameObject objToFollow = null;
 
     [Space( 10 )]
 
+    [SerializeField]
+    private bool useSpeed = false;
     // Movement speed of camera
     [Tooltip( "How fast camera will move to player when close." )]
-    public float speed = -1;
+    public float speed = 0;
 
     [Space( 10 )]
 
+    [SerializeField]
+    private bool useCamViewInFront = false;
     // How far camera looks from object
     [Tooltip( "How far camera will look in front of object. (Depending on which direction they move in)" )]
-    public float camViewInFront = -1;
+    public float camViewInFront = 0;
+    [SerializeField]
+    private bool useCamViewAbove = false;
     [Tooltip( "How far camera will look above object." )]
-    public float camViewAbove = -1;
+    public float camViewAbove = 0;
 
     [Space( 10 )]
 
+    [SerializeField]
+    private bool useMinMoveDistHor = false;
     // How far object must move before camera follows
     [Tooltip( "Minimum distance object must move in horizontal direction before camera follows." )]
-    public float minMoveDistHor = -1;
+    public float minMoveDistHor = 0;
+    [SerializeField]
+    private bool useMinMoveDistVer = false;
     [Tooltip( "Minimum distance object must move in vertical direction before camera follows." )]
-    public float minMoveDistVer = -1;
+    public float minMoveDistVer = 0;
 
     [Space(10)]
 
+    [SerializeField]
+    private bool useDistFromObj = false;
     // Clamping camera movement
     // Max distance allowed from object
     [Tooltip( "Distance camera is from object." )]
-    public float distFromObj = -1;
-    public float timeToUpdate = -1;
+    public float distFromObj = 0;
+    [SerializeField]
+    private bool useTimeToUpdate = false;
+    public float timeToUpdate = 0;
 
 	public CameraState cameraState;
 
     private void Start() {
         CameraState camState = GameObject.Find("Main Camera").GetComponent<CamFollowObject>().cameraState;
-        if (distFromObj == -1) distFromObj = camState.distFromObj;
-        if (timeToUpdate == -1) timeToUpdate = camState.timeToUpdate;
-        if (speed == -1) speed = camState.speed;
-        if (objToFollow == null) objToFollow = camState.objToFollow;
-        if (minMoveDistHor == -1) minMoveDistHor = camState.minMoveDistHor;
-        if (minMoveDistVer == -1) minMoveDistVer = camState.minMoveDistVer;
-        if (camViewAbove == -1) camViewAbove = camState.camViewAbove;
-        if (camViewInFront == -1) camViewInFront = camState.camViewInFront;
+        if (!useDistFromObj) distFromObj = camState.distFromObj;
+        if (!useTimeToUpdate) timeToUpdate = camState.timeToUpdate;
+        if (!useSpeed) speed = camState.speed;
+        if (!useObjToFollow) objToFollow = camState.objToFollow;
+        if (!useMinMoveDistHor) minMoveDistHor = camState.minMoveDistHor;
+        if (!useMinMoveDistVer) minMoveDistVer = camState.minMoveDistVer;
+        if (!useCamViewAbove) camViewAbove = camState.camViewAbove;
+        if (!useCamViewInFront) camViewInFront = camState.camViewInFront;
 
 		cameraState = new CameraState(objToFollow, speed, camViewInFront, camViewAbove, 
 		                              minMoveDistHor, minMoveDistVer, distFromObj, timeToUpdate);

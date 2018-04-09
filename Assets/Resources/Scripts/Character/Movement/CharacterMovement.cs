@@ -123,6 +123,10 @@ public class CharacterMovement : MonoBehaviour {
         if ( other.tag == "Web" ) {
             speedCoeff = 0.5f;
         }
+        if ( other.tag == "Catapult")
+        {
+            GetComponent<Rigidbody>().AddForce(other.GetComponent<Catapult>().Launch(), ForceMode.VelocityChange);
+        }
     }
 
     private void OnTriggerExit( Collider other ) {

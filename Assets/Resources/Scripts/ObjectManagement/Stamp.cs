@@ -17,7 +17,7 @@ public class Stamp : MonoBehaviour {
 	private void OnTriggerEnter(Collider other) {
 		if (other.CompareTag("Stamp"))
 		{
-			other.GetComponent<TextMesh>().text = "DENIED";
+			other.GetComponent<TextMesh>().text = "ACCEPTED";
 			Destroy(this);
 		}
 	}

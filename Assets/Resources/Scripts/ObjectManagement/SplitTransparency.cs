@@ -5,6 +5,9 @@ using UnityEngine;
 public class SplitTransparency : MonoBehaviour {
 
     public float transitionSpeed = 1;
+    [SerializeField]
+    [Range(0,1)]
+    private float endOpacity = 0.1f;
 
     private bool transparent = false;
     private Color newColor;
@@ -48,14 +51,14 @@ public class SplitTransparency : MonoBehaviour {
     private IEnumerator FadeOut()
     {
         newColor = _renderer.material.color;
-        while (newColor.a - Time.deltaTime / transitionSpeed > 0)
+        while (newColor.a - Time.deltaTime / transitionSpeed > endOpacity)
         {
             newColor.a -= Time.deltaTime / transitionSpeed;
             _renderer.material.color = newColor;
             yield return new WaitForEndOfFrame();
         }
         
-        newColor.a = 0;
+        newColor.a = endOpacity;
         _renderer.material.color = newColor;
     }
 
