@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class EndGame : MonoBehaviour {
 
@@ -12,6 +13,7 @@ public class EndGame : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
         endGameCanvas.SetActive(false);
+        SceneManager.sceneLoaded += OnSceneLoaded;
 	}
 
     private void FixedUpdate()
@@ -23,6 +25,12 @@ public class EndGame : MonoBehaviour {
             Time.timeScale = 0;
             StartCoroutine("WaitForExit");
         }
+    }
+
+    
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Time.timeScale = 1;
     }
 
     IEnumerator WaitForExit()

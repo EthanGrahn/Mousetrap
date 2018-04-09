@@ -9,6 +9,7 @@ public class SplitTransparency : MonoBehaviour {
     private bool transparent = false;
     private Color newColor;
     private Renderer _renderer;
+    private LayerMask layerMask = 1 << 15;
 
 	// Use this for initialization
 	void Awake () {
@@ -20,18 +21,20 @@ public class SplitTransparency : MonoBehaviour {
 	void Update () {
         bool found = false;
 
-        RaycastHit raycastHit;
-        Ray ray = new Ray(Camera.main.transform.position, GameManager.Instance.Player.transform.position - Camera.main.transform.position);
-
-        if (Physics.Raycast(ray, out raycastHit))
+        if (_renderer.isVisible)
         {
-            if (raycastHit.collider.gameObject.GetComponent<SplitTransparency>() != null 
-                && raycastHit.collider.gameObject == this.gameObject)
+            RaycastHit[] raycastHit;
+            Ray ray = new Ray(Camera.main.transform.position, GameManager.Instance.Player.transform.position - Camera.main.transform.position);
+            raycastHit = Physics.RaycastAll(ray, Vector3.Distance(Camera.main.transform.position, GameManager.Instance.Player.transform.position), layerMask);
+            foreach(RaycastHit r in raycastHit)
             {
-                if (!transparent)
-                    StartCoroutine("FadeOut");
-                transparent = true;
-                found = true;
+                if (r.collider.gameObject == this.gameObject)
+                {
+                    if (!transparent)
+                        StartCoroutine("FadeOut");
+                    transparent = true;
+                    found = true;
+                }
             }
         }
 

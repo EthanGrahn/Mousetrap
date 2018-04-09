@@ -37,6 +37,9 @@ public class CharacterMovement : MonoBehaviour {
     // Used for Jumping
     [Tooltip( "How fast the character jumps in the air." )]
     public float jumpSpeed = 10f;
+    [SerializeField]
+    private LayerMask[] groundLayers;
+    [HideInInspector]
     public LayerMask m_whatIsGround;
 
     // Used for Climbing
@@ -80,6 +83,11 @@ public class CharacterMovement : MonoBehaviour {
 
         playerInput = new PlayerInput( this );
         climbing = new Climbing( this );
+
+        foreach (LayerMask l in groundLayers)
+        {
+            m_whatIsGround = m_whatIsGround | l;
+        }
 
         directions = GetComponent<CharacterDirections>( );
         controller = GetComponent<CharacterControls>( );
