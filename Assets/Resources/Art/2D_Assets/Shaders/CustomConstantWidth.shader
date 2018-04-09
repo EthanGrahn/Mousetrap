@@ -46,7 +46,7 @@ v2f vert(appdata v) {
 ENDCG
  
 	SubShader {
-		//Tags {"Queue" = "Geometry+100" }
+		Tags {"Queue" = "Geometry+100" }
 		CGPROGRAM
 		#pragma surface surf Lambert
  
@@ -63,14 +63,14 @@ ENDCG
 			o.Alpha = c.a;
 		}
 		ENDCG
- 
+		
 		// note that a vertex shader is specified here but its using the one above
 		Pass {
 			Name "OUTLINE"
 			Tags { "LightMode" = "Always" }
 			Cull Front
 			ZWrite On
-			ColorMask RGB
+			//ColorMask RGB
 			Blend SrcAlpha OneMinusSrcAlpha
 			//Offset 50,50
  
@@ -83,36 +83,39 @@ ENDCG
 	}
  
 	SubShader {
+		Tags {"Queue" = "Transparent" }
 		CGPROGRAM
 		#pragma surface surf Lambert
  
 		sampler2D _MainTex;
 		fixed4 _Color;
- 
+	
 		struct Input {
 			float2 uv_MainTex;
 		};
-
+ 
 		void surf (Input IN, inout SurfaceOutput o) {
 			fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
 			o.Albedo = c.rgb;
 			o.Alpha = c.a;
 		}
 		ENDCG
- 
+		
+		// note that a vertex shader is specified here but its using the one above
 		Pass {
 			Name "OUTLINE"
 			Tags { "LightMode" = "Always" }
 			Cull Front
 			ZWrite On
-			ColorMask RGB
+			//ColorMask RGB
 			Blend SrcAlpha OneMinusSrcAlpha
+			//Offset 50,50
  
 			CGPROGRAM
 			#pragma vertex vert
-			#pragma exclude_renderers gles xbox360 ps3
+			#pragma fragment frag
+			half4 frag(v2f i) :COLOR { return i.color; }
 			ENDCG
-			SetTexture [_MainTex] { combine primary }
 		}
 	}
  
