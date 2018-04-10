@@ -12,6 +12,7 @@ public class CharacterMovement : MonoBehaviour {
     [Tooltip( "Multiplier for how fast character may travel." )]
     public float speedFactor = 5;
     private float speedCoeff = 1;
+    private float extForce = 0;
 
     // Variables for turning points
     [HideInInspector]
@@ -71,6 +72,8 @@ public class CharacterMovement : MonoBehaviour {
     // Camera reference
     public Camera mainCam;
     private CamFollowObject camFollow;
+
+    public ValueFalloff extForceFalloff;
     #endregion
 
     //--------------------------------------------------------------------------------------------------//
@@ -93,6 +96,8 @@ public class CharacterMovement : MonoBehaviour {
         controller = GetComponent<CharacterControls>( );
 
         groundCheck = transform.Find( "GroundCheck" );
+
+        extForceFalloff.valueChangeEvent.AddListener(ExternalForceUpdate);
     }
 
     void Start( ) {
@@ -118,14 +123,15 @@ public class CharacterMovement : MonoBehaviour {
         currentState.FixedUpdate( );
     }
 
+    void ExternalForceUpdate(float value)
+    {
+        extForce = value;
+    }
+
     void OnTriggerEnter( Collider other ) {
         currentState.OnTriggerEnter( other );
         if ( other.tag == "Web" ) {
             speedCoeff = 0.5f;
-        }
-        if ( other.tag == "Catapult")
-        {
-            GetComponent<Rigidbody>().AddForce(other.GetComponent<Catapult>().Launch(), ForceMode.VelocityChange);
         }
     }
 
@@ -161,13 +167,13 @@ public class CharacterMovement : MonoBehaviour {
         float yvel = GetComponent<Rigidbody>( ).velocity.y;
         float horVel = (int)dir * speedFactor * speedCoeff;
         if ( currentRotation == PositionStates.Rotation.xPos )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, yvel, 0.0f );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel + extForce, yvel, 0.0f );
         else if ( currentRotation == PositionStates.Rotation.zPos )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, horVel );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, horVel + extForce );
         else if ( currentRotation == PositionStates.Rotation.xNeg )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, yvel, 0.0f );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel + extForce, yvel, 0.0f );
         else if ( currentRotation == PositionStates.Rotation.zNeg )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, -horVel );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, -horVel + extForce );
     }
 
     /// <summary>

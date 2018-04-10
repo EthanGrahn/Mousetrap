@@ -2,12 +2,33 @@
 
 public class Catapult : MonoBehaviour {
 
+	public Vector2 launchVector = new Vector2(0, 0);
 	[SerializeField]
-	private Vector3 launchVector = new Vector3(0, 0, 0);
+	private Collider enemyTrigger;
 
-	public Vector3 Launch()
+	private bool playerInPosition = false;
+
+	public void Launch(GameObject spider)
 	{
-		//trigger animation
-		return launchVector;
+		if (!playerInPosition)
+			return;
+			
+		GetComponent<Animator>().SetBool("Active", true);
+
+		GameManager.Instance.Player.GetComponent<Rigidbody>().AddForce(Vector3.up * launchVector.y, ForceMode.VelocityChange);
+		GameManager.Instance.Player.GetComponent<ValueFalloff>().StartFalloff(0.6f, launchVector.x, 0, false);
+		Destroy(spider);
+		Destroy(enemyTrigger);
 	}
+
+	private void OnTriggerEnter(Collider other) {
+		if (other.CompareTag("Player"))
+			playerInPosition = true;
+	}
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+            playerInPosition = false;
+    }
 }
