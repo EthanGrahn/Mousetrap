@@ -123,20 +123,15 @@ public class CharacterMovement : MonoBehaviour {
         currentState.FixedUpdate( );
     }
 
+    void ExternalForceUpdate( float value ) {
+        extForce = value;
+    }
+
     void OnTriggerEnter( Collider other ) {
         currentState.OnTriggerEnter( other );
         // slow down character movement on entering spider web
         if ( other.tag == "Web" ) {
             speedCoeff = 0.5f;
-        }
-
-        // change position of camera on entering trigger
-        if ( other.CompareTag( "CamManip" ) ) {
-            mainCam.GetComponent<CamFollowObject>( ).updatedDist =
-                other.GetComponent<ChangeCamDist>( ).newDist;
-            mainCam.GetComponent<CamFollowObject>( ).timeToUpdate =
-                other.GetComponent<ChangeCamDist>( ).totalTime;
-            mainCam.GetComponent<CamFollowObject>( ).changeDist = true;
         }
 
         // launch player on contact with catapult
