@@ -15,14 +15,6 @@ public class RotationObject : MonoBehaviour {
 
     // Use this for initialization
     void Start( ) {
-        // align object with the nearest floor
-        RaycastHit rHit = Physics.RaycastAll( transform.position, -transform.up )[0];
-        transform.position = new Vector3( rHit.point.x, 1, rHit.point.z ); // offset up on the y-axis to account for box collider
-
-        // create trigger box
-        BoxCollider box = gameObject.AddComponent<BoxCollider>( );
-        box.isTrigger = true;
-        box.size = new Vector3( triggerWidth, 5f, triggerWidth );
         tag = "TriggerRotationSwitch";
     }
 
@@ -49,12 +41,12 @@ public class RotationObject : MonoBehaviour {
         CharacterMovement pController = other.GetComponent<CharacterMovement>( );
 
         // set the rotation that the character will rotate to
-        if ( pController.currentRotation == fromPlane ) {
+        if ( PositionStates.IsXPlane(pController.currentRotation) == PositionStates.IsXPlane(fromPlane) ) {
             newDir = toPlane;
-            degrees = GetDegrees( fromPlane, newDir );
+            degrees = GetDegrees( pController.currentRotation, newDir );
         } else {
             newDir = fromPlane;
-            degrees = GetDegrees( toPlane, newDir );
+            degrees = GetDegrees( pController.currentRotation, newDir );
         }
 
         while ( inBoundary ) // continous checking while player stays in boundary
@@ -78,7 +70,6 @@ public class RotationObject : MonoBehaviour {
 
             // call rotation from character controller
             pController.RotatePlane( newDir, transform.position, degrees );
-
             yield return new WaitForFixedUpdate( );
 
             // swap new rotation to it's inverse
@@ -110,7 +101,7 @@ public class RotationObject : MonoBehaviour {
     private float UpdateTravel( PositionStates.Rotation playerRot, Collider other ) {
         float travel = 0f;
 
-        if ( playerRot == fromPlane ) {
+        if ( PositionStates.IsXPlane(playerRot) == PositionStates.IsXPlane(fromPlane) ) {
             if ( fromPlane == PositionStates.Rotation.xPos || fromPlane == PositionStates.Rotation.xNeg )
                 travel = other.transform.position.x - transform.position.x;
             else

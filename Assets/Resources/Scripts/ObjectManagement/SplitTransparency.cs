@@ -5,34 +5,39 @@ using UnityEngine;
 public class SplitTransparency : MonoBehaviour {
 
     public float transitionSpeed = 1;
+    [SerializeField]
+    [Range(0,1)]
+    private float endOpacity = 0.1f;
 
     private bool transparent = false;
     private Color newColor;
+    private Renderer _renderer;
+    private LayerMask layerMask = 1 << 15;
 
 	// Use this for initialization
-	void Start () {
-        GetComponent<Renderer>().sortingOrder = 5; // render ahead of he player sprite and most other objects
-        newColor = GetComponent<Renderer>().material.color;
+	void Awake () {
+        _renderer = GetComponent<Renderer>();
+        _renderer.sortingOrder = 5; // render ahead of the player sprite and most other objects
     }
 	
 	// Update is called once per frame
 	void Update () {
-        bool found = false;        
-        RaycastHit[] hits;
+        bool found = false;
 
-        hits = Physics.RaycastAll(Camera.main.transform.position, 
-                                  GameManager.Instance.Player.transform.position - Camera.main.transform.position, 
-                                  (Camera.main.transform.position - GameManager.Instance.Player.transform.position).magnitude);
-
-        foreach (RaycastHit hit in hits)
+        if (_renderer.isVisible)
         {
-            if (hit.collider.gameObject.GetComponent<SplitTransparency>() != null)
+            RaycastHit[] raycastHit;
+            Ray ray = new Ray(Camera.main.transform.position, GameManager.Instance.Player.transform.position - Camera.main.transform.position);
+            raycastHit = Physics.RaycastAll(ray, Vector3.Distance(Camera.main.transform.position, GameManager.Instance.Player.transform.position), layerMask);
+            foreach(RaycastHit r in raycastHit)
             {
-                if (!transparent)
-                    StartCoroutine("FadeOut");
-                transparent = true;
-                found = true;
-                break;
+                if (r.collider.gameObject == this.gameObject)
+                {
+                    if (!transparent)
+                        StartCoroutine("FadeOut");
+                    transparent = true;
+                    found = true;
+                }
             }
         }
 
@@ -45,30 +50,30 @@ public class SplitTransparency : MonoBehaviour {
 
     private IEnumerator FadeOut()
     {
-        newColor = GetComponent<Renderer>().material.color;
-        while (newColor.a - Time.deltaTime / transitionSpeed > 0)
+        newColor = _renderer.material.color;
+        while (newColor.a - Time.deltaTime / transitionSpeed > endOpacity)
         {
             newColor.a -= Time.deltaTime / transitionSpeed;
-            GetComponent<Renderer>().material.color = newColor;
+            _renderer.material.color = newColor;
             yield return new WaitForEndOfFrame();
         }
         
-        newColor.a = 0;
-        GetComponent<Renderer>().material.color = newColor;
+        newColor.a = endOpacity;
+        _renderer.material.color = newColor;
     }
 
     private IEnumerator FadeIn()
     {
-        newColor = GetComponent<Renderer>().material.color;
+        newColor = _renderer.material.color;
         while(newColor.a + Time.deltaTime / transitionSpeed < 1)
         {
             newColor.a += Time.deltaTime / transitionSpeed;
-            GetComponent<Renderer>().material.color = newColor;
+            _renderer.material.color = newColor;
             yield return new WaitForEndOfFrame();
         }
 
         newColor.a = 1;
-        GetComponent<Renderer>().material.color = newColor;
+        _renderer.material.color = newColor;
         transparent = false;
     }
 }

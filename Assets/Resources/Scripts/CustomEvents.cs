@@ -15,3 +15,8 @@ public class UnityIntEvent : UnityEvent<int>
 public class UnityBoolEvent : UnityEvent<bool>
 {
 }
+
+[System.Serializable]
+public class UnityFloatEvent : UnityEvent<float>
+{
+}

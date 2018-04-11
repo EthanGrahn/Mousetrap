@@ -36,6 +36,11 @@ public static class PositionStates {
                 RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionX;
     }
 
+    public static bool IsXPlane(Rotation rotation)
+    {
+        return (rotation == Rotation.xNeg || rotation == Rotation.xPos);
+    }
+
     /// <summary>
     /// Is moving from "fromRotation" to "toRotation" rotating clockwise?
     /// </summary>

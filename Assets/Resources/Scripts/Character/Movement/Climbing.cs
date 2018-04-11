@@ -14,7 +14,8 @@ public class Climbing : CharacterStates {
 
     public void Update( ) {
         // Get integer value for direction character is moving
-        player.directions.GetDirection( );
+        //player.directions.GetDirection( );
+        player.GetComponent<Animator>().SetBool("Climbing", true);
 
         // Get input for climbing up or down the wall
         if ( player.controller.Up ) {
@@ -54,7 +55,7 @@ public class Climbing : CharacterStates {
         }
 
         // Horizontal movement
-        player.SetHorizontalMovement( player.directions.currDirection );
+        //player.SetHorizontalMovement( player.directions.currDirection );
     }
 
     public void OnTriggerExit( Collider other ) {
@@ -70,10 +71,10 @@ public class Climbing : CharacterStates {
     }
 
     public void SwitchToPlayerMovement( ) {
+        player.GetComponent<Animator>().SetBool("Climbing", false);
         if ( climbing == ClimbingDir.jump && !player.grav.IsGrounded( player.groundCheck ) ) {
             player.GetComponent<Rigidbody>( ).AddForce
                  ( new Vector3( 0f, player.jumpSpeed, 0f ), ForceMode.VelocityChange );
-            Debug.Log( "Jumping from wall" );
         }
         PositionStates.GetConstraints( player.gameObject, player.currentRotation );
         player.gameObject.GetComponent<Rigidbody>( ).useGravity = true;
