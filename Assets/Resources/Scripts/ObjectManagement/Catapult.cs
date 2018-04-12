@@ -16,7 +16,7 @@ public class Catapult : MonoBehaviour {
 		GetComponent<Animator>().SetBool("Active", true);
 
 		GameManager.Instance.Player.GetComponent<Rigidbody>().AddForce(Vector3.up * launchVector.y, ForceMode.VelocityChange);
-		GameManager.Instance.Player.GetComponent<ValueFalloff>().StartFalloff(0.6f, launchVector.x, 0, false);
+		GameManager.Instance.Player.GetComponent<ValueFalloff>().StartFalloff(1, launchVector.x, false);
 		Destroy(spider);
 		Destroy(enemyTrigger);
 	}

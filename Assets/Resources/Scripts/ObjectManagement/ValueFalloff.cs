@@ -6,7 +6,6 @@ public class ValueFalloff : MonoBehaviour {
 
 	private float m_totalTime = 1;
 	private float m_initValue = 0;
-	private float m_finalValue = 0;
 
 	[SerializeField]
 	private AnimationCurve pattern;
@@ -17,15 +16,14 @@ public class ValueFalloff : MonoBehaviour {
 	[HideInInspector]
 	public UnityFloatEvent valueChangeEvent;
 
-	public void StartFalloff(float time, float initValue, float finalValue, bool performInFixedUpdate)
+	public void StartFalloff(float time, float initValue, bool performInFixedUpdate)
 	{
 		if (!active)
 		{
 			m_totalTime = time;
 			m_initValue = initValue;
 			currValue = m_initValue;
-			m_finalValue = finalValue;
-			StartCoroutine(BeginFalloff(performInFixedUpdate, (initValue<finalValue)));
+			StartCoroutine(BeginFalloff(performInFixedUpdate, (initValue<0)));
 		}
 	}
 	
@@ -38,7 +36,7 @@ public class ValueFalloff : MonoBehaviour {
 			currValue = m_initValue;
 		}
 		float time = Time.time;
-		while(currValue > m_finalValue)
+		while(currValue > 0)
         {
 			currValue = m_initValue * (pattern.Evaluate((Time.time - time)/m_totalTime));
 			if (!negative)
@@ -51,7 +49,7 @@ public class ValueFalloff : MonoBehaviour {
             else
                 yield return new WaitForEndOfFrame();
         }
-		currValue = m_finalValue;
+		currValue = 0;
 		valueChangeEvent.Invoke(currValue);
 		active = false;
 	}
