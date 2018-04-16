@@ -77,6 +77,10 @@ public class Climbing : CharacterStates {
                  ( new Vector3( 0f, player.jumpSpeed, 0f ), ForceMode.VelocityChange );
         }
         PositionStates.GetConstraints( player.gameObject, player.currentRotation );
+        if (player.GetComponent<Rigidbody>().velocity.y > player.jumpSpeed) {
+            player.GetComponent<Rigidbody>( ).AddForce
+                 ( new Vector3( 0f, player.jumpSpeed, 0f ), ForceMode.VelocityChange );
+        }
         player.gameObject.GetComponent<Rigidbody>( ).useGravity = true;
         player.currentState = player.playerInput;
     }
