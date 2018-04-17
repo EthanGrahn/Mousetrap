@@ -1,0 +1,230 @@
+fileFormatVersion: 2
+guid: 5a20d147dccd48a47892d43a1b183e4e
+timeCreated: 1523919449
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: ColdTab
+    100002: ColdWater
+    100004: CupHolder
+    100006: Cups
+    100008: HotTab
+    100010: HotWater
+    100012: pCone1
+    100014: pCone10
+    100016: pCone11
+    100018: pCone12
+    100020: pCone2
+    100022: pCone3
+    100024: pCone4
+    100026: pCone5
+    100028: pCone6
+    100030: pCone7
+    100032: pCone8
+    100034: pCone9
+    100036: pCylinder1
+    100038: pCylinder2
+    100040: pCylinder3
+    100042: pPipe1
+    100044: pPipe2
+    100046: pPipe3
+    100048: pPipe4
+    100050: pPipe5
+    100052: pPipe6
+    100054: pTorus1
+    100056: transform1
+    100058: transform10
+    100060: transform11
+    100062: transform12
+    100064: transform13
+    100066: transform14
+    100068: transform15
+    100070: transform16
+    100072: transform17
+    100074: transform18
+    100076: transform19
+    100078: transform2
+    100080: transform20
+    100082: transform21
+    100084: transform22
+    100086: transform3
+    100088: transform4
+    100090: transform5
+    100092: transform6
+    100094: transform7
+    100096: transform8
+    100098: transform9
+    100100: //RootNode
+    100102: WaterCooler
+    100104: WaterJug
+    100106: WaterTray
+    400000: ColdTab
+    400002: ColdWater
+    400004: CupHolder
+    400006: Cups
+    400008: HotTab
+    400010: HotWater
+    400012: pCone1
+    400014: pCone10
+    400016: pCone11
+    400018: pCone12
+    400020: pCone2
+    400022: pCone3
+    400024: pCone4
+    400026: pCone5
+    400028: pCone6
+    400030: pCone7
+    400032: pCone8
+    400034: pCone9
+    400036: pCylinder1
+    400038: pCylinder2
+    400040: pCylinder3
+    400042: pPipe1
+    400044: pPipe2
+    400046: pPipe3
+    400048: pPipe4
+    400050: pPipe5
+    400052: pPipe6
+    400054: pTorus1
+    400056: transform1
+    400058: transform10
+    400060: transform11
+    400062: transform12
+    400064: transform13
+    400066: transform14
+    400068: transform15
+    400070: transform16
+    400072: transform17
+    400074: transform18
+    400076: transform19
+    400078: transform2
+    400080: transform20
+    400082: transform21
+    400084: transform22
+    400086: transform3
+    400088: transform4
+    400090: transform5
+    400092: transform6
+    400094: transform7
+    400096: transform8
+    400098: transform9
+    400100: //RootNode
+    400102: WaterCooler
+    400104: WaterJug
+    400106: WaterTray
+    2100000: lambert1
+    2100002: Jug
+    2100004: Water1
+    2100006: White
+    2100008: phongE1
+    2100010: HotColor
+    2100012: lambert6
+    2300000: ColdTab
+    2300002: ColdWater
+    2300004: CupHolder
+    2300006: Cups
+    2300008: HotTab
+    2300010: HotWater
+    2300012: WaterCooler
+    2300014: WaterJug
+    2300016: WaterTray
+    3300000: ColdTab
+    3300002: ColdWater
+    3300004: CupHolder
+    3300006: Cups
+    3300008: HotTab
+    3300010: HotWater
+    3300012: WaterCooler
+    3300014: WaterJug
+    3300016: WaterTray
+    4300000: WaterCooler
+    4300002: WaterJug
+    4300004: Cups
+    4300006: CupHolder
+    4300008: ColdWater
+    4300010: HotWater
+    4300012: WaterTray
+    4300014: HotTab
+    4300016: ColdTab
+    9500000: //RootNode
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 600
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

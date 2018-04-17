@@ -147,6 +147,7 @@ public class CharacterMovement : MonoBehaviour {
         if ( other.CompareTag( "CamManip" ) && other.GetComponent<CameraZone>().cameraState != camFollow.cameraState
           && other.GetComponent<CameraZone>().WithinBounds(_collider)) {
             camFollow.UpdateCameraState(other.GetComponent<CameraZone>().cameraState);
+            Debug.Log(other.name);
         }
     }
 
