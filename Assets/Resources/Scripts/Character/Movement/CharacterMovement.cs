@@ -74,6 +74,9 @@ public class CharacterMovement : MonoBehaviour {
     private CamFollowObject camFollow;
 
     public ValueFalloff extForceFalloff;
+
+    // coroutine queue
+    protected Queue<int> coroutineQueue = new Queue<int>( );
     #endregion
 
     //--------------------------------------------------------------------------------------------------//
@@ -224,6 +227,13 @@ public class CharacterMovement : MonoBehaviour {
     /// <param name="totalTime">Total time it should take to rotate object</param>
     /// <param name="isPlayer">If the object is the player and needs new constraints</param>
     IEnumerator RotateObject( Transform obj, float degrees, float totalTime, bool isPlayer ) {
+        int myCoroutineFrame = Time.frameCount;
+        coroutineQueue.Enqueue( myCoroutineFrame );
+
+        while ( coroutineQueue.Peek( ) != myCoroutineFrame ) {
+            yield return null;
+        }
+
         float objRotation = obj.rotation.eulerAngles.y;
 
         if ( isPlayer )
@@ -241,6 +251,7 @@ public class CharacterMovement : MonoBehaviour {
         }
 
         obj.rotation = Quaternion.Euler( 0.0f, Mathf.Round( (objRotation + degrees) % 360 ), 0.0f );
+        coroutineQueue.Dequeue( );
     }
 
     /// <summary>
@@ -251,23 +262,23 @@ public class CharacterMovement : MonoBehaviour {
     private void MoveFromRot( PositionStates.Rotation newRot, Vector3 rPosition ) {
         if ( newRot == PositionStates.Rotation.xPos )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3( rPosition.x + 0.5f, transform.position.y, rPosition.z );
             else
-                transform.position = new Vector3( rPosition.x - 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3( rPosition.x - 0.5f, transform.position.y, rPosition.z );
         else if ( newRot == PositionStates.Rotation.xNeg )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x - 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3( rPosition.x - 0.5f, transform.position.y, rPosition.z );
             else
-                transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3( rPosition.x + 0.5f, transform.position.y, rPosition.z );
         else if ( newRot == PositionStates.Rotation.zPos )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.01f );
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.5f );
             else
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.01f );
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.5f );
         else if ( newRot == PositionStates.Rotation.zNeg )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.01f );
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.5f );
             else
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.01f );
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.5f );
     }
 }

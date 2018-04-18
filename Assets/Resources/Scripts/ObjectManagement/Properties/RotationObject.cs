@@ -49,7 +49,7 @@ public class RotationObject : MonoBehaviour {
             degrees = GetDegrees( pController.currentRotation, newDir );
         }
 
-        while ( inBoundary ) // continous checking while player stays in boundary
+        while ( inBoundary ) // continuous checking while player stays in boundary
         {
             while ( !beginSwitch ) // check player position until they pass the center of the rotation point
             {
