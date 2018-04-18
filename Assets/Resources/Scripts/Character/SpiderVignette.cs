@@ -31,6 +31,8 @@ public class SpiderVignette : MonoBehaviour {
 		lDistance = float.MaxValue;
 		foreach (GameObject s in spiders)
 		{
+			if (!s)
+				continue;
 			if (Vector3.Distance(transform.position, s.transform.position) < lDistance)
 			{
 				lDistance = Vector3.Distance(transform.position, s.transform.position);

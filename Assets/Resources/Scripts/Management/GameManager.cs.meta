@@ -3,9 +3,10 @@ guid: b728e4c48c2df3241a9041e0e01ddab0
 timeCreated: 1510177483
 licenseType: Free
 MonoImporter:
+  externalObjects: {}
   serializedVersion: 2
   defaultReferences: []
-  executionOrder: 100
+  executionOrder: 1
   icon: {instanceID: 0}
   userData: 
   assetBundleName: 
