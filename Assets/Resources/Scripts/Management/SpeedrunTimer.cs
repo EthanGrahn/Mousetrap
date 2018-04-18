@@ -10,6 +10,8 @@ public class SpeedrunTimer : MonoBehaviour {
 	private KeyCode toggleKey;
 	[SerializeField]
 	private Text timerText;
+	[SerializeField]
+	private Text shadowText;
 
 	private float startTime;
 
@@ -17,6 +19,7 @@ public class SpeedrunTimer : MonoBehaviour {
 	void Start () {		
         SceneManager.sceneLoaded += OnSceneLoaded;
 		timerText.gameObject.SetActive(false);
+		shadowText.gameObject.SetActive(false);
 	}
 
 	void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -30,7 +33,10 @@ public class SpeedrunTimer : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetKeyDown(toggleKey))
+		{
 			timerText.gameObject.SetActive(!timerText.gameObject.activeSelf);
+			shadowText.gameObject.SetActive(!shadowText.gameObject.activeSelf);
+		}
 
 		if (timerText.gameObject.activeSelf)
 		{
@@ -40,6 +46,7 @@ public class SpeedrunTimer : MonoBehaviour {
             float fraction = (Time.time - startTime) * 1000;
             fraction = (fraction % 1000);
             timerText.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, fraction);
+			shadowText.text = timerText.text;
 		}
 	}
 }

@@ -150,7 +150,6 @@ public class CharacterMovement : MonoBehaviour {
         if ( other.CompareTag( "CamManip" ) && other.GetComponent<CameraZone>().cameraState != camFollow.cameraState
           && other.GetComponent<CameraZone>().WithinBounds(_collider)) {
             camFollow.UpdateCameraState(other.GetComponent<CameraZone>().cameraState);
-            Debug.Log(other.name);
         }
     }
 
@@ -184,7 +183,7 @@ public class CharacterMovement : MonoBehaviour {
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
-        if ( controller.Jump && grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
+        if (grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
             GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
         }
     }
