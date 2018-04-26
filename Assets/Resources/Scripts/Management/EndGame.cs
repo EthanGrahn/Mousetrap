@@ -1,20 +1,21 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class EndGame : MonoBehaviour {
+public class EndGame : MonoBehaviour
+{
 
     public GameObject objToWatch;
     public GameObject endGameCanvas;
 
     private bool started = false;
 
-	// Use this for initialization
-	void Awake () {
+    // Use this for initialization
+    void Awake()
+    {
         endGameCanvas.SetActive(false);
         SceneManager.sceneLoaded += OnSceneLoaded;
-	}
+    }
 
     private void FixedUpdate()
     {
@@ -27,7 +28,7 @@ public class EndGame : MonoBehaviour {
         }
     }
 
-    
+
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Time.timeScale = 1;
@@ -39,7 +40,9 @@ public class EndGame : MonoBehaviour {
         while (!complete)
         {
             if (Input.GetKeyDown(KeyCode.Return))
+            {
                 complete = true;
+            }
 
             yield return null;
         }

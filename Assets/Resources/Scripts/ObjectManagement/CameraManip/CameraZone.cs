@@ -1,45 +1,43 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class CameraZone : MonoBehaviour {
-
+public class CameraZone : MonoBehaviour
+{
     [SerializeField]
     private bool useObjToFollow = false;
     // Object camera will follow and its position
-    [Tooltip( "Object that the camera will follow." )]
+    [Tooltip("Object that the camera will follow.")]
     public GameObject objToFollow = null;
 
-    [Space( 10 )]
+    [Space(10)]
 
     [SerializeField]
     private bool useSpeed = false;
     // Movement speed of camera
-    [Tooltip( "How fast camera will move to player when close." )]
+    [Tooltip("How fast camera will move to player when close.")]
     public float speed = 0;
 
-    [Space( 10 )]
+    [Space(10)]
 
     [SerializeField]
     private bool useCamViewInFront = false;
     // How far camera looks from object
-    [Tooltip( "How far camera will look in front of object. (Depending on which direction they move in)" )]
+    [Tooltip("How far camera will look in front of object. (Depending on which direction they move in)")]
     public float camViewInFront = 0;
     [SerializeField]
     private bool useCamViewAbove = false;
-    [Tooltip( "How far camera will look above object." )]
+    [Tooltip("How far camera will look above object.")]
     public float camViewAbove = 0;
 
-    [Space( 10 )]
+    [Space(10)]
 
     [SerializeField]
     private bool useMinMoveDistHor = false;
     // How far object must move before camera follows
-    [Tooltip( "Minimum distance object must move in horizontal direction before camera follows." )]
+    [Tooltip("Minimum distance object must move in horizontal direction before camera follows.")]
     public float minMoveDistHor = 0;
     [SerializeField]
     private bool useMinMoveDistVer = false;
-    [Tooltip( "Minimum distance object must move in vertical direction before camera follows." )]
+    [Tooltip("Minimum distance object must move in vertical direction before camera follows.")]
     public float minMoveDistVer = 0;
 
     [Space(10)]
@@ -48,15 +46,16 @@ public class CameraZone : MonoBehaviour {
     private bool useDistFromObj = false;
     // Clamping camera movement
     // Max distance allowed from object
-    [Tooltip( "Distance camera is from object." )]
+    [Tooltip("Distance camera is from object.")]
     public float distFromObj = 0;
     [SerializeField]
     private bool useTimeToUpdate = false;
     public float timeToUpdate = 0;
 
-	public CameraState cameraState;
+    public CameraState cameraState;
 
-    private void Start() {
+    private void Start()
+    {
         CameraState camState = GameObject.Find("Main Camera").GetComponent<CamFollowObject>().cameraState;
         if (!useDistFromObj) distFromObj = camState.distFromObj;
         if (!useTimeToUpdate) timeToUpdate = camState.timeToUpdate;
@@ -67,8 +66,8 @@ public class CameraZone : MonoBehaviour {
         if (!useCamViewAbove) camViewAbove = camState.camViewAbove;
         if (!useCamViewInFront) camViewInFront = camState.camViewInFront;
 
-		cameraState = new CameraState(objToFollow, speed, camViewInFront, camViewAbove, 
-		                              minMoveDistHor, minMoveDistVer, distFromObj, timeToUpdate);
+        cameraState = new CameraState(objToFollow, speed, camViewInFront, camViewAbove,
+                                      minMoveDistHor, minMoveDistVer, distFromObj, timeToUpdate);
     }
 
     /// <summary>
@@ -87,7 +86,7 @@ public class CameraZone : MonoBehaviour {
         Vector3 boundPoint6 = new Vector3(boundPoint1.x, boundPoint2.y, boundPoint2.z);
         Vector3 boundPoint7 = new Vector3(boundPoint2.x, boundPoint1.y, boundPoint2.z);
         Vector3 boundPoint8 = new Vector3(boundPoint2.x, boundPoint2.y, boundPoint1.z);
-        
+
         return _collider.bounds.Contains(boundPoint1) && _collider.bounds.Contains(boundPoint2) && _collider.bounds.Contains(boundPoint3) &&
                _collider.bounds.Contains(boundPoint4) && _collider.bounds.Contains(boundPoint5) && _collider.bounds.Contains(boundPoint6) &&
                _collider.bounds.Contains(boundPoint7) && _collider.bounds.Contains(boundPoint8);

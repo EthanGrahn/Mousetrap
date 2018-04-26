@@ -1,9 +1,11 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyPatrol : MonoBehaviour {
-
+/// <summary>
+/// Patroling logic for spider enemy.
+/// </summary>
+public class EnemyPatrol : MonoBehaviour
+{
     public float patrolDist = 5;
     public float patrolSpeed = 3;
     public float playerCheckDist = 10;
@@ -27,8 +29,11 @@ public class EnemyPatrol : MonoBehaviour {
     int layermask;
     float wDropTime;
 
-	// Use this for initialization
-	void Start () {
+    /// <summary>
+    /// Unity initialization.
+    /// </summary>
+    void Start()
+    {
         layermask = ~(1 << LayerMask.NameToLayer("EnemyTrap") | 1 << LayerMask.NameToLayer("Player"));
         startPos = transform.position;
         if (xPlane)
@@ -47,16 +52,20 @@ public class EnemyPatrol : MonoBehaviour {
         }
 
         wDropTime = Random.Range(wDropStart, wDropEnd);
-        ledgeCheckPosition =  transform.GetChild(0).position;
+        ledgeCheckPosition = transform.GetChild(0).position;
 
         StartCoroutine("Patrol");
         StartCoroutine("PlayerChecking");
         StartCoroutine("WebDrop");
-	}
+    }
 
-    void OnDrawGizmosSelected() {
+    /// <summary>
+    /// Unity method to draw gizmo when object is selected.
+    /// </summary>
+    void OnDrawGizmosSelected()
+    {
         if (!Application.isPlaying)
-        {            
+        {
             startPos = transform.position;
             if (xPlane)
             {
@@ -81,9 +90,12 @@ public class EnemyPatrol : MonoBehaviour {
         Gizmos.DrawLine(chaseLeftPos, left);
         Gizmos.DrawLine(chaseRightPos, right);
         Gizmos.DrawLine(new Vector3(chaseLeftPos.x, chaseLeftPos.y + 0.5f, chaseLeftPos.z), new Vector3(chaseLeftPos.x, chaseLeftPos.y - 0.5f, chaseLeftPos.z));
-        Gizmos.DrawLine(new Vector3(chaseRightPos.x, chaseRightPos.y + 0.5f, chaseRightPos.z), new Vector3(chaseRightPos.x, chaseRightPos.y - 0.5f, chaseRightPos.z));        
+        Gizmos.DrawLine(new Vector3(chaseRightPos.x, chaseRightPos.y + 0.5f, chaseRightPos.z), new Vector3(chaseRightPos.x, chaseRightPos.y - 0.5f, chaseRightPos.z));
     }
 
+    /// <summary>
+    /// Waits for a range of time then drops the web trap prefab.
+    /// </summary>
     IEnumerator WebDrop()
     {
         bool dropped = false;
@@ -102,6 +114,9 @@ public class EnemyPatrol : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Performs distance checks from enemy object to player object.
+    /// </summary>
     IEnumerator PlayerChecking()
     {
         yield return new WaitForFixedUpdate();
@@ -134,12 +149,15 @@ public class EnemyPatrol : MonoBehaviour {
                 left = initLeftPos;
                 patrolSpeed = initSpeed;
             }
-                
+
             yield return new WaitForSeconds(1);
         }
         patrolSpeed = initSpeed;
     }
 
+    /// <summary>
+    /// Perform movement for the enemy player along with collision detection.
+    /// </summary>
     IEnumerator Patrol()
     {
         //Debug.Log("Patrol start");
@@ -158,8 +176,10 @@ public class EnemyPatrol : MonoBehaviour {
                     GetComponent<Rigidbody>().velocity = new Vector3(patrolSpeed, GetComponent<Rigidbody>().velocity.y, 0);
                     yield return new WaitForFixedUpdate();
                     if (transform.position.x == position)
+                    {
                         invalid++;
-                        
+                    }
+
                     position = transform.position.x;
                 }
                 invalid = 0;
@@ -172,8 +192,10 @@ public class EnemyPatrol : MonoBehaviour {
                     GetComponent<Rigidbody>().velocity = new Vector3(-patrolSpeed, GetComponent<Rigidbody>().velocity.y, 0);
                     yield return new WaitForFixedUpdate();
                     if (transform.position.x == position)
+                    {
                         invalid++;
-                        
+                    }
+
                     position = transform.position.x;
                 }
             }
@@ -189,8 +211,10 @@ public class EnemyPatrol : MonoBehaviour {
                     GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, patrolSpeed);
                     yield return new WaitForFixedUpdate();
                     if (transform.position.z == position)
+                    {
                         invalid++;
-                        
+                    }
+
                     position = transform.position.z;
                 }
                 invalid = 0;
@@ -203,8 +227,10 @@ public class EnemyPatrol : MonoBehaviour {
                     GetComponent<Rigidbody>().velocity = new Vector3(0, GetComponent<Rigidbody>().velocity.y, -patrolSpeed);
                     yield return new WaitForFixedUpdate();
                     if (transform.position.z == position)
+                    {
                         invalid++;
-                        
+                    }
+
                     position = transform.position.z;
                 }
             }
@@ -222,20 +248,24 @@ public class EnemyPatrol : MonoBehaviour {
     {
         castPosTop = new Vector3(transform.position.x, transform.position.y + (0.5f * GetComponent<SphereCollider>().radius), transform.position.z);
         castPosBot = new Vector3(transform.position.x, transform.position.y - (0.5f * GetComponent<SphereCollider>().radius) + GetComponent<SphereCollider>().radius, transform.position.z);
-        
+
         if (travRight)
         {
             Transform child = transform.GetChild(0);
             if (prevTravel == travRight)
             {
                 prevTravel = !prevTravel;
-            if (xPlane)
-                child.localPosition = new Vector3(Mathf.Abs(child.localPosition.x), child.localPosition.y, child.localPosition.z);
-            else
-                child.localPosition = new Vector3(child.localPosition.x, child.localPosition.y, Mathf.Abs(child.localPosition.z));
+                if (xPlane)
+                {
+                    child.localPosition = new Vector3(Mathf.Abs(child.localPosition.x), child.localPosition.y, child.localPosition.z);
+                }
+                else
+                {
+                    child.localPosition = new Vector3(child.localPosition.x, child.localPosition.y, Mathf.Abs(child.localPosition.z));
+                }
             }
             ledgeCheckNew = child.position;
-            
+
             float ledgeDistance = Vector3.Distance(this.transform.position, ledgeCheckNew);
             Vector3 ledgeDirection = (this.transform.position - ledgeCheckNew) / (this.transform.position - ledgeCheckNew).magnitude;
             //Debug.DrawLine(this.transform.position, ledgeCheckNew, Color.red, Time.deltaTime);
@@ -248,13 +278,17 @@ public class EnemyPatrol : MonoBehaviour {
             if (prevTravel == travRight)
             {
                 prevTravel = !prevTravel;
-            if (xPlane)
-                child.localPosition = new Vector3(-child.localPosition.x, child.localPosition.y, child.localPosition.z);
-            else
-                child.localPosition = new Vector3(child.localPosition.x, child.localPosition.y, -child.localPosition.z);
+                if (xPlane)
+                {
+                    child.localPosition = new Vector3(-child.localPosition.x, child.localPosition.y, child.localPosition.z);
+                }
+                else
+                {
+                    child.localPosition = new Vector3(child.localPosition.x, child.localPosition.y, -child.localPosition.z);
+                }
             }
             ledgeCheckNew = child.position;
-            
+
             float ledgeDistance = Vector3.Distance(this.transform.position, ledgeCheckNew);
             Vector3 ledgeDirection = (this.transform.position - ledgeCheckNew) / (this.transform.position - ledgeCheckNew).magnitude;
             //Debug.DrawLine(this.transform.position, ledgeCheckNew, Color.blue, Time.deltaTime);
