@@ -28,8 +28,9 @@ public class MenuTransition : MonoBehaviour
     private KeyCode pageLeftKey;
     [SerializeField]
     private KeyCode pageRightKey;
+    [SerializeField]
+    private GameObject controlsGameObject;
     private MenuState menuState = MenuState.P1;
-
     private List<VideoPlayer> videoPlayers;
 
     private void Awake()
@@ -42,12 +43,14 @@ public class MenuTransition : MonoBehaviour
             if (vp != introPlayer)
                 vp.targetCameraAlpha = 0;
         }
+
+        StartCoroutine("WaitForControls");
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(pageRightKey) && !IsVideoPlaying())
+        if ((Input.GetKeyDown(pageRightKey) || Input.GetKeyDown(KeyCode.Alpha1)) && !IsVideoPlaying())
         {
             if (menuState == MenuState.P2)
             {
@@ -100,8 +103,16 @@ public class MenuTransition : MonoBehaviour
     IEnumerator BeginLevel()
     {
         yield return new WaitWhile(() => !IsVideoPlaying());
+        controlsGameObject.SetActive(false);
         yield return new WaitWhile(() => IsVideoPlaying());
         SceneManager.LoadScene(levelName);
+    }
+
+    IEnumerator WaitForControls()
+    {
+        yield return new WaitForSeconds(1);
+        yield return new WaitWhile(() => introPlayer.isPlaying);
+        controlsGameObject.SetActive(true);
     }
 
     /// <summary>
