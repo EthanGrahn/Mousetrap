@@ -22,8 +22,8 @@ public class PlayerInput : CharacterStates {
         player.SetHorizontalMovement( player.directions.currDirection );
 
         // Jumping
-        if (player.controller.Jump)
-            player.Jumping( );
+        //if (Input.GetKeyDown(KeyCode.Space))//player.controller.Jump)
+        //    player.Jumping( );
     }
 
     public void OnTriggerStay( Collider other ) {

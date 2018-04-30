@@ -15,6 +15,7 @@ public class Chewable : MonoBehaviour
     AudioSource aSource;
     float timer = 0;
     private bool displayUI = false;
+    private bool inZone = false;
 
     // Use this for initialization
     void Start()
@@ -32,7 +33,21 @@ public class Chewable : MonoBehaviour
         aSource.clip = chewSound;
         mashes = Random.Range(minMashes, maxMashes);
     }
-    
+
+    private void Update()
+    {
+        if (Input.GetKeyDown("j") && inZone)
+        {
+            StartCoroutine("ChewSound");
+            mashCount++;
+
+            if (mashCount >= mashes)
+            {
+                Destroy(this.gameObject);
+            }
+        }
+    }
+
     private void OnGUI()
     {
         if (displayUI)
@@ -47,23 +62,7 @@ public class Chewable : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             displayUI = true;
-        }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            if (Input.GetKeyDown("j"))
-            {
-                StartCoroutine("ChewSound");
-                mashCount++;
-            }
-
-            if (mashCount >= mashes)
-            {
-                Destroy(this.gameObject);
-            }
+            inZone = true;
         }
     }
 
@@ -72,6 +71,7 @@ public class Chewable : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             displayUI = false;
+            inZone = false;
             chewUI.SetActive(false);
         }
     }

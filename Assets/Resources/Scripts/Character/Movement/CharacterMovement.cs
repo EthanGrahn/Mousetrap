@@ -120,6 +120,9 @@ public class CharacterMovement : MonoBehaviour {
         currentState.Update( );
         if (grav.IsGrounded(groundCheck, m_whatIsGround))
             GetComponent<Animator>().speed = GetComponent<Rigidbody>().velocity.magnitude / 10f;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+            Jumping();
     }
 
     void FixedUpdate( ) {
