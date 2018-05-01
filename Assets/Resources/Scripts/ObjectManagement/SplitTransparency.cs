@@ -1,65 +1,69 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class SplitTransparency : MonoBehaviour {
-
+public class SplitTransparency : MonoBehaviour
+{
     public float transitionSpeed = 1;
-
-    private bool transparent = false;
+    [SerializeField]
+    [Range(0, 1)]
+    private float endOpacity = 0.1f;
+    
     private Color newColor;
     private Renderer _renderer;
 
-	// Use this for initialization
-	void Awake () {
+    // Use this for initialization
+    void Awake()
+    {
         _renderer = GetComponent<Renderer>();
         _renderer.sortingOrder = 5; // render ahead of the player sprite and most other objects
     }
-	
-	// Update is called once per frame
-	void Update () {
-        bool found = false;
 
-        RaycastHit raycastHit;
-        Ray ray = new Ray(Camera.main.transform.position, GameManager.Instance.Player.transform.position - Camera.main.transform.position);
-
-        if (Physics.Raycast(ray, out raycastHit))
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
         {
-            if (raycastHit.collider.gameObject.GetComponent<SplitTransparency>() != null 
-                && raycastHit.collider.gameObject == this.gameObject)
-            {
-                if (!transparent)
-                    StartCoroutine("FadeOut");
-                transparent = true;
-                found = true;
-            }
+            StopCoroutine("FadeIn");
+            StartCoroutine("FadeOut");
         }
+    }
 
-        if (!found && transparent)
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
         {
             StopCoroutine("FadeOut");
             StartCoroutine("FadeIn");
         }
-	}
+    }
 
+    /// <summary>
+    /// Make the object's material become less opaque
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator FadeOut()
     {
         newColor = _renderer.material.color;
-        while (newColor.a - Time.deltaTime / transitionSpeed > 0)
+
+        while (newColor.a - Time.deltaTime / transitionSpeed > endOpacity)
         {
             newColor.a -= Time.deltaTime / transitionSpeed;
             _renderer.material.color = newColor;
             yield return new WaitForEndOfFrame();
         }
-        
-        newColor.a = 0;
+
+        newColor.a = endOpacity;
         _renderer.material.color = newColor;
     }
 
+    /// <summary>
+    /// Make the object's material become opaque
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator FadeIn()
     {
         newColor = _renderer.material.color;
-        while(newColor.a + Time.deltaTime / transitionSpeed < 1)
+
+        while (newColor.a + Time.deltaTime / transitionSpeed < 1)
         {
             newColor.a += Time.deltaTime / transitionSpeed;
             _renderer.material.color = newColor;
@@ -68,6 +72,5 @@ public class SplitTransparency : MonoBehaviour {
 
         newColor.a = 1;
         _renderer.material.color = newColor;
-        transparent = false;
     }
 }

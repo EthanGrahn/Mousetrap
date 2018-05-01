@@ -52,7 +52,7 @@ public class CharacterJump : MonoBehaviour {
         Collider[] colliders = Physics.OverlapSphere( groundPos.position, .04f, lMask );
 
         for ( int i = 0; i < colliders.Length; ++i ) {
-            if ( colliders[i].gameObject != gameObject )
+            if ( colliders[i].gameObject != gameObject && !colliders[i].isTrigger )
                 return true;
         }
 

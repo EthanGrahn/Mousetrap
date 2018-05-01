@@ -12,6 +12,7 @@ public class CharacterMovement : MonoBehaviour {
     [Tooltip( "Multiplier for how fast character may travel." )]
     public float speedFactor = 5;
     private float speedCoeff = 1;
+    private float extForce = 0;
 
     // Variables for turning points
     [HideInInspector]
@@ -37,6 +38,9 @@ public class CharacterMovement : MonoBehaviour {
     // Used for Jumping
     [Tooltip( "How fast the character jumps in the air." )]
     public float jumpSpeed = 10f;
+    [SerializeField]
+    private LayerMask[] groundLayers;
+    [HideInInspector]
     public LayerMask m_whatIsGround;
 
     // Used for Climbing
@@ -68,6 +72,11 @@ public class CharacterMovement : MonoBehaviour {
     // Camera reference
     public Camera mainCam;
     private CamFollowObject camFollow;
+
+    public ValueFalloff extForceFalloff;
+
+    // coroutine queue
+    protected Queue<int> coroutineQueue = new Queue<int>( );
     #endregion
 
     //--------------------------------------------------------------------------------------------------//
@@ -81,10 +90,17 @@ public class CharacterMovement : MonoBehaviour {
         playerInput = new PlayerInput( this );
         climbing = new Climbing( this );
 
+        foreach (LayerMask l in groundLayers)
+        {
+            m_whatIsGround = m_whatIsGround | l;
+        }
+
         directions = GetComponent<CharacterDirections>( );
         controller = GetComponent<CharacterControls>( );
 
         groundCheck = transform.Find( "GroundCheck" );
+
+        extForceFalloff.valueChangeEvent.AddListener(ExternalForceUpdate);
     }
 
     void Start( ) {
@@ -104,10 +120,18 @@ public class CharacterMovement : MonoBehaviour {
         currentState.Update( );
         if (grav.IsGrounded(groundCheck, m_whatIsGround))
             GetComponent<Animator>().speed = GetComponent<Rigidbody>().velocity.magnitude / 10f;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+            Jumping();
     }
 
     void FixedUpdate( ) {
         currentState.FixedUpdate( );
+    }
+
+    void ExternalForceUpdate(float value)
+    {
+        extForce = value;
     }
 
     void OnTriggerEnter( Collider other ) {
@@ -149,20 +173,20 @@ public class CharacterMovement : MonoBehaviour {
         float yvel = GetComponent<Rigidbody>( ).velocity.y;
         float horVel = (int)dir * speedFactor * speedCoeff;
         if ( currentRotation == PositionStates.Rotation.xPos )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel, yvel, 0.0f );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( horVel + extForce, yvel, 0.0f );
         else if ( currentRotation == PositionStates.Rotation.zPos )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, horVel );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, horVel + extForce );
         else if ( currentRotation == PositionStates.Rotation.xNeg )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel, yvel, 0.0f );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( -horVel + extForce, yvel, 0.0f );
         else if ( currentRotation == PositionStates.Rotation.zNeg )
-            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, -horVel );
+            GetComponent<Rigidbody>( ).velocity = new Vector3( 0.0f, yvel, -horVel + extForce );
     }
 
     /// <summary>
     /// Make the character jump
     /// </summary>
     public void Jumping( ) {
-        if ( controller.Jump && grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
+        if (grav.IsGrounded( groundCheck, m_whatIsGround ) ) {
             GetComponent<Rigidbody>( ).AddForce( new Vector3( 0f, jumpSpeed, 0f ), ForceMode.VelocityChange );
         }
     }
@@ -205,6 +229,13 @@ public class CharacterMovement : MonoBehaviour {
     /// <param name="totalTime">Total time it should take to rotate object</param>
     /// <param name="isPlayer">If the object is the player and needs new constraints</param>
     IEnumerator RotateObject( Transform obj, float degrees, float totalTime, bool isPlayer ) {
+        int myCoroutineFrame = Time.frameCount;
+        coroutineQueue.Enqueue( myCoroutineFrame );
+
+        while ( coroutineQueue.Peek( ) != myCoroutineFrame ) {
+            yield return null;
+        }
+
         float objRotation = obj.rotation.eulerAngles.y;
 
         if ( isPlayer )
@@ -222,6 +253,7 @@ public class CharacterMovement : MonoBehaviour {
         }
 
         obj.rotation = Quaternion.Euler( 0.0f, Mathf.Round( (objRotation + degrees) % 360 ), 0.0f );
+        coroutineQueue.Dequeue( );
     }
 
     /// <summary>
@@ -232,23 +264,23 @@ public class CharacterMovement : MonoBehaviour {
     private void MoveFromRot( PositionStates.Rotation newRot, Vector3 rPosition ) {
         if ( newRot == PositionStates.Rotation.xPos )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3( rPosition.x + 0.5f, transform.position.y, rPosition.z );
             else
-                transform.position = new Vector3( rPosition.x - 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3( rPosition.x - 0.5f, transform.position.y, rPosition.z );
         else if ( newRot == PositionStates.Rotation.xNeg )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x - 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3( rPosition.x - 0.5f, transform.position.y, rPosition.z );
             else
-                transform.position = new Vector3( rPosition.x + 0.01f, transform.position.y, rPosition.z );
+                transform.position = new Vector3( rPosition.x + 0.5f, transform.position.y, rPosition.z );
         else if ( newRot == PositionStates.Rotation.zPos )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.01f );
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.5f );
             else
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.01f );
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.5f );
         else if ( newRot == PositionStates.Rotation.zNeg )
             if ( directions.currDirection == PositionStates.Direction.right )
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.01f );
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z - 0.5f );
             else
-                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.01f );
+                transform.position = new Vector3( rPosition.x, transform.position.y, rPosition.z + 0.5f );
     }
 }
